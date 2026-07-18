@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AsaOZ — Return to Yourself</title>
+  <meta name="description" content="AsaOZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
+  <meta name="theme-color" content="#2b2118" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AsaOZ — Return to Yourself" />
+  <meta property="og:description" content="A movement for identity, belonging & renewal. Coming soon." />
+  <meta property="og:site_name" content="AsaOZ" />
+  <meta property="og:url" content="https://asa-oz.com" />
+  <!--
+    Social share image: drop a 1200x630 cover at /og-cover.jpg (rooted at the
+    site) and uncomment the two lines below. Left commented so shares don't
+    render a broken image until the asset exists.
+    <meta property="og:image" content="https://asa-oz.com/og-cover.jpg" />
+    <meta name="twitter:image" content="https://asa-oz.com/og-cover.jpg" />
+  -->
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AsaOZ — Return to Yourself" />
+  <meta name="twitter:description" content="A movement for identity, belonging & renewal. Coming soon." />
+
+  <!-- Inline SVG favicon (no external file) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --espresso: #2b2118;
+      --tobacco: #6f5a3f;
+      --cafe: #a67b5b;
+      --cafe-ink: #8a6038;
+      --sand: #c4a882;
+      --cream: #f4ece0;
+      --paper: #faf5ec;
+      --sage: #8a9a5b;
+      --sage-deep: #5f6d3d;
+      --ink: #3a2f22;
+      --muted: #7d6e5b;
+
+      --serif: "Fraunces", Georgia, "Times New Roman", serif;
+      --sans: "Jost", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      font-weight: 300;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection { background: var(--sage); color: var(--paper); }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- Ambient organic backdrop ---------- */
+    .ambience {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background:
+        radial-gradient(120% 90% at 15% 0%, #fbf6ed 0%, #f2e8d8 45%, #eaddc7 100%);
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+    .blob.b1 {
+      width: 46vw; height: 46vw; min-width: 340px; min-height: 340px;
+      top: -12vw; right: -8vw;
+      background: radial-gradient(circle at 30% 30%, #d8b98f, #b98d5f);
+      animation: drift1 26s var(--ease) infinite alternate;
+    }
+    .blob.b2 {
+      width: 40vw; height: 40vw; min-width: 300px; min-height: 300px;
+      bottom: -14vw; left: -10vw;
+      background: radial-gradient(circle at 40% 40%, #a8b475, #6f7d43);
+      opacity: 0.4;
+      animation: drift2 32s var(--ease) infinite alternate;
+    }
+    .blob.b3 {
+      width: 26vw; height: 26vw; min-width: 200px; min-height: 200px;
+      top: 45%; left: 55%;
+      background: radial-gradient(circle at 50% 50%, #e6cfa6, #cba873);
+      opacity: 0.35;
+      animation: drift3 22s var(--ease) infinite alternate;
+    }
+    @keyframes drift1 { to { transform: translate(-6vw, 6vh) scale(1.12); } }
+    @keyframes drift2 { to { transform: translate(5vw, -5vh) scale(1.15); } }
+    @keyframes drift3 { to { transform: translate(-8vw, -4vh) scale(0.9); } }
+
+    /* grain overlay for tactile, editorial feel */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.045;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ---------- Layout shell ---------- */
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 clamp(1.4rem, 5vw, 4rem);
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: clamp(1.6rem, 4vw, 2.6rem);
+    }
+    .brand {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(1.35rem, 2.4vw, 1.6rem);
+      letter-spacing: 0.02em;
+      color: var(--espresso);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .brand .mark {
+      display: inline-grid;
+      place-items: center;
+      width: 34px; height: 34px;
+      border: 1.5px solid var(--cafe);
+      border-radius: 50%;
+      font-size: 0.95rem;
+      color: var(--cafe-ink);
+      font-style: italic;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid rgba(111, 90, 63, 0.28);
+      padding: 0.5rem 0.95rem;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(6px);
+    }
+    .status-pill .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--sage);
+      box-shadow: 0 0 0 0 rgba(138, 154, 91, 0.6);
+      animation: pulse 2.4s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(138,154,91,0.55); }
+      70% { box-shadow: 0 0 0 9px rgba(138,154,91,0); }
+      100% { box-shadow: 0 0 0 0 rgba(138,154,91,0); }
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      z-index: 2;
+      padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
+    }
+    .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: var(--cafe-ink);
+      margin-bottom: 1.6rem;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(2.7rem, 8vw, 5.6rem);
+      line-height: 1.02;
+      letter-spacing: -0.015em;
+      color: var(--espresso);
+      max-width: 15ch;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--sage-deep);
+    }
+    .hero .lede {
+      margin-top: clamp(1.6rem, 3vw, 2.2rem);
+      font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+      max-width: 44ch;
+      color: var(--ink);
+      font-weight: 300;
+    }
+
+    /* ---------- Signup ---------- */
+    .signup {
+      margin-top: clamp(2.2rem, 4vw, 3rem);
+      max-width: 480px;
+    }
+    .signup form {
+      display: flex;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(111, 90, 63, 0.24);
+      border-radius: 100px;
+      padding: 0.4rem 0.4rem 0.4rem 1.4rem;
+      backdrop-filter: blur(10px);
+      transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+    }
+    .signup form:focus-within {
+      border-color: var(--sage);
+      box-shadow: 0 10px 40px -18px rgba(95, 109, 61, 0.5);
+    }
+    .signup input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 1rem;
+      color: var(--ink);
+      outline: none;
+    }
+    .signup input::placeholder { color: var(--muted); }
+    .signup button {
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--paper);
+      background: var(--espresso);
+      padding: 0.85rem 1.6rem;
+      border-radius: 100px;
+      white-space: nowrap;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .signup button:hover { background: var(--sage-deep); transform: translateY(-1px); }
+    .signup .note {
+      margin-top: 0.9rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding-left: 0.4rem;
+    }
+    .signup .msg {
+      margin-top: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--sage-deep);
+      font-style: italic;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    }
+    .signup .msg.show { opacity: 1; transform: none; }
+
+    /* ---------- Pillars ---------- */
+    .pillars {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: clamp(1rem, 2.5vw, 2rem);
+      padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .pillar {
+      text-align: left;
+    }
+    .pillar .num {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--cafe-ink);
+      display: block;
+      margin-bottom: 0.7rem;
+    }
+    .pillar h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      color: var(--espresso);
+      margin-bottom: 0.4rem;
+    }
+    .pillar p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ---------- Ethos strip ---------- */
+    .ethos {
+      position: relative;
+      z-index: 2;
+      padding: clamp(3rem, 8vh, 5.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(2rem, 6vw, 5rem);
+      align-items: center;
+    }
+    .ethos blockquote {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+      line-height: 1.28;
+      color: var(--espresso);
+      letter-spacing: -0.01em;
+    }
+    .ethos blockquote span { color: var(--sage-deep); }
+    .ethos .from {
+      margin-top: 1.4rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cafe-ink);
+      font-family: var(--sans);
+      font-style: normal;
+    }
+    .ethos .founder p {
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 1.1rem;
+    }
+    .ethos .founder p:last-child { margin-bottom: 0; }
+    .ethos .founder .name {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      color: var(--espresso);
+      font-style: italic;
+    }
+    .ethos .founder .role {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .not-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.6rem;
+    }
+    .not-list span {
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid rgba(111, 90, 63, 0.25);
+      border-radius: 100px;
+      padding: 0.4rem 0.85rem;
+    }
+    .not-list span s { color: var(--cafe-ink); }
+
+    /* ---------- Footer ---------- */
+    footer {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    footer .who {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 46ch;
+    }
+    footer .who b {
+      color: var(--espresso);
+      font-weight: 500;
+    }
+    footer .copy {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* ---------- Keyboard focus (a11y) ---------- */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--sage-deep);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ---------- Print ---------- */
+    @media print {
+      .ambience, .grain, .status-pill, .signup form, .signup .note, .signup .msg { display: none !important; }
+      body { background: #fff; color: #000; }
+      * { animation: none !important; transition: none !important; }
+    }
+
+    /* ---------- FAQ ---------- */
+    .faq {
+      position: relative;
+      z-index: 2;
+      padding: clamp(3rem, 8vh, 5.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .faq h2 {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--espresso);
+      max-width: 18ch;
+      margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+    }
+    .faq details {
+      border-bottom: 1px solid rgba(111, 90, 63, 0.2);
+      padding: 0.2rem 0;
+    }
+    .faq details:first-of-type { border-top: 1px solid rgba(111, 90, 63, 0.2); }
+    .faq summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.35rem 0.2rem;
+      font-family: var(--serif);
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      color: var(--espresso);
+      font-weight: 400;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary .sign {
+      flex: none;
+      width: 22px; height: 22px;
+      position: relative;
+      transition: transform 0.4s var(--ease);
+    }
+    .faq summary .sign::before,
+    .faq summary .sign::after {
+      content: "";
+      position: absolute;
+      background: var(--cafe-ink);
+      border-radius: 2px;
+    }
+    .faq summary .sign::before { top: 10px; left: 2px; right: 2px; height: 1.5px; }
+    .faq summary .sign::after { left: 10px; top: 2px; bottom: 2px; width: 1.5px; transition: opacity 0.4s var(--ease); }
+    .faq details[open] summary .sign { transform: rotate(90deg); }
+    .faq details[open] summary .sign::after { opacity: 0; }
+    .faq details .answer {
+      padding: 0 0.2rem 1.5rem;
+      max-width: 60ch;
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+    .faq details .answer p { margin: 0 0 0.6rem; }
+    .faq details .answer p:last-child { margin-bottom: 0; }
+    .faq details .answer em { color: var(--sage-deep); font-style: italic; }
+
+    /* ---------- Reveal animation ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 1s var(--ease), transform 1s var(--ease);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+      .ethos { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .status-pill { display: none; }
+      .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
+      .signup input { text-align: center; padding: 0.4rem 0; }
+      .signup button { width: 100%; padding: 0.95rem; }
+      .pillars { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambience" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <span class="mark">A</span>
+        AsaOZ
+      </div>
+      <div class="status-pill">
+        <span class="dot"></span>
+        Arriving soon
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow reveal">Identity · Belonging · Renewal</p>
+        <h1 class="reveal">You are not starting over. You are <em>starting deeper.</em></h1>
+        <p class="lede reveal">
+          AsaOZ is a cultural reconnection movement for adults 45+ who want to feel
+          seen again — through culture, companionship, community, and meaningful travel.
+        </p>
+
+        <div class="signup reveal">
+          <!--
+            To make this live, point the form at your provider, e.g.:
+            <form id="waitform" action="https://formspree.io/f/XXXX" method="POST">
+            or swap to Mailchimp/ConvertKit. The inline JS below handles
+            validation + confirmation and will not fire if the form
+            is set to actually submit (remove novalidate + the preventDefault).
+          -->
+          <form id="waitform" novalidate>
+            <input type="hidden" name="source" value="asa-oz-coming-soon" />
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter your email to be the first to know"
+              aria-label="Email address"
+              autocomplete="email"
+              required
+            />
+            <button type="submit">Join the journey</button>
+          </form>
+          <p class="note">No spam — only an invitation when we open our doors.</p>
+          <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You’ll be among the first to return to yourself.</p>
+        </div>
+      </section>
+
+      <section class="pillars" aria-label="What AsaOZ offers">
+        <div class="pillar reveal">
+          <span class="num">01</span>
+          <h3>Identity</h3>
+          <p>Remembering who you are, beneath the years and the roles.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="num">02</span>
+          <h3>Culture</h3>
+          <p>Grounding yourself in heritage, story, and meaning.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="num">03</span>
+          <h3>Belonging</h3>
+          <p>Finding companionship and genuine connection again.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="num">04</span>
+          <h3>Community</h3>
+          <p>Sharing life, presence, and warmth with others.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="num">05</span>
+          <h3>Exploration</h3>
+          <p>Awakening joy and purpose through meaningful travel.</p>
+        </div>
+      </section>
+
+      <section class="ethos">
+        <div class="reveal">
+          <blockquote>
+            You don’t have to shrink to fit the life you’ve <span>outgrown.</span>
+          </blockquote>
+          <p class="from">The AsaOZ Promise</p>
+          <div class="not-list">
+            <span><s>Not therapy</s></span>
+            <span><s>Not clinical</s></span>
+            <span><s>Not a wellness programme</s></span>
+            <span>Simply, a way home</span>
+          </div>
+        </div>
+
+        <div class="founder reveal">
+          <p>
+            “I’ve spent over 25 years travelling the world, learning how deeply travel
+            can heal and restore identity. I created AsaOZ for those who feel unseen,
+            stuck, or unsure where to begin again.”
+          </p>
+          <p>“You don’t have to start over alone. I walk with you.”</p>
+          <p>
+            <span class="name">Ifeoma Adaora</span><br />
+            <span class="role">Founder &amp; Cultural Guide</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 class="reveal">Questions, gently answered.</h2>
+
+        <details class="reveal">
+          <summary>Is AsaOZ a wellness programme?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p><em>No.</em> AsaOZ is a cultural identity and belonging initiative — a movement for adults 45+ who want to feel seen again.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>No. We do not provide mental-health treatment or clinical services. AsaOZ is built on culture, storytelling, companionship, and meaningful travel — not clinical frameworks.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Do you sell travel packages?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>No. Participants book their own travel. AsaOZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Who is AsaOZ for?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Adults 45+ seeking identity, belonging, companionship, and renewal — especially those who feel unseen, stuck, or unsure where to begin again.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Can I join alone?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Yes. Many participants come solo. You don’t have to start over alone — you’ll be walking with a community from the very first step.</p>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer>
+      <p class="who">
+        <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.
+        An invitation to return to yourself.
+      </p>
+      <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Scroll reveal
+      var items = document.querySelectorAll(".reveal");
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e, i) {
+            if (e.isIntersecting) {
+              var el = e.target;
+              setTimeout(function () { el.classList.add("in"); }, (el.dataset.delay || 0));
+              io.unobserve(el);
+            }
+          });
+        }, { threshold: 0.15 });
+        items.forEach(function (el, i) {
+          el.dataset.delay = (i % 6) * 90;
+          io.observe(el);
+        });
+      } else {
+        items.forEach(function (el) { el.classList.add("in"); });
+      }
+
+      // Form
+      var form = document.getElementById("waitform");
+      var email = document.getElementById("email");
+      var msg = document.getElementById("formMsg");
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var val = email.value.trim();
+        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        if (!ok) {
+          msg.textContent = "Please enter a valid email so we can reach you.";
+          msg.style.color = "#a35a3a";
+          msg.classList.add("show");
+          email.focus();
+          return;
+        }
+        msg.textContent = "Thank you. You’ll be among the first to return to yourself.";
+        msg.style.color = "";
+        msg.classList.add("show");
+        form.reset();
+      });
+    })();
+  </script>
+</body>
+</html>

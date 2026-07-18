@@ -1,0 +1,17 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Local env
+.env
+.env.local
+
+# Dependencies / build (none currently, reserved)
+node_modules/
+dist/
+.cache/
+
+# Logs
+*.log
