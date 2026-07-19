@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "render-asaoz": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-render"],
+      "enabled": true,
+      "environment": {
+        "RENDER_API_KEY": "{file:~/.config/opencode/keys/render_asa-oz_api_key}"
+      }
+    }
+  }
+}
