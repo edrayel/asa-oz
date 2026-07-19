@@ -86,7 +86,7 @@
       position: absolute;
       border-radius: 50%;
       filter: blur(60px);
-      opacity: 0.55;
+      opacity: 0.68;
       mix-blend-mode: multiply;
       will-change: transform, filter;
     }
@@ -102,7 +102,7 @@
       bottom: -14vw; left: -10vw;
       background:
         radial-gradient(circle at 40% 40%, #bcc88c, #8fa05c 55%, #65763d);
-      opacity: 0.4;
+      opacity: 0.52;
       animation: drift2 32s var(--ease) infinite alternate;
     }
     .blob.b3 {
@@ -110,24 +110,24 @@
       top: 45%; left: 55%;
       background:
         radial-gradient(circle at 50% 50%, #f0dcb4, #d8bd86 55%, #c4a169);
-      opacity: 0.35;
+      opacity: 0.46;
       animation: drift3 22s var(--ease) infinite alternate;
     }
     @keyframes drift1 {
       from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
-      to   { transform: translate(-7vw, 7vh) rotate(22deg) scale(1.14); filter: blur(72px) hue-rotate(-14deg) saturate(1.12); }
+      to   { transform: translate(-11vw, 11vh) rotate(40deg) scale(1.22); filter: blur(74px) hue-rotate(-26deg) saturate(1.22); }
     }
     @keyframes drift2 {
       from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
-      to   { transform: translate(6vw, -6vh) rotate(-18deg) scale(1.16); filter: blur(66px) hue-rotate(12deg) saturate(1.1); }
+      to   { transform: translate(10vw, -10vh) rotate(-34deg) scale(1.24); filter: blur(68px) hue-rotate(24deg) saturate(1.2); }
     }
     @keyframes drift3 {
       from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
-      to   { transform: translate(-9vw, -5vh) rotate(28deg) scale(0.92); filter: blur(54px) hue-rotate(-10deg) saturate(1.08); }
+      to   { transform: translate(-14vw, -8vh) rotate(46deg) scale(0.86); filter: blur(52px) hue-rotate(-20deg) saturate(1.18); }
     }
     @keyframes bgBreathe {
       from { filter: brightness(1) saturate(1); }
-      to   { filter: brightness(1.04) saturate(1.06); }
+      to   { filter: brightness(1.07) saturate(1.12); }
     }
 
     /* grain overlay for tactile, editorial feel */
