@@ -80,37 +80,55 @@
       overflow: hidden;
       background:
         radial-gradient(120% 90% at 15% 0%, #fbf6ed 0%, #f2e8d8 45%, #eaddc7 100%);
+      animation: bgBreathe 34s ease-in-out infinite alternate;
     }
     .blob {
       position: absolute;
       border-radius: 50%;
       filter: blur(60px);
       opacity: 0.55;
-      will-change: transform;
+      mix-blend-mode: multiply;
+      will-change: transform, filter;
     }
     .blob.b1 {
       width: 46vw; height: 46vw; min-width: 340px; min-height: 340px;
       top: -12vw; right: -8vw;
-      background: radial-gradient(circle at 30% 30%, #d8b98f, #b98d5f);
+      background:
+        radial-gradient(circle at 30% 30%, #e3c79e, #c79a68 55%, #b07f4f);
       animation: drift1 26s var(--ease) infinite alternate;
     }
     .blob.b2 {
       width: 40vw; height: 40vw; min-width: 300px; min-height: 300px;
       bottom: -14vw; left: -10vw;
-      background: radial-gradient(circle at 40% 40%, #a8b475, #6f7d43);
+      background:
+        radial-gradient(circle at 40% 40%, #bcc88c, #8fa05c 55%, #65763d);
       opacity: 0.4;
       animation: drift2 32s var(--ease) infinite alternate;
     }
     .blob.b3 {
       width: 26vw; height: 26vw; min-width: 200px; min-height: 200px;
       top: 45%; left: 55%;
-      background: radial-gradient(circle at 50% 50%, #e6cfa6, #cba873);
+      background:
+        radial-gradient(circle at 50% 50%, #f0dcb4, #d8bd86 55%, #c4a169);
       opacity: 0.35;
       animation: drift3 22s var(--ease) infinite alternate;
     }
-    @keyframes drift1 { to { transform: translate(-6vw, 6vh) scale(1.12); } }
-    @keyframes drift2 { to { transform: translate(5vw, -5vh) scale(1.15); } }
-    @keyframes drift3 { to { transform: translate(-8vw, -4vh) scale(0.9); } }
+    @keyframes drift1 {
+      from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
+      to   { transform: translate(-7vw, 7vh) rotate(22deg) scale(1.14); filter: blur(72px) hue-rotate(-14deg) saturate(1.12); }
+    }
+    @keyframes drift2 {
+      from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
+      to   { transform: translate(6vw, -6vh) rotate(-18deg) scale(1.16); filter: blur(66px) hue-rotate(12deg) saturate(1.1); }
+    }
+    @keyframes drift3 {
+      from { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(60px) hue-rotate(0deg) saturate(1); }
+      to   { transform: translate(-9vw, -5vh) rotate(28deg) scale(0.92); filter: blur(54px) hue-rotate(-10deg) saturate(1.08); }
+    }
+    @keyframes bgBreathe {
+      from { filter: brightness(1) saturate(1); }
+      to   { filter: brightness(1.04) saturate(1.06); }
+    }
 
     /* grain overlay for tactile, editorial feel */
     .grain {
