@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AsaOZ — Return to Yourself</title>
+  <title>AsaOZ — Return to Self.</title>
   <meta name="description" content="AsaOZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
   <meta name="theme-color" content="#2b2118" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="AsaOZ — Return to Yourself" />
+  <meta property="og:title" content="AsaOZ — Return to Self." />
   <meta property="og:description" content="A movement for identity, belonging & renewal. Coming soon." />
   <meta property="og:site_name" content="AsaOZ" />
   <meta property="og:url" content="https://asa-oz.com" />
@@ -23,7 +23,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AsaOZ — Return to Yourself" />
+  <meta name="twitter:title" content="AsaOZ — Return to Self." />
   <meta name="twitter:description" content="A movement for identity, belonging & renewal. Coming soon." />
 
   <!-- Inline SVG favicon (no external file) -->
@@ -216,6 +216,7 @@
       margin-bottom: 1.6rem;
     }
     .hero h1 {
+      text-shadow: 0 1px 2px rgba(250,245,236,0.45), 0 2px 8px rgba(43,33,24,0.08);
       font-family: var(--serif);
       font-weight: 400;
       font-size: clamp(2.7rem, 8vw, 5.6rem);
@@ -234,6 +235,22 @@
       max-width: 44ch;
       color: var(--ink);
       font-weight: 400;
+    }
+    .hero .subtag {
+      margin-top: clamp(0.5rem, 1.5vw, 0.8rem);
+      font-size: clamp(0.72rem, 1.1vw, 0.85rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--tobacco);
+      font-weight: 500;
+    }
+    .hero .vprop {
+      margin-top: clamp(1.2rem, 2vw, 1.6rem);
+      font-size: clamp(0.95rem, 1.5vw, 1.12rem);
+      max-width: 52ch;
+      color: var(--ink);
+      font-weight: 400;
+      line-height: 1.6;
     }
 
     /* ---------- Signup ---------- */
@@ -297,6 +314,81 @@
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
     .signup .msg.show { opacity: 1; transform: none; }
+    .signup .ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .cta-link {
+      font-size: 0.82rem; font-weight: 500; color: var(--tobacco);
+      text-decoration: underline; text-underline-offset: 3px;
+      text-decoration-color: rgba(111,90,63,0.3); transition: color 0.3s var(--ease), text-decoration-color 0.3s var(--ease);
+    }
+    .cta-link:hover { color: var(--espresso); text-decoration-color: var(--tobacco); }
+    .pre-launch { font-size: 0.85rem; }
+    .nl-msg { font-style: italic; }
+    .social-links a { color: var(--tobacco); }
+    .social-links a:hover { color: var(--espresso); }
+
+    /* ---------- How It Works ---------- */
+    .how-it-works {
+      margin-top: clamp(3rem, 8vw, 5rem);
+      padding: clamp(2rem, 5vw, 3rem) 0;
+    }
+    .how-it-works h2 {
+      font-family: var(--serif); font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 400; color: var(--espresso); margin-bottom: 1.8rem;
+      text-align: center;
+    }
+    .steps {
+      list-style: none; padding: 0; margin: 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.6rem;
+      max-width: 800px; margin-left: auto; margin-right: auto;
+    }
+    .steps li {
+      font-size: 0.95rem; color: var(--ink); line-height: 1.6;
+      padding: 1.2rem 1.4rem; background: rgba(255,255,255,0.4);
+      border-radius: 16px; border: 1px solid rgba(111,90,63,0.1);
+    }
+    .steps li b { display: block; font-weight: 500; color: var(--espresso); margin-bottom: 0.3rem; }
+
+    /* ---------- What to Expect ---------- */
+    .expectations {
+      margin-top: clamp(2.5rem, 6vw, 4rem);
+      padding: clamp(1.8rem, 4vw, 2.5rem) 0;
+    }
+    .expectations h2 {
+      font-family: var(--serif); font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 400; color: var(--espresso); margin-bottom: 1.4rem; text-align: center;
+    }
+    .expect-list {
+      list-style: none; padding: 0; margin: 0 auto; max-width: 600px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem;
+    }
+    .expect-list li {
+      font-size: 0.92rem; color: var(--ink); padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(111,90,63,0.1);
+      padding-left: 1.4rem; position: relative;
+    }
+    .expect-list li::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 6px; height: 6px; border-radius: 50%; background: var(--sage);
+    }
+
+    /* ---------- Who It's For ---------- */
+    .who-for {
+      margin-top: clamp(2.5rem, 6vw, 4rem);
+      padding: clamp(1.8rem, 4vw, 2.5rem) 0;
+      text-align: center;
+    }
+    .who-for h2 {
+      font-family: var(--serif); font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 400; color: var(--espresso); margin-bottom: 1.4rem;
+    }
+    .who-for ul {
+      list-style: none; padding: 0; margin: 0 auto; max-width: 520px;
+      text-align: left; font-size: 0.95rem; color: var(--ink); line-height: 1.8;
+    }
+    .who-for li { padding: 0.3rem 0; }
+    .who-note {
+      margin-top: 1.6rem; font-style: italic; color: var(--tobacco); font-size: 0.9rem;
+    }
 
     /* ---------- Pillars ---------- */
     .pillars {
@@ -423,6 +515,33 @@
       font-size: 0.78rem;
       letter-spacing: 0.1em;
       color: var(--muted);
+    }
+    footer .co-details {
+      width: 100%;
+      font-size: 0.78rem;
+      color: var(--tobacco);
+      margin-top: 0.4rem;
+    }
+    footer .refund {
+      width: 100%;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      line-height: 1.5;
+    }
+
+    /* ---------- Trust note ---------- */
+    .trust-note {
+      margin: clamp(2rem, 5vw, 3rem) 0;
+      padding: 1rem 1.4rem;
+      background: rgba(250,245,236,0.7);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      color: var(--tobacco);
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     /* ---------- Keyboard focus (a11y) ---------- */
@@ -697,11 +816,17 @@
 
     <main>
       <section class="hero">
-        <p class="eyebrow reveal">Identity · Belonging · Renewal</p>
+        <p class="eyebrow reveal">Return to Self.</p>
+        <p class="subtag reveal">Identity · Culture · Belonging</p>
         <h1 class="reveal">You are not starting over. You are <em>starting deeper.</em></h1>
+        <p class="vprop reveal">
+          AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity,
+          belonging, and purpose through guided journeys, community, and meaningful travel.
+        </p>
         <p class="lede reveal">
-          AsaOZ is a cultural reconnection movement for adults 45+ who want to feel
-          seen again — through culture, companionship, community, and meaningful travel.
+          Meet like-minded people who share your interests, values and curiosity. Whether
+          you enjoy history, food, art, nature, photography or simply meaningful conversation,
+          AsaOZ helps you connect with others before travelling together.
         </p>
 
         <div class="signup reveal">
@@ -726,8 +851,59 @@
             <button type="submit">Join the journey</button>
           </form>
           <p class="note">No spam — only an invitation when we open our doors.</p>
-          <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You’ll be among the first to return to yourself.</p>
+          <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You'll be among the first to return to yourself.</p>
+          <p class="ctas" style="margin-top:1.4rem; display:flex; flex-wrap:wrap; gap:0.7rem;">
+            <a href="#how-it-works" class="cta-link">How it works</a>
+            <a href="#expectations" class="cta-link">What to expect</a>
+            <a href="#founder" class="cta-link">Meet the founder</a>
+          </p>
+          <div class="pre-launch reveal" style="margin-top:1.6rem;">
+            <p style="font-size:0.82rem; color:var(--tobacco); margin-bottom:0.6rem;">Stay in the loop — newsletters and founder updates.</p>
+            <form id="newsletterform" novalidate style="display:flex; gap:0.5rem;">
+              <input type="email" name="newsletter" placeholder="Your email" aria-label="Newsletter email" autocomplete="email" required style="flex:1; padding:0.5rem 0.8rem; border:1px solid rgba(111,90,63,0.24); border-radius:100px; font-family:var(--sans); font-size:0.85rem; background:rgba(255,255,255,0.5); color:var(--ink); outline:none;" />
+              <button type="submit" style="font-family:var(--sans); font-weight:500; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--paper); background:var(--sage-deep); padding:0.55rem 1.2rem; border:none; border-radius:100px; cursor:pointer;">Subscribe</button>
+            </form>
+            <p class="nl-msg" id="nlMsg" role="status" aria-live="polite" style="margin-top:0.5rem; font-size:0.82rem; color:var(--sage-deep); opacity:0; transition:opacity 0.4s var(--ease);"></p>
+            <div class="social-links" style="margin-top:0.9rem; display:flex; gap:1rem; font-size:0.8rem;">
+              <a href="https://instagram.com/asaoz" target="_blank" rel="noopener" class="cta-link">Instagram</a>
+              <a href="https://facebook.com/asaoz" target="_blank" rel="noopener" class="cta-link">Facebook</a>
+              <a href="https://tiktok.com/@asaoz" target="_blank" rel="noopener" class="cta-link">TikTok</a>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <section class="how-it-works" id="how-it-works" aria-label="How AsaOZ works">
+        <h2 class="reveal">How it works</h2>
+        <ol class="steps">
+          <li class="reveal"><b>Apply or join the waitlist</b> — tell us a little about yourself and what you're looking for.</li>
+          <li class="reveal"><b>Attend guided online sessions</b> — join small-group identity circles and cultural talks.</li>
+          <li class="reveal"><b>Join community experiences</b> — share meals, stories, and walks with like-minded members.</li>
+          <li class="reveal"><b>Participate in curated journeys</b> — travel together to places that resonate with your story.</li>
+        </ol>
+      </section>
+
+      <section class="expectations" id="expectations" aria-label="What to expect">
+        <h2 class="reveal">What to expect</h2>
+        <ul class="expect-list">
+          <li class="reveal">Online events with flexible attendance</li>
+          <li class="reveal">Group discussions and identity circles</li>
+          <li class="reveal">Cultural talks and storytelling sessions</li>
+          <li class="reveal">Hosted trips and curated cultural journeys</li>
+          <li class="reveal">Community membership — fee structure to be confirmed</li>
+        </ul>
+      </section>
+
+      <section class="who-for" aria-label="Who AsaOZ is for">
+        <h2 class="reveal">Who is this for?</h2>
+        <ul>
+          <li class="reveal">People who feel disconnected from their identity or heritage</li>
+          <li class="reveal">Those navigating a major life transition</li>
+          <li class="reveal">Those longing for meaningful community</li>
+          <li class="reveal">Those who want intentional travel experiences</li>
+          <li class="reveal">Those seeking reflection and personal growth</li>
+        </ul>
+        <p class="who-note reveal">Designed for adults aged 45 and above who are ready for something more than another holiday.</p>
       </section>
 
       <section class="pillars" aria-label="What AsaOZ offers">
@@ -773,6 +949,7 @@
         </div>
 
         <div class="founder reveal">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='100' fill='%23eaddc7'/%3E%3Ccircle cx='100' cy='80' r='30' fill='%236f5a3f'/%3E%3Cellipse cx='100' cy='170' rx='55' ry='40' fill='%236f5a3f'/%3E%3C/svg%3E" alt="Ifeoma Adaora, founder of AsaOZ" width="120" height="120" style="border-radius:50%; object-fit:cover; margin:0 auto 1rem; display:block;" />
           <p>
             “I’ve spent over 25 years travelling the world, learning how deeply travel
             can heal and restore identity. I created AsaOZ for those who feel unseen,
@@ -784,6 +961,10 @@
             <span class="role">Founder &amp; Cultural Guide</span>
           </p>
         </div>
+      </section>
+
+      <section class="trust-note reveal" aria-label="Expectation-setting note">
+        <p>AsaOZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental health care.</p>
       </section>
 
       <section class="faq" aria-label="Frequently asked questions">
@@ -832,6 +1013,15 @@
         An invitation to return to yourself.
       </p>
       <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
+      <p class="co-details">
+        Sole Trader: Ifeoma t/a AsaOZ &nbsp;·&nbsp; Drogheda, Co. Louth, Ireland
+        &nbsp;·&nbsp; info@asaoz.com
+      </p>
+      <p class="refund">
+        Cancellation/Refund: AsaOZ does not sell travel packages. Refunds apply
+        only to programme fees — full refund up to 48 hours before an event;
+        no refund within 48 hours of event start.
+      </p>
     </footer>
   </div>
 
