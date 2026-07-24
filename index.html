@@ -176,20 +176,20 @@
       color: var(--cafe-ink);
       font-style: italic;
     }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-      border: 1px solid rgba(111, 90, 63, 0.28);
-      padding: 0.5rem 0.95rem;
-      border-radius: 100px;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(6px);
-    }
+     .status-pill {
+       display: inline-flex;
+       align-items: center;
+       gap: 0.55rem;
+       font-size: 0.72rem;
+       letter-spacing: 0.22em;
+       text-transform: uppercase;
+       color: var(--espresso);
+       border: 1px solid rgba(111, 90, 63, 0.32);
+       padding: 0.5rem 0.95rem;
+       border-radius: 100px;
+       background: rgba(255, 255, 255, 0.65);
+       backdrop-filter: blur(6px);
+     }
     .status-pill .dot {
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--sage);
@@ -264,7 +264,7 @@
       color: var(--ink);
       outline: none;
     }
-    .signup input::placeholder { color: var(--muted); }
+     .signup input::placeholder { color: var(--cafe-ink); }
     .signup button {
       border: none;
       cursor: pointer;
@@ -281,12 +281,12 @@
       transition: background 0.35s var(--ease), transform 0.35s var(--ease);
     }
     .signup button:hover { background: var(--sage-deep); transform: translateY(-1px); }
-    .signup .note {
-      margin-top: 0.9rem;
-      font-size: 0.82rem;
-      color: var(--muted);
-      padding-left: 0.4rem;
-    }
+     .signup .note {
+       margin-top: 0.9rem;
+       font-size: 0.82rem;
+       color: var(--ink);
+       padding-left: 0.4rem;
+     }
     .signup .msg {
       margin-top: 0.9rem;
       font-size: 0.9rem;
@@ -297,6 +297,25 @@
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
     .signup .msg.show { opacity: 1; transform: none; }
+    .cta-alt {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .cta-alt a {
+      color: var(--sage-deep);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .cta-alt a:hover { color: var(--espresso); }
+    .supporting {
+      margin-top: 1.2rem;
+      font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+      max-width: 56ch;
+      color: var(--ink);
+      font-weight: 400;
+      line-height: 1.7;
+    }
 
     /* ---------- Pillars ---------- */
     .pillars {
@@ -326,23 +345,138 @@
       color: var(--espresso);
       margin-bottom: 0.4rem;
     }
-    .pillar p {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.55;
-    }
+     .pillar p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
 
-    /* ---------- Ethos strip ---------- */
-    .ethos {
-      position: relative;
-      z-index: 2;
-      padding: clamp(3rem, 8vh, 5.5rem) 0;
-      border-top: 1px solid rgba(111, 90, 63, 0.18);
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(2rem, 6vw, 5rem);
-      align-items: center;
-    }
+     /* ---------- How It Works ---------- */
+     .how-it-works {
+       position: relative;
+       z-index: 2;
+       padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .how-it-works h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .steps {
+       display: grid;
+       grid-template-columns: repeat(4, 1fr);
+       gap: clamp(1rem, 2.5vw, 2rem);
+     }
+     .step {
+       text-align: left;
+     }
+     .step .num {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 0.9rem;
+       color: var(--cafe-ink);
+       display: block;
+       margin-bottom: 0.7rem;
+     }
+     .step h3 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+       color: var(--espresso);
+       margin-bottom: 0.4rem;
+     }
+     .step p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
+     @media (max-width: 860px) {
+       .steps { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+     }
+     @media (max-width: 560px) {
+       .steps { grid-template-columns: 1fr; }
+     }
+
+     /* ---------- Who AsaOZ Is For ---------- */
+     .who-for {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .who-for h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .who-for-intro {
+       font-size: 1.1rem;
+       color: var(--ink);
+       margin-bottom: 1.2rem;
+       font-weight: 400;
+     }
+     .who-for-list {
+       list-style: none;
+       padding: 0;
+       display: grid;
+       gap: 0.9rem;
+     }
+     .who-for-list li {
+       position: relative;
+       padding-left: 1.5rem;
+       font-size: 1rem;
+       color: var(--ink);
+       line-height: 1.6;
+     }
+     .who-for-list li::before {
+       content: "—";
+       position: absolute;
+       left: 0;
+       color: var(--cafe-ink);
+       font-style: italic;
+       font-family: var(--serif);
+     }
+     .who-for-tagline {
+       margin-top: 1.8rem;
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 1.15rem;
+       color: var(--espresso);
+       max-width: 50ch;
+     }
+     @media (max-width: 560px) {
+       .who-for-list { gap: 0.7rem; }
+     }
+
+      /* ---------- Ethos strip ---------- */
+      .ethos {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+       display: grid;
+       grid-template-columns: 0.9fr 1.1fr;
+       gap: clamp(2.5rem, 6vw, 5rem);
+       align-items: start;
+     }
+     .ethos > .reveal:first-child {
+       position: sticky;
+       top: clamp(2rem, 5vh, 4rem);
+       align-self: start;
+       padding-right: clamp(1.5rem, 3vw, 2.5rem);
+       border-right: 1px solid rgba(111, 90, 63, 0.18);
+     }
     .ethos blockquote {
       font-family: var(--serif);
       font-weight: 400;
@@ -374,14 +508,21 @@
       color: var(--espresso);
       font-style: italic;
     }
-    .ethos .founder .role {
-      font-size: 0.78rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+      .ethos .founder .role {
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+     .founder-signature {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 1.15rem;
+       color: var(--espresso);
+       margin-top: 0.6rem;
+     }
 
-    .not-list {
+     .not-list {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
@@ -391,15 +532,32 @@
       font-size: 0.74rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--cafe-ink);
       border: 1px solid rgba(111, 90, 63, 0.25);
       border-radius: 100px;
       padding: 0.4rem 0.85rem;
     }
     .not-list span s { color: var(--cafe-ink); }
 
-    /* ---------- Footer ---------- */
-    footer {
+     /* ---------- Footer ---------- */
+      .refund-note {
+        font-size: 0.78rem;
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.8rem;
+      }
+      .social-links a {
+        font-size: 0.82rem;
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .social-links a:hover { color: var(--espresso); }
+      footer {
       position: relative;
       z-index: 2;
       padding: clamp(2.5rem, 5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
@@ -410,20 +568,20 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-    footer .who {
-      font-size: 0.9rem;
-      color: var(--muted);
-      max-width: 46ch;
-    }
+     footer .who {
+       font-size: 0.9rem;
+       color: var(--ink);
+       max-width: 46ch;
+     }
     footer .who b {
       color: var(--espresso);
       font-weight: 500;
     }
-    footer .copy {
-      font-size: 0.78rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
+     footer .copy {
+       font-size: 0.78rem;
+       letter-spacing: 0.1em;
+       color: var(--ink);
+     }
 
     /* ---------- Keyboard focus (a11y) ---------- */
     a:focus-visible,
@@ -441,8 +599,60 @@
       * { animation: none !important; transition: none !important; }
     }
 
-    /* ---------- FAQ ---------- */
-    .faq {
+     /* ---------- What To Expect ---------- */
+     .expect {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .expect h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .expect-grid {
+       display: grid;
+       grid-template-columns: repeat(5, 1fr);
+       gap: clamp(1rem, 2.5vw, 2rem);
+     }
+     .expect-item {
+       text-align: left;
+     }
+     .expect-item .num {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 0.9rem;
+       color: var(--cafe-ink);
+       display: block;
+       margin-bottom: 0.7rem;
+     }
+     .expect-item h3 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+       color: var(--espresso);
+       margin-bottom: 0.4rem;
+     }
+     .expect-item p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
+     @media (max-width: 860px) {
+       .expect-grid { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+     }
+     @media (max-width: 560px) {
+       .expect-grid { grid-template-columns: 1fr; }
+     }
+
+     /* ---------- FAQ ---------- */
+     .faq {
       position: relative;
       z-index: 2;
       padding: clamp(3rem, 8vh, 5.5rem) 0;
@@ -519,10 +729,11 @@
     }
 
     /* ---------- Responsive ---------- */
-    @media (max-width: 860px) {
-      .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
-      .ethos { grid-template-columns: 1fr; }
-    }
+     @media (max-width: 860px) {
+       .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+       .ethos { grid-template-columns: 1fr; gap: clamp(2rem, 5vw, 3rem); }
+       .ethos > .reveal:first-child { position: static; border-right: none; padding-right: 0; }
+     }
     @media (max-width: 560px) {
       .status-pill { display: none; }
       .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
@@ -646,7 +857,7 @@
     }
     .cookie-bar .ck-reject {
       background: transparent;
-      color: var(--muted);
+      color: var(--ink);
       border-color: rgba(111, 90, 63, 0.3);
     }
     .cookie-bar .ck-reject:hover { color: var(--ink); border-color: var(--ink); }
@@ -686,7 +897,7 @@
   <div class="shell">
     <header>
       <div class="brand">
-        <span class="mark">A</span>
+        <span class="mark" aria-hidden="true"></span>
         AsaOZ
       </div>
       <div class="status-pill">
@@ -697,12 +908,12 @@
 
     <main>
       <section class="hero">
-        <p class="eyebrow reveal">Identity · Belonging · Renewal</p>
-        <h1 class="reveal">You are not starting over. You are <em>starting deeper.</em></h1>
+        <p class="eyebrow reveal">Identity • Culture • Belonging</p>
+        <h1 class="reveal">Return to Self.</h1>
         <p class="lede reveal">
-          AsaOZ is a cultural reconnection movement for adults 45+ who want to feel
-          seen again — through culture, companionship, community, and meaningful travel.
+          AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.
         </p>
+        <p class="supporting reveal">Meet like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, AsaOZ helps you connect with others before travelling together.</p>
 
         <div class="signup reveal">
           <!--
@@ -726,7 +937,34 @@
             <button type="submit">Join the journey</button>
           </form>
           <p class="note">No spam — only an invitation when we open our doors.</p>
+          <p class="cta-alt"><a href="mailto:info@asaoz.com?subject=Discovery%20Call%20Request">Book a discovery call</a></p>
           <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You’ll be among the first to return to yourself.</p>
+        </div>
+      </section>
+
+      <section class="how-it-works" aria-label="How AsaOZ works">
+        <h2 class="reveal">How it works</h2>
+        <div class="steps">
+          <div class="step reveal">
+            <span class="num">01</span>
+            <h3>Apply or join the waitlist</h3>
+            <p>Begin your journey with a simple expression of interest.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">02</span>
+            <h3>Attend guided online sessions</h3>
+            <p>Join our community from anywhere through curated online gatherings.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">03</span>
+            <h3>Join community experiences</h3>
+            <p>Connect in person through identity circles, storytelling, and shared meals.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">04</span>
+            <h3>Participate in curated cultural journeys</h3>
+            <p>Travel with meaning, guided by culture and community.</p>
+          </div>
         </div>
       </section>
 
@@ -758,6 +996,50 @@
         </div>
       </section>
 
+      <section class="expect" aria-label="What to expect">
+        <h2 class="reveal">What to expect</h2>
+        <div class="expect-grid">
+          <div class="expect-item reveal">
+            <span class="num">01</span>
+            <h3>Online events</h3>
+            <p>Regular sessions to connect, reflect, and grow together.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">02</span>
+            <h3>Group discussions &amp; identity circles</h3>
+            <p>Safe spaces to share, listen, and be seen.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">03</span>
+            <h3>Cultural talks &amp; storytelling</h3>
+            <p>Stories that remember you, and heritage that heals.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">04</span>
+            <h3>Hosted trips &amp; curated journeys</h3>
+            <p>Travel that restores identity and awakens joy.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">05</span>
+            <h3>Community membership</h3>
+            <p>A space to belong — details and fees to be confirmed.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="who-for" aria-label="Who AsaOZ is for">
+        <h2 class="reveal">Who AsaOZ is for</h2>
+        <p class="who-for-intro reveal">AsaOZ is for people who:</p>
+        <ul class="who-for-list">
+          <li class="reveal">Feel disconnected from their identity or heritage</li>
+          <li class="reveal">Are navigating a major life transition</li>
+          <li class="reveal">Long for meaningful community</li>
+          <li class="reveal">Want intentional travel experiences</li>
+          <li class="reveal">Are seeking reflection and personal growth</li>
+        </ul>
+        <p class="who-for-tagline reveal">Designed for adults aged 45 and above who are ready for something more than another holiday.</p>
+      </section>
+
       <section class="ethos">
         <div class="reveal">
           <blockquote>
@@ -774,11 +1056,40 @@
 
         <div class="founder reveal">
           <p>
-            “I’ve spent over 25 years travelling the world, learning how deeply travel
-            can heal and restore identity. I created AsaOZ for those who feel unseen,
-            stuck, or unsure where to begin again.”
+            “My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world,
+            discovering that travel can do much more than take us to new places. It can restore
+            confidence, create meaningful connections, and help us rediscover parts of ourselves
+            we thought were lost.”
           </p>
-          <p>“You don’t have to start over alone. I walk with you.”</p>
+          <p>
+            “Along the way, I met countless people whose lives had been shaped by responsibility.
+            They had spent years building careers, raising families, caring for loved ones, and
+            putting everyone else first. Yet many quietly admitted they felt disconnected from
+            themselves and unsure of what the next chapter of life should look like.”
+          </p>
+          <p>“I understood that feeling.”</p>
+          <p>“That's why I created AsaOZ.”</p>
+          <p>
+            “AsaOZ is designed for adults aged 45 and above who are ready for something more than
+            another holiday. It is for those seeking meaningful experiences, genuine human
+            connection, cultural discovery, and the chance to embrace life with renewed purpose.”
+          </p>
+          <p>
+            “This is not about escaping your life. It is about returning to yourself.”
+          </p>
+          <p>
+            “Through thoughtfully curated journeys, shared experiences, and supportive community,
+            I will walk alongside you as you discover new places, build lasting friendships, and
+            reconnect with the joy, confidence, and sense of belonging that may have faded over
+            time.”
+          </p>
+          <p>
+            “Because no matter where life has taken you, there is always room for new memories, new
+            friendships, and new beginnings.”
+          </p>
+          <p class="founder-signature">
+            “You are not starting over. You are simply discovering a deeper, richer version of yourself.”
+          </p>
           <p>
             <span class="name">Ifeoma Adaora</span><br />
             <span class="role">Founder &amp; Cultural Guide</span>
@@ -790,16 +1101,93 @@
         <h2 class="reveal">Questions, gently answered.</h2>
 
         <details class="reveal">
-          <summary>Is AsaOZ a wellness programme?<span class="sign" aria-hidden="true"></span></summary>
+          <summary>What is AsaOZ?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p><em>No.</em> AsaOZ is a cultural identity and belonging initiative — a movement for adults 45+ who want to feel seen again.</p>
+            <p>AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Who is AsaOZ for?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Adults 45+ who feel disconnected from their identity or heritage, are navigating a major life transition, long for meaningful community, want intentional travel experiences, or are seeking reflection and personal growth.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>What do I receive after joining?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Online events, group identity circles, cultural talks and storytelling sessions, hosted trips and curated journeys, and community membership.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How long is the programme?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Programme length varies. Some experiences are one-off gatherings; others form part of an ongoing journey. Details will be shared as we finalise the calendar.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Is it online or in person?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Both. We begin with guided online sessions to build connection, then move into in-person community experiences and curated cultural journeys.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How much does it cost?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Membership fees are still being finalised. Join the waitlist to be the first to know when pricing is confirmed.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Which countries or cultures will be explored?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are starting in Ireland — Drogheda and Ennis — with plans to expand. Destinations will be announced as our community grows.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How often are experiences organised?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>The calendar is still forming. We expect a mix of regular online sessions, monthly in-person circles, and periodic curated journeys. Exact cadence to be confirmed soon.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Is it UK/Ireland-based or international?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are Ireland-based — starting in Drogheda, Co. Louth, and Ennis, Co. Clare — with ambitions to grow internationally over time.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>When do journeys take place?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Dates will be shared as journeys are confirmed. Join the waitlist and we will reach out with the first invitations.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Can I join from another country?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Yes. Many of our online sessions are open internationally. In-person journeys may be Ireland-based initially, but international participation is welcome where possible.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>What happens after I register?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>You will receive a welcome message with next steps, including invitations to upcoming online sessions and community events.</p>
           </div>
         </details>
 
         <details class="reveal">
           <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>No. We do not provide mental-health treatment or clinical services. AsaOZ is built on culture, storytelling, companionship, and meaningful travel — not clinical frameworks.</p>
+            <p>No. AsaOZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
           </div>
         </details>
 
@@ -809,28 +1197,21 @@
             <p>No. Participants book their own travel. AsaOZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
           </div>
         </details>
-
-        <details class="reveal">
-          <summary>Who is AsaOZ for?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Adults 45+ seeking identity, belonging, companionship, and renewal — especially those who feel unseen, stuck, or unsure where to begin again.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Can I join alone?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Yes. Many participants come solo. You don’t have to start over alone — you’ll be walking with a community from the very first step.</p>
-          </div>
-        </details>
       </section>
     </main>
 
     <footer>
       <p class="who">
-        <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.
-        An invitation to return to yourself.
+        <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.<br />
+        Sole Trader: Ifeoma t/a AsaOZ &middot; Drogheda, Co. Louth<br />
+        RC No: Not applicable (sole trader)<br />
+        Contact: <a href="mailto:info@asaoz.com">info@asaoz.com</a> &middot; Phone: [to be added]<br />
+        <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
       </p>
+      <div class="social-links">
+        <a href="#" target="_blank" rel="noopener">Instagram</a>
+        <a href="#" target="_blank" rel="noopener">Facebook</a>
+      </div>
       <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
     </footer>
   </div>
