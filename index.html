@@ -208,15 +208,15 @@
       z-index: 2;
       padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
     }
-    .eyebrow {
-      font-size: 0.78rem;
-      letter-spacing: 0.34em;
+    .hero .subtitle {
+      font-size: clamp(0.72rem, 1.1vw, 0.85rem);
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--cafe-ink);
-      margin-bottom: 1.6rem;
+      color: var(--tobacco);
+      font-weight: 500;
+      margin-bottom: clamp(0.5rem, 1.5vw, 0.8rem);
     }
     .hero h1 {
-      text-shadow: 0 1px 2px rgba(250,245,236,0.45), 0 2px 8px rgba(43,33,24,0.08);
       font-family: var(--serif);
       font-weight: 400;
       font-size: clamp(2.7rem, 8vw, 5.6rem);
@@ -229,21 +229,6 @@
       font-style: italic;
       color: var(--sage-deep);
     }
-    .hero .lede {
-      margin-top: clamp(1.6rem, 3vw, 2.2rem);
-      font-size: clamp(1.05rem, 1.8vw, 1.28rem);
-      max-width: 44ch;
-      color: var(--ink);
-      font-weight: 400;
-    }
-    .hero .subtag {
-      margin-top: clamp(0.5rem, 1.5vw, 0.8rem);
-      font-size: clamp(0.72rem, 1.1vw, 0.85rem);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--tobacco);
-      font-weight: 500;
-    }
     .hero .vprop {
       margin-top: clamp(1.2rem, 2vw, 1.6rem);
       font-size: clamp(0.95rem, 1.5vw, 1.12rem);
@@ -251,6 +236,13 @@
       color: var(--ink);
       font-weight: 400;
       line-height: 1.6;
+    }
+    .hero .lede {
+      margin-top: clamp(1.6rem, 3vw, 2.2rem);
+      font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+      max-width: 44ch;
+      color: var(--ink);
+      font-weight: 400;
     }
 
     /* ---------- Signup ---------- */
@@ -314,15 +306,54 @@
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
     .signup .msg.show { opacity: 1; transform: none; }
-    .signup .ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .signup .ctas {
+      display: flex; flex-wrap: wrap; gap: 0.7rem;
+      margin-top: 1.4rem;
+    }
     .cta-link {
       font-size: 0.82rem; font-weight: 500; color: var(--tobacco);
       text-decoration: underline; text-underline-offset: 3px;
-      text-decoration-color: rgba(111,90,63,0.3); transition: color 0.3s var(--ease), text-decoration-color 0.3s var(--ease);
+      text-decoration-color: rgba(111,90,63,0.3);
+      transition: color 0.3s var(--ease), text-decoration-color 0.3s var(--ease);
     }
     .cta-link:hover { color: var(--espresso); text-decoration-color: var(--tobacco); }
-    .pre-launch { font-size: 0.85rem; }
-    .nl-msg { font-style: italic; }
+
+    /* ---------- Pre-launch engagement ---------- */
+    .pre-launch {
+      margin-top: 1.6rem;
+    }
+    .nl-prompt {
+      font-size: 0.82rem; color: var(--tobacco); margin-bottom: 0.6rem;
+    }
+    .pre-launch form {
+      display: flex; gap: 0.5rem; max-width: 380px;
+    }
+    .pre-launch input {
+      flex: 1; padding: 0.5rem 0.8rem;
+      border: 1px solid rgba(111,90,63,0.24); border-radius: 100px;
+      font-family: var(--sans); font-size: 0.85rem;
+      background: rgba(255,255,255,0.5); color: var(--ink); outline: none;
+    }
+    .pre-launch input:focus {
+      border-color: var(--sage);
+    }
+    .pre-launch button {
+      font-family: var(--sans); font-weight: 500; font-size: 0.75rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--paper); background: var(--sage-deep);
+      padding: 0.55rem 1.2rem; border: none; border-radius: 100px; cursor: pointer;
+      transition: background 0.3s var(--ease);
+    }
+    .pre-launch button:hover { background: var(--espresso); }
+    .nl-msg {
+      margin-top: 0.5rem; font-size: 0.82rem; color: var(--sage-deep);
+      font-style: italic; opacity: 0; transition: opacity 0.4s var(--ease);
+    }
+    .nl-msg.show { opacity: 1; }
+    .social-links {
+      list-style: none; padding: 0; margin: 0.9rem 0 0;
+      display: flex; gap: 1rem; font-size: 0.8rem; flex-wrap: wrap;
+    }
     .social-links a { color: var(--tobacco); }
     .social-links a:hover { color: var(--espresso); }
 
@@ -346,7 +377,7 @@
       padding: 1.2rem 1.4rem; background: rgba(255,255,255,0.4);
       border-radius: 16px; border: 1px solid rgba(111,90,63,0.1);
     }
-    .steps li b { display: block; font-weight: 500; color: var(--espresso); margin-bottom: 0.3rem; }
+    .steps li strong { display: block; font-weight: 500; color: var(--espresso); margin-bottom: 0.3rem; }
 
     /* ---------- What to Expect ---------- */
     .expectations {
@@ -472,6 +503,10 @@
       text-transform: uppercase;
       color: var(--muted);
     }
+    .founder .photo {
+      width: 120px; height: 120px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto 1rem; display: block;
+    }
 
     .not-list {
       display: flex;
@@ -555,7 +590,8 @@
 
     /* ---------- Print ---------- */
     @media print {
-      .ambience, .grain, .status-pill, .signup form, .signup .note, .signup .msg { display: none !important; }
+      .ambience, .grain, .status-pill, .signup form, .signup .note, .signup .msg,
+      .pre-launch, .signup .ctas { display: none !important; }
       body { background: #fff; color: #000; }
       * { animation: none !important; transition: none !important; }
     }
@@ -641,6 +677,7 @@
     @media (max-width: 860px) {
       .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
       .ethos { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 560px) {
       .status-pill { display: none; }
@@ -649,6 +686,10 @@
       .signup button { width: 100%; padding: 0.95rem; }
       .pillars { grid-template-columns: 1fr; }
       footer { flex-direction: column; align-items: flex-start; }
+      .steps { grid-template-columns: 1fr; }
+      .expect-list { grid-template-columns: 1fr; }
+      .pre-launch form { flex-direction: column; }
+      .social-links { gap: 0.6rem; flex-direction: column; align-items: flex-start; }
     }
 
     /* ---------- Launch countdown banner ---------- */
@@ -817,7 +858,7 @@
     <main>
       <section class="hero">
         <p class="eyebrow reveal">Return to Self.</p>
-        <p class="subtag reveal">Identity · Culture · Belonging</p>
+        <p class="subtitle reveal">Identity · Culture · Belonging</p>
         <h1 class="reveal">You are not starting over. You are <em>starting deeper.</em></h1>
         <p class="vprop reveal">
           AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity,
@@ -852,23 +893,23 @@
           </form>
           <p class="note">No spam — only an invitation when we open our doors.</p>
           <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You'll be among the first to return to yourself.</p>
-          <p class="ctas" style="margin-top:1.4rem; display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <nav class="ctas" aria-label="Learn more">
             <a href="#how-it-works" class="cta-link">How it works</a>
             <a href="#expectations" class="cta-link">What to expect</a>
             <a href="#founder" class="cta-link">Meet the founder</a>
-          </p>
-          <div class="pre-launch reveal" style="margin-top:1.6rem;">
-            <p style="font-size:0.82rem; color:var(--tobacco); margin-bottom:0.6rem;">Stay in the loop — newsletters and founder updates.</p>
-            <form id="newsletterform" novalidate style="display:flex; gap:0.5rem;">
-              <input type="email" name="newsletter" placeholder="Your email" aria-label="Newsletter email" autocomplete="email" required style="flex:1; padding:0.5rem 0.8rem; border:1px solid rgba(111,90,63,0.24); border-radius:100px; font-family:var(--sans); font-size:0.85rem; background:rgba(255,255,255,0.5); color:var(--ink); outline:none;" />
-              <button type="submit" style="font-family:var(--sans); font-weight:500; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--paper); background:var(--sage-deep); padding:0.55rem 1.2rem; border:none; border-radius:100px; cursor:pointer;">Subscribe</button>
+          </nav>
+          <div class="pre-launch reveal">
+            <p class="nl-prompt">Stay in the loop — newsletters and founder updates.</p>
+            <form id="newsletterform" novalidate>
+              <input type="email" id="nlEmail" name="newsletter" placeholder="Your email" aria-label="Newsletter email" autocomplete="email" required />
+              <button type="submit">Subscribe</button>
             </form>
-            <p class="nl-msg" id="nlMsg" role="status" aria-live="polite" style="margin-top:0.5rem; font-size:0.82rem; color:var(--sage-deep); opacity:0; transition:opacity 0.4s var(--ease);"></p>
-            <div class="social-links" style="margin-top:0.9rem; display:flex; gap:1rem; font-size:0.8rem;">
-              <a href="https://instagram.com/asaoz" target="_blank" rel="noopener" class="cta-link">Instagram</a>
-              <a href="https://facebook.com/asaoz" target="_blank" rel="noopener" class="cta-link">Facebook</a>
-              <a href="https://tiktok.com/@asaoz" target="_blank" rel="noopener" class="cta-link">TikTok</a>
-            </div>
+            <p class="nl-msg" id="nlMsg" role="status" aria-live="polite">Thank you — you'll hear from us soon.</p>
+            <ul class="social-links" aria-label="Follow us">
+              <li><a href="https://instagram.com/asaoz" target="_blank" rel="noopener">Instagram</a></li>
+              <li><a href="https://facebook.com/asaoz" target="_blank" rel="noopener">Facebook</a></li>
+              <li><a href="https://tiktok.com/@asaoz" target="_blank" rel="noopener">TikTok</a></li>
+            </ul>
           </div>
         </div>
       </section>
@@ -876,10 +917,10 @@
       <section class="how-it-works" id="how-it-works" aria-label="How AsaOZ works">
         <h2 class="reveal">How it works</h2>
         <ol class="steps">
-          <li class="reveal"><b>Apply or join the waitlist</b> — tell us a little about yourself and what you're looking for.</li>
-          <li class="reveal"><b>Attend guided online sessions</b> — join small-group identity circles and cultural talks.</li>
-          <li class="reveal"><b>Join community experiences</b> — share meals, stories, and walks with like-minded members.</li>
-          <li class="reveal"><b>Participate in curated journeys</b> — travel together to places that resonate with your story.</li>
+          <li class="reveal"><strong>Apply or join the waitlist</strong> — tell us a little about yourself and what you're looking for.</li>
+          <li class="reveal"><strong>Attend guided online sessions</strong> — join small-group identity circles and cultural talks.</li>
+          <li class="reveal"><strong>Join community experiences</strong> — share meals, stories, and walks with like-minded members.</li>
+          <li class="reveal"><strong>Participate in curated journeys</strong> — travel together to places that resonate with your story.</li>
         </ol>
       </section>
 
@@ -949,7 +990,7 @@
         </div>
 
         <div class="founder reveal">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='100' fill='%23eaddc7'/%3E%3Ccircle cx='100' cy='80' r='30' fill='%236f5a3f'/%3E%3Cellipse cx='100' cy='170' rx='55' ry='40' fill='%236f5a3f'/%3E%3C/svg%3E" alt="Ifeoma Adaora, founder of AsaOZ" width="120" height="120" style="border-radius:50%; object-fit:cover; margin:0 auto 1rem; display:block;" />
+          <img class="photo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='100' fill='%23eaddc7'/%3E%3Ccircle cx='100' cy='80' r='30' fill='%236f5a3f'/%3E%3Cellipse cx='100' cy='170' rx='55' ry='40' fill='%236f5a3f'/%3E%3C/svg%3E" alt="Ifeoma Adaora, founder of AsaOZ" width="120" height="120" />
           <p>
             “I’ve spent over 25 years travelling the world, learning how deeply travel
             can heal and restore identity. I created AsaOZ for those who feel unseen,
@@ -1084,6 +1125,30 @@
         msg.classList.add("show");
         form.reset();
       });
+
+      // ---- Newsletter signup ----
+      var nlForm = document.getElementById("newsletterform");
+      if (nlForm) {
+        var nlEmail = document.getElementById("nlEmail");
+        var nlMsg = document.getElementById("nlMsg");
+        nlForm.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var val = nlEmail.value.trim();
+          var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+          nlMsg.classList.remove("show");
+          if (!ok) {
+            nlMsg.textContent = "Please enter a valid email address.";
+            nlMsg.style.color = "#a35a3a";
+            nlMsg.classList.add("show");
+            nlEmail.focus();
+            return;
+          }
+          nlMsg.textContent = "Thank you — you'll hear from us soon.";
+          nlMsg.style.color = "";
+          nlMsg.classList.add("show");
+          nlForm.reset();
+        });
+      }
 
       // ---- Launch countdown (target: Mon, 3 Aug 2026, Europe/Dublin) ----
       var TARGET = new Date("2026-08-03T00:00:00+01:00").getTime();
