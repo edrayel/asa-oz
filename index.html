@@ -723,12 +723,154 @@
     }
     .reveal.in { opacity: 1; transform: none; }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-      .reveal { opacity: 1; transform: none; }
-    }
+     @media (prefers-reduced-motion: reduce) {
+       *, *::before, *::after { animation: none !important; transition: none !important; }
+       .reveal { opacity: 1; transform: none; }
+     }
 
-    /* ---------- Responsive ---------- */
+     /* ---------- Gallery ("Moments of return") ---------- */
+     .gallery {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .gallery h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .gallery-stage {
+       position: relative;
+       display: flex;
+       justify-content: center;
+       align-items: flex-end;
+       gap: clamp(1rem, 2.5vw, 2rem);
+       height: clamp(340px, 48vh, 520px);
+       perspective: 1200px;
+     }
+     .gallery-track {
+       display: flex;
+       justify-content: center;
+       align-items: flex-end;
+       gap: inherit;
+     }
+     .gallery-card {
+       position: relative;
+       flex: 0 0 auto;
+       width: clamp(180px, 26vw, 300px);
+       aspect-ratio: 3/4;
+       background: var(--cream);
+       border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
+       box-shadow: 0 14px 44px -18px rgba(43,33,24,0.28);
+       overflow: hidden;
+       transition: transform 0.7s var(--ease), opacity 0.7s var(--ease), filter 0.7s var(--ease);
+       will-change: transform;
+       transform-origin: center bottom;
+     }
+     .gallery-card:nth-child(2) { border-radius: 55% 45% 55% 45% / 45% 55% 45% 55%; }
+     .gallery-card:nth-child(3) { border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%; }
+     .gallery-card:nth-child(4) { border-radius: 45% 55% 50% 50% / 50% 50% 45% 55%; }
+     .gallery-card:nth-child(5) { border-radius: 55% 45% 55% 45% / 45% 55% 50% 50%; }
+     .gallery-card img {
+       width: 100%; height: 100%; object-fit: cover; display: block;
+       filter: saturate(0.92) contrast(1.02);
+     }
+     .gallery-card.active { transform: translateY(0) scale(1) rotate(0deg) !important; z-index: 3; opacity: 1; filter: none; }
+     .gallery-card:not(.active) { opacity: 0.75; filter: saturate(0.7) contrast(1); }
+     .gallery-card:not(.active):hover { opacity: 0.95; filter: saturate(0.9) contrast(1.02); }
+     .gallery-nav {
+       position: absolute;
+       top: 50%;
+       transform: translateY(-50%);
+       background: rgba(255,255,255,0.55);
+       border: 1px solid rgba(111,90,63,0.22);
+       backdrop-filter: blur(8px);
+       border-radius: 100px;
+       width: 44px; height: 44px;
+       cursor: pointer;
+       font-size: 1.1rem;
+       color: var(--espresso);
+       display: grid; place-items: center;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+       z-index: 4;
+     }
+     .gallery-nav:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+     .gallery-nav:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+     .gallery-nav.prev { left: 0; }
+     .gallery-nav.next { right: 0; }
+     .gallery-caption {
+       margin-top: 1.2rem;
+       font-size: 0.88rem;
+       color: var(--muted);
+       text-align: center;
+       font-style: italic;
+       min-height: 1.4em;
+     }
+
+     /* ---------- Testimonial ribbon ---------- */
+     .testimonial-ribbon {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) clamp(1.4rem, 5vw, 4rem);
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+       text-align: center;
+     }
+     .testimonial-ribbon blockquote {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-style: italic;
+       font-size: clamp(1.4rem, 3vw, 2rem);
+       line-height: 1.35;
+       color: var(--espresso);
+       max-width: 38ch;
+       margin: 0 auto;
+       letter-spacing: -0.01em;
+     }
+     .testimonial-ribbon blockquote p { margin-bottom: 1.2rem; }
+     .testimonial-ribbon blockquote p:last-child { margin-bottom: 0; }
+     .testimonial-ribbon .author {
+       margin-top: 1.6rem;
+       font-family: var(--sans);
+       font-size: 0.82rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       color: var(--cafe-ink);
+     }
+     .testimonial-ribbon .author span {
+       display: block;
+       margin-top: 0.3rem;
+       font-size: 0.78rem;
+       color: var(--muted);
+       letter-spacing: 0.08em;
+       text-transform: none;
+     }
+     .testimonial-ribbon .ribbon-rule {
+       width: 40px; height: 1px;
+       background: var(--cafe);
+       margin: 1.4rem auto 0;
+     }
+
+     /* ---------- Responsive gallery tweaks ---------- */
+      @media (max-width: 860px) {
+        .gallery-stage { gap: 1.2rem; height: auto; flex-wrap: wrap; justify-content: center; padding-bottom: 1rem; }
+        .gallery-card { width: 42vw; max-width: 260px; }
+        .gallery-nav { display: none; }
+      }
+      @media (max-width: 560px) {
+        .gallery-stage { gap: 1rem; }
+        .gallery-card { width: 70vw; max-width: 280px; }
+        .gallery-stage.is-mobile .gallery-card { display: none; }
+        .gallery-stage.is-mobile .gallery-card.active { display: block; }
+        .testimonial-ribbon blockquote { font-size: 1.25rem; }
+      }
+
+     /* ---------- Responsive ---------- */
      @media (max-width: 860px) {
        .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
        .ethos { grid-template-columns: 1fr; gap: clamp(2rem, 5vw, 3rem); }
@@ -1027,6 +1169,27 @@
         </div>
       </section>
 
+      <section class="gallery" aria-label="Moments from AsaOZ">
+        <h2 class="reveal">Moments of return</h2>
+        <div class="gallery-stage reveal" id="galleryStage">
+          <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous">&#8592;</button>
+          <div class="gallery-track" id="galleryTrack"></div>
+          <button class="gallery-nav next" id="galleryNext" aria-label="Next">&#8594;</button>
+        </div>
+        <p class="gallery-caption reveal" id="galleryCaption"></p>
+      </section>
+
+      <section class="testimonial-ribbon" aria-label="Testimonials">
+        <blockquote class="reveal" id="testimonialQuote">
+          <p>&ldquo;AsaOZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.&rdquo;</p>
+        </blockquote>
+        <p class="author reveal" id="testimonialAuthor">
+          Margaret, Ennis
+          <span>Community Member</span>
+        </p>
+        <div class="ribbon-rule reveal"></div>
+      </section>
+
       <section class="who-for" aria-label="Who AsaOZ is for">
         <h2 class="reveal">Who AsaOZ is for</h2>
         <p class="who-for-intro reveal">AsaOZ is for people who:</p>
@@ -1234,6 +1397,160 @@
   <script>
     (function () {
       document.getElementById("year").textContent = new Date().getFullYear();
+      // ---- Gallery: Arch Deck ----
+      var track = document.getElementById('galleryTrack');
+      var prevBtn = document.getElementById('galleryPrev');
+      var nextBtn = document.getElementById('galleryNext');
+      var captionEl = document.getElementById('galleryCaption');
+      var stageEl = document.getElementById('galleryStage');
+      if (track) {
+        var images = [
+          { src: 'https://picsum.photos/seed/asaoz-culture/600/800', alt: 'Cultural gathering and storytelling' },
+          { src: 'https://picsum.photos/seed/asaoz-travel/600/800', alt: 'Meaningful travel and exploration' },
+          { src: 'https://picsum.photos/seed/asaoz-community/600/800', alt: 'Community connection and belonging' },
+          { src: 'https://picsum.photos/seed/asaoz-nature/600/800', alt: 'Nature and reflection' },
+          { src: 'https://picsum.photos/seed/asaoz-heritage/600/800', alt: 'Heritage and identity' }
+        ];
+        var currentIndex = 0;
+        var isAnimating = false;
+        var cards = [];
+        var isMobile = window.innerWidth <= 560;
+        var isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
+        function archPose(index, total) {
+          var mid = Math.floor(total / 2);
+          var offset = index - mid;
+          var dir = offset === 0 ? 0 : offset / Math.abs(offset);
+          var dist = Math.abs(offset);
+          var depth = isMobile ? 0 : (hasFinePointer ? 1 : 0.5);
+          var scale = Math.max(0.72, 1 - dist * 0.08 * depth);
+          var translateY = dist * 30 * depth;
+          var rotate = dir * dist * 2.5 * depth;
+          return { scale: scale, translateY: translateY, rotate: rotate };
+        }
+
+        function applyMobileClass() {
+          if (stageEl) {
+            stageEl.classList.toggle('is-mobile', isMobile && !isReducedMotion);
+          }
+        }
+
+        function render() {
+          var total = images.length;
+          cards.forEach(function(card, i) {
+            var pose = archPose(i, total);
+            var isActive = i === currentIndex;
+            card.classList.toggle('active', isActive);
+            if (!isMobile && !isReducedMotion) {
+              card.style.transform = 'translateY(' + pose.translateY + 'px) scale(' + pose.scale + ') rotate(' + pose.rotate + 'deg)';
+            }
+            card.style.zIndex = isActive ? 3 : (total - Math.abs(i - currentIndex));
+          });
+          captionEl.textContent = images[currentIndex].alt;
+          applyMobileClass();
+        }
+
+        function goTo(index) {
+          if (isAnimating) return;
+          isAnimating = true;
+          currentIndex = (index + images.length) % images.length;
+          render();
+          setTimeout(function() { isAnimating = false; }, 700);
+        }
+
+        images.forEach(function(img, i) {
+          var card = document.createElement('div');
+          card.className = 'gallery-card reveal';
+          var image = document.createElement('img');
+          image.src = img.src;
+          image.alt = img.alt;
+          image.loading = 'lazy';
+          image.decoding = 'async';
+          card.appendChild(image);
+          track.appendChild(card);
+          cards.push(card);
+        });
+
+        render();
+        prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); });
+        nextBtn.addEventListener('click', function() { goTo(currentIndex + 1); });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
+          if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+        });
+        var startX = 0;
+        track.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+          var diff = e.changedTouches[0].clientX - startX;
+          if (Math.abs(diff) > 40) { diff > 0 ? goTo(currentIndex - 1) : goTo(currentIndex + 1); }
+        });
+        window.addEventListener('resize', function() {
+          isMobile = window.innerWidth <= 560;
+          render();
+        });
+
+        // Mouse parallax on desktop
+        if (hasFinePointer && !isReducedMotion) {
+          stageEl.addEventListener('mousemove', function(e) {
+            var rect = stageEl.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            var centerX = rect.width / 2;
+            var centerY = rect.height / 2;
+            var rotateY = ((x - centerX) / centerX) * 4;
+            var rotateX = ((centerY - y) / centerY) * 2;
+            track.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+          });
+          stageEl.addEventListener('mouseleave', function() {
+            track.style.transform = 'rotateX(0deg) rotateY(0deg)';
+          });
+        }
+      }
+      // ---- Testimonial ribbon rotator ----
+      var quoteEl = document.getElementById('testimonialQuote');
+      var authorEl = document.getElementById('testimonialAuthor');
+      if (quoteEl && authorEl) {
+        var testimonials = [
+          { text: 'AsaOZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.', name: 'Margaret', location: 'Ennis', role: 'Community Member' },
+          { text: 'I arrived alone, unsure of what to expect. I left with friendships that feel like home and a sense of belonging I haven\'t felt in years.', name: 'Thomas', location: 'Drogheda', role: 'Journey Participant' },
+          { text: 'The cultural storytelling sessions reminded me that my heritage has something to say. I felt seen, heard, and valued for the first time in a long while.', name: 'Eileen', location: 'Co. Clare', role: 'Identity Circle Member' }
+        ];
+        var tIndex = 0;
+        var tInterval;
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function showTestimonial(index) {
+          var t = testimonials[index];
+          quoteEl.style.opacity = '0';
+          quoteEl.style.transform = 'translateY(8px)';
+          authorEl.style.opacity = '0';
+          authorEl.style.transform = 'translateY(8px)';
+          setTimeout(function() {
+            quoteEl.innerHTML = '<p>&ldquo;' + t.text + '&rdquo;</p>';
+            authorEl.innerHTML = t.name + ', ' + t.location + '<span>' + t.role + '</span>';
+            quoteEl.style.opacity = '1';
+            quoteEl.style.transform = 'none';
+            authorEl.style.opacity = '1';
+            authorEl.style.transform = 'none';
+          }, reducedMotion ? 0 : 400);
+        }
+
+        function startAuto() {
+          tInterval = setInterval(function() {
+            tIndex = (tIndex + 1) % testimonials.length;
+            showTestimonial(tIndex);
+          }, 8000);
+        }
+        function resetAuto() { clearInterval(tInterval); startAuto(); }
+        quoteEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+        authorEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+        quoteEl.style.cursor = 'pointer';
+        authorEl.style.cursor = 'pointer';
+        quoteEl.addEventListener('click', function() { tIndex = (tIndex + 1) % testimonials.length; showTestimonial(tIndex); resetAuto(); });
+        authorEl.addEventListener('click', function() { tIndex = (tIndex + 1) % testimonials.length; showTestimonial(tIndex); resetAuto(); });
+        if (!reducedMotion) startAuto();
+      }
 
       // Scroll reveal
       var items = document.querySelectorAll(".reveal");
