@@ -161,7 +161,7 @@ AsaOZ is a guided cultural and personal development experience. It is not psycho
 
 ## **9\. SOCIAL PROOF (placeholder — populate after first events)**
 
-**Reminder:** No testimonials, member feedback, or trip photos available yet. To be collected after the first Drogheda circles. Once available, add:
+**Reminder:** No testimonials, member feedback, or trip photos available yet. To be collected after the first Ireland circles. Once available, add:
 
 * Testimonials (3–5, with names \+ photos)  
 * Early member feedback quotes  
@@ -180,7 +180,7 @@ AsaOZ is a guided cultural and personal development experience. It is not psycho
 * How much does it cost? (membership fee — TBD)  
 * Which countries/cultures will be explored? (TBD)  
 * How often are experiences organised? (TBD)  
-* Is it UK/Ireland-based or international? (currently Ireland-based: Drogheda, Ennis — expanding)  
+* Is it UK/Ireland-based or international? (currently Ireland-based — expanding)  
 * When do journeys take place?  
 * Can I join from another country?  
 * What happens after I register?  
@@ -196,7 +196,7 @@ Gradient background is beautiful but may slightly reduce text contrast on some s
 
 ## **12\. FOOTER / COMPANY DETAILS**
 
-Sole Trader: Ifeoma t/a AsaOZ Address: Drogheda, Co. Louth Phone: \[to be added\] RC No: Not applicable (sole trader) Contact email: info@asaoz.com (placeholder — confirm/finalise)
+Sole Trader: Ifeoma t/a AsaOZ Address: Ireland Phone: \[to be added\] RC No: Not applicable (sole trader) Contact email: info@asaoz.com (placeholder — confirm/finalise)
 
 **Cancellation/Refund Policy:** AsaOZ does not sell travel packages. Refunds apply only to programme fees for identity circles or cultural events.
 
@@ -229,7 +229,7 @@ Sole Trader: Ifeoma t/a AsaOZ Address: Drogheda, Co. Louth Phone: \[to be added\
 * Positive ageing  
 * Migration & identity
 
-**Target locations for SEO:** Drogheda, Co. Louth; Ennis, Co. Clare; Ireland (national); Adults 45+ globally (long-term)
+**Target locations for SEO:** Ireland (national); Adults 45+ globally (long-term)
 
 ---
 

@@ -160,17 +160,69 @@
       align-items: center;
       gap: 0.8rem;
     }
-    .back-link {
-      font-size: 0.78rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--cafe-ink);
-      border-bottom: 1px solid rgba(111, 90, 63, 0.28);
-      padding-bottom: 0.15rem;
-      transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
-    }
-    .back-link:hover { color: var(--espresso); border-color: var(--espresso); }
-    .status-pill {
+      .main-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.4rem;
+        margin-right: 0.6rem;
+      }
+      .main-nav a {
+        position: relative;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--cafe-ink);
+        text-decoration: none;
+        padding: 0.35rem 0;
+        transition: color 0.35s var(--ease);
+      }
+      .main-nav a::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: 70%;
+        height: 1.5px;
+        background: var(--espresso);
+        transform-origin: center;
+        transition: transform 0.4s var(--ease);
+        border-radius: 2px;
+      }
+      .main-nav a::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%) scale(0);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--cafe-ink);
+        transition: transform 0.35s var(--ease), background 0.35s var(--ease);
+      }
+      .main-nav a:hover::before {
+        transform: translateX(-50%) scaleX(1);
+      }
+      .main-nav a:hover::after {
+        transform: translateY(-50%) scale(1);
+      }
+      .main-nav a:hover {
+        color: var(--espresso);
+      }
+      .main-nav a.active {
+        color: var(--espresso);
+      }
+      .main-nav a.active::before {
+        transform: translateX(-50%) scaleX(1);
+        background: var(--sage-deep);
+      }
+      .main-nav a.active::after {
+        transform: translateY(-50%) scale(1);
+        background: var(--sage);
+        box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
+      }
+     .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.55rem;
@@ -488,14 +540,22 @@
         <span class="mark" aria-hidden="true"></span>
         <a href="/index.html">AsaOZ</a>
       </div>
+      <nav class="main-nav" aria-label="Main">
+        <a href="/index.html">Home</a>
+        <a href="/index.html#how-it-works">Journey</a>
+        <a href="/store.html" class="active">Store</a>
+      </nav>
       <div class="header-actions">
-        <a class="back-link" href="/index.html">Back to home</a>
         <div class="status-pill">
           <span class="dot"></span>
           Arriving soon
         </div>
         <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
-          &#9679;
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
           <span class="cart-count" id="cartCount">0</span>
         </button>
       </div>
@@ -520,7 +580,7 @@
     <footer>
       <p class="who">
         <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.<br />
-        Sole Trader: Ifeoma t/a AsaOZ &middot; Drogheda, Co. Louth<br />
+        Sole Trader: Ifeoma t/a AsaOZ &middot; Ireland<br />
         RC No: Not applicable (sole trader)<br />
         Contact: <a href="mailto:info@asaoz.com">info@asaoz.com</a> &middot; Phone: [to be added]<br />
         <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
