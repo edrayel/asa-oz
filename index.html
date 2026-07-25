@@ -166,16 +166,38 @@
       align-items: center;
       gap: 0.6rem;
     }
-    .brand .mark {
-      display: inline-grid;
-      place-items: center;
-      width: 34px; height: 34px;
-      border: 1.5px solid var(--cafe);
-      border-radius: 50%;
-      font-size: 0.95rem;
-      color: var(--cafe-ink);
-      font-style: italic;
-    }
+     .brand .mark {
+       display: inline-grid;
+       place-items: center;
+       width: 34px; height: 34px;
+       border: 1.5px solid var(--cafe);
+       border-radius: 50%;
+       font-size: 0.95rem;
+       color: var(--cafe-ink);
+       font-style: italic;
+     }
+     .header-actions {
+       display: flex;
+       align-items: center;
+       gap: 0.8rem;
+     }
+     .main-nav {
+       display: flex;
+       align-items: center;
+       gap: 1.4rem;
+       margin-right: 0.6rem;
+     }
+     .main-nav a {
+       font-size: 0.78rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       color: var(--cafe-ink);
+       border-bottom: 1px solid transparent;
+       padding-bottom: 0.15rem;
+       transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .main-nav a:hover,
+     .main-nav a.active { color: var(--espresso); border-color: var(--espresso); }
      .status-pill {
        display: inline-flex;
        align-items: center;
@@ -307,17 +329,215 @@
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .cta-alt a:hover { color: var(--espresso); }
-    .supporting {
-      margin-top: 1.2rem;
-      font-size: clamp(0.95rem, 1.4vw, 1.05rem);
-      max-width: 56ch;
-      color: var(--ink);
-      font-weight: 400;
-      line-height: 1.7;
-    }
+     .cta-alt a:hover { color: var(--espresso); }
+     .supporting {
+       margin-top: 1.2rem;
+       font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+       max-width: 56ch;
+       color: var(--ink);
+       font-weight: 400;
+       line-height: 1.7;
+     }
 
-    /* ---------- Pillars ---------- */
+     /* ---------- Store ---------- */
+     .store-section {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .store-section h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .store-grid {
+       display: grid;
+       grid-template-columns: repeat(3, 1fr);
+       gap: clamp(1.2rem, 2.8vw, 2.4rem);
+     }
+       .store-card {
+         position: relative;
+         background: var(--cream);
+         border-radius: 18px;
+         box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
+         overflow: hidden;
+         transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease);
+         display: flex;
+         flex-direction: column;
+       }
+       .store-card:nth-child(2) { border-radius: 18px; }
+       .store-card:nth-child(3) { border-radius: 18px; }
+       .store-card:nth-child(4) { border-radius: 18px; }
+       .store-card:nth-child(5) { border-radius: 18px; }
+       .store-card:nth-child(6) { border-radius: 18px; }
+     .store-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -22px rgba(43,33,24,0.32); }
+     .store-card .media {
+       width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+       filter: saturate(0.92) contrast(1.02);
+     }
+     .store-card .body {
+       padding: 1.2rem 1.4rem 1.4rem;
+       display: flex; flex-direction: column; gap: 0.4rem; flex: 1;
+     }
+     .store-card .badge {
+       font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+       color: var(--paper); background: var(--sage-deep); border-radius: 100px;
+       padding: 0.25rem 0.7rem; align-self: flex-start;
+     }
+     .store-card .badge.virtual { background: var(--cafe-ink); }
+     .store-card h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.15rem;
+       color: var(--espresso); margin-top: 0.2rem;
+     }
+     .store-card .price {
+       font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--cafe-ink);
+       margin-top: auto; padding-top: 0.4rem;
+     }
+     .store-card .add-btn {
+       margin-top: 0.8rem; width: 100%; padding: 0.75rem; border-radius: 100px; border: 1px solid rgba(111,90,63,0.28);
+       background: transparent; color: var(--ink); font-family: var(--sans); font-weight: 500;
+       font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+       transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .store-card .add-btn:hover { background: var(--espresso); color: var(--paper); border-color: var(--espresso); }
+     .store-cta {
+       text-align: center;
+       margin-top: 1.6rem;
+     }
+     .store-cta a {
+       display: inline-block;
+       font-family: var(--sans);
+       font-weight: 500;
+       font-size: 0.82rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       color: var(--paper);
+       background: var(--espresso);
+       padding: 0.85rem 1.6rem;
+       border-radius: 100px;
+       transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+     }
+     .store-cta a:hover { background: var(--sage-deep); transform: translateY(-1px); }
+
+     @media (max-width: 860px) {
+       .store-grid { grid-template-columns: repeat(2, 1fr); }
+     }
+     @media (max-width: 560px) {
+       .store-grid { grid-template-columns: 1fr; }
+     }
+
+     /* ---------- Cart drawer ---------- */
+     .cart-toggle {
+       position: relative;
+       display: inline-grid;
+       place-items: center;
+       width: 40px; height: 40px;
+       border-radius: 100px;
+       border: 1px solid rgba(111,90,63,0.25);
+       background: rgba(255,255,255,0.55);
+       backdrop-filter: blur(6px);
+       cursor: pointer;
+       color: var(--espresso);
+       font-size: 1rem;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .cart-toggle:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+     .cart-toggle:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+     .cart-count {
+       position: absolute; top: -4px; right: -4px;
+       width: 18px; height: 18px; border-radius: 100px;
+       background: var(--espresso); color: var(--paper);
+       font-size: 0.65rem; font-weight: 500;
+       display: grid; place-items: center;
+       opacity: 0; transform: scale(0.6);
+       transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+     }
+     .cart-count.show { opacity: 1; transform: scale(1); }
+     .cart-overlay {
+       position: fixed; inset: 0; z-index: 50;
+       background: rgba(43,33,24,0.25);
+       opacity: 0; pointer-events: none;
+       transition: opacity 0.4s var(--ease);
+     }
+     .cart-overlay.open { opacity: 1; pointer-events: auto; }
+     .cart-drawer {
+       position: fixed; top: 0; right: 0; bottom: 0; z-index: 55;
+       width: min(420px, 92vw);
+       background: var(--paper);
+       border-left: 1px solid rgba(111,90,63,0.18);
+       box-shadow: -14px 0 50px -28px rgba(43,33,24,0.35);
+       transform: translateX(105%);
+       transition: transform 0.5s var(--ease);
+       display: flex; flex-direction: column;
+     }
+     .cart-drawer.open { transform: translateX(0); }
+     .cart-header {
+       display: flex; justify-content: space-between; align-items: center;
+       padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(111,90,63,0.18);
+     }
+     .cart-header h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.25rem; color: var(--espresso);
+     }
+     .cart-close {
+       width: 36px; height: 36px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 1.1rem;
+       display: grid; place-items: center; transition: background 0.3s var(--ease);
+     }
+     .cart-close:hover { background: rgba(111,90,63,0.08); }
+     .cart-items { flex: 1; overflow-y: auto; padding: 1.2rem 1.6rem; }
+     .cart-item {
+       display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(111,90,63,0.12);
+     }
+     .cart-item-img {
+       width: 64px; height: 64px; border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+       background: var(--cream); overflow: hidden; flex: none;
+     }
+     .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+     .cart-item-body { flex: 1; }
+     .cart-item-body h4 { font-family: var(--serif); font-weight: 400; font-size: 1rem; color: var(--espresso); }
+     .cart-item-body .meta { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+     .cart-item-qty {
+       display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;
+     }
+     .cart-item-qty button {
+       width: 28px; height: 28px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 0.9rem;
+       display: grid; place-items: center; transition: background 0.2s var(--ease);
+     }
+     .cart-item-qty button:hover { background: rgba(111,90,63,0.08); }
+     .cart-item-qty span { font-size: 0.9rem; color: var(--ink); min-width: 20px; text-align: center; }
+     .cart-item-remove {
+       background: transparent; border: none; color: var(--muted); font-size: 0.8rem;
+       text-decoration: underline; text-underline-offset: 2px; cursor: pointer; margin-top: 0.4rem;
+     }
+     .cart-item-remove:hover { color: var(--espresso); }
+     .cart-footer {
+       padding: 1.4rem 1.6rem; border-top: 1px solid rgba(111,90,63,0.18);
+     }
+     .cart-total {
+       display: flex; justify-content: space-between; align-items: baseline;
+       font-family: var(--serif); font-size: 1.1rem; color: var(--espresso); margin-bottom: 1rem;
+     }
+     .cart-total span:last-child { font-style: italic; }
+     .cart-checkout {
+       width: 100%; padding: 0.9rem; border-radius: 100px; border: none;
+       background: var(--espresso); color: var(--paper); font-family: var(--sans);
+       font-weight: 500; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
+       cursor: pointer; transition: background 0.35s var(--ease);
+     }
+     .cart-checkout:hover { background: var(--sage-deep); }
+     .cart-checkout:disabled { opacity: 0.55; cursor: not-allowed; }
+     .cart-empty {
+       text-align: center; padding: 3rem 1rem; color: var(--muted); font-style: italic;
+     }
+
+     /* ---------- Pillars ---------- */
     .pillars {
       position: relative;
       z-index: 2;
@@ -876,14 +1096,15 @@
        .ethos { grid-template-columns: 1fr; gap: clamp(2rem, 5vw, 3rem); }
        .ethos > .reveal:first-child { position: static; border-right: none; padding-right: 0; }
      }
-    @media (max-width: 560px) {
-      .status-pill { display: none; }
-      .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
-      .signup input { text-align: center; padding: 0.4rem 0; }
-      .signup button { width: 100%; padding: 0.95rem; }
-      .pillars { grid-template-columns: 1fr; }
-      footer { flex-direction: column; align-items: flex-start; }
-    }
+     @media (max-width: 560px) {
+       .status-pill { display: none; }
+       .main-nav { gap: 0.8rem; }
+       .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
+       .signup input { text-align: center; padding: 0.4rem 0; }
+       .signup button { width: 100%; padding: 0.95rem; }
+       .pillars { grid-template-columns: 1fr; }
+       footer { flex-direction: column; align-items: flex-start; }
+     }
 
     /* ---------- Launch countdown banner ---------- */
     .countdown-bar {
@@ -1040,11 +1261,20 @@
     <header>
       <div class="brand">
         <span class="mark" aria-hidden="true"></span>
-        AsaOZ
+        <a href="/index.html">AsaOZ</a>
       </div>
-      <div class="status-pill">
-        <span class="dot"></span>
-        Arriving soon
+      <nav class="main-nav" aria-label="Main">
+        <a href="/store.html" class="active">Store</a>
+      </nav>
+      <div class="header-actions">
+        <div class="status-pill">
+          <span class="dot"></span>
+          Arriving soon
+        </div>
+        <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
+          &#9679; <!-- simple circle mark as bag icon -->
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
       </div>
     </header>
 
@@ -1166,6 +1396,14 @@
             <h3>Community membership</h3>
             <p>A space to belong — details and fees to be confirmed.</p>
           </div>
+        </div>
+      </section>
+
+      <section class="store-section" aria-label="Shop">
+        <h2 class="reveal">Tools for the journey</h2>
+        <div class="store-grid" id="storeGrid"></div>
+        <div class="store-cta reveal">
+          <a href="/store.html">Visit the store</a>
         </div>
       </section>
 
@@ -1378,6 +1616,21 @@
       <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
     </footer>
   </div>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
+    <div class="cart-header">
+      <h3>Your cart</h3>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">&#10005;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <p class="cart-empty">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><span id="cartTotal">€0</span></div>
+      <button class="cart-checkout" id="cartCheckout" disabled>Enquire to purchase</button>
+    </div>
+  </aside>
 
   <aside class="cookie-bar" id="cookieBar" role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="ckText">
     <span class="ck-icon" aria-hidden="true">⚪</span>
@@ -1647,6 +1900,124 @@
       document.getElementById("ckReject").addEventListener("click", function () {
         setConsent("necessary");
       });
+
+      // ---- Store / Cart ----
+      var products = [
+        { id: 'journal', name: 'The Return Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { id: 'print', name: 'Heritage Print', type: 'physical', price: 18, img: 'https://picsum.photos/seed/asaoz-print/600/450', desc: 'A keepsake art print rooted in heritage and memory.' },
+        { id: 'session', name: 'Identity Circle Session', type: 'virtual', price: 12, img: 'https://picsum.photos/seed/asaoz-circle/600/450', desc: 'Join an online guided circle to share and be seen.' },
+        { id: 'story', name: 'Cultural Storytelling Access', type: 'virtual', price: 8, img: 'https://picsum.photos/seed/asaoz-story/600/450', desc: 'Digital collection of stories that remember you.' },
+        { id: 'kit', name: 'Journey Kit', type: 'physical', price: 35, img: 'https://picsum.photos/seed/asaoz-kit/600/450', desc: 'Pre-trip materials to prepare mind and heart for travel.' },
+        { id: 'letter', name: 'Renewal Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
+      ];
+
+      function renderStore() {
+        var grid = document.getElementById('storeGrid');
+        products.forEach(function(p) {
+          var card = document.createElement('div');
+          card.className = 'store-card reveal';
+          card.innerHTML =
+            '<img class="media" src="' + p.img + '" alt="' + p.name + '" loading="lazy" decoding="async" />' +
+            '<div class="body">' +
+              '<span class="badge ' + p.type + '">' + p.type + '</span>' +
+              '<h3>' + p.name + '</h3>' +
+              '<p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">' + p.desc + '</p>' +
+              '<div class="price">' + (p.price === 0 ? 'Free' : '€' + p.price) + '</div>' +
+              '<button class="add-btn" data-id="' + p.id + '">' + (p.price === 0 ? 'Add to cart' : 'Add to cart') + '</button>' +
+            '</div>';
+          grid.appendChild(card);
+        });
+        grid.querySelectorAll('.add-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            addToCart(btn.getAttribute('data-id'));
+          });
+        });
+      }
+      if (document.getElementById('storeGrid')) renderStore();
+
+      var cartKey = 'asa-oz-cart';
+      var cart = (function() {
+        try { var s = localStorage.getItem(cartKey); return s ? JSON.parse(s) : []; } catch(e) { return []; }
+      })();
+      var cartOpen = false;
+
+      function saveCart() {
+        try { localStorage.setItem(cartKey, JSON.stringify(cart)); } catch(e) {}
+        updateCartUI();
+      }
+
+      function addToCart(id) {
+        var qty = 1; var existing = cart.find(function(i){ return i.id === id; }); if (existing) { existing.qty += 1; } else { cart.push({ id: id, qty: 1 }); } saveCart(); openCart();
+      }
+
+      function removeFromCart(id) { cart = cart.filter(function(i){ return i.id !== id; }); saveCart(); }
+
+      function changeQty(id, delta) {
+        var item = cart.find(function(i){ return i.id === id; }); if (!item) return;
+        item.qty += delta; if (item.qty <= 0) removeFromCart(id); else saveCart();
+      }
+
+      function cartCount() { return cart.reduce(function(a,b){ return a + b.qty; }, 0); }
+
+      function getProduct(id) { return products.find(function(p){ return p.id === id; }); }
+
+      function updateCartUI() {
+        var count = cartCount();
+        var countEl = document.getElementById('cartCount');
+        countEl.textContent = count;
+        countEl.classList.toggle('show', count > 0);
+        var itemsEl = document.getElementById('cartItems');
+        var totalEl = document.getElementById('cartTotal');
+        var checkoutBtn = document.getElementById('cartCheckout');
+        if (cart.length === 0) {
+          itemsEl.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+          totalEl.textContent = '€0';
+          checkoutBtn.disabled = true;
+        } else {
+          itemsEl.innerHTML = cart.map(function(item) {
+            var p = getProduct(item.id); if (!p) return '';
+            return '<div class="cart-item">' +
+              '<div class="cart-item-img"><img src="' + p.img + '" alt="' + p.name + '" /></div>' +
+              '<div class="cart-item-body">' +
+                '<h4>' + p.name + '</h4>' +
+                '<div class="meta">' + p.type + ' &middot; €' + p.price + ' each</div>' +
+                '<div class="cart-item-qty">' +
+                  '<button data-id="' + item.id + '" data-delta="-1" aria-label="Decrease">&#8722;</button>' +
+                  '<span>' + item.qty + '</span>' +
+                  '<button data-id="' + item.id + '" data-delta="1" aria-label="Increase">&#43;</button>' +
+                '</div>' +
+                '<button class="cart-item-remove" data-id="' + item.id + '">Remove</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
+          totalEl.textContent = '€' + total;
+          checkoutBtn.disabled = false;
+          itemsEl.querySelectorAll('.cart-item-qty button').forEach(function(b) {
+            b.addEventListener('click', function() { changeQty(b.getAttribute('data-id'), parseInt(b.getAttribute('data-delta'), 10)); });
+          });
+          itemsEl.querySelectorAll('.cart-item-remove').forEach(function(b) {
+            b.addEventListener('click', function() { removeFromCart(b.getAttribute('data-id')); });
+          });
+        }
+      }
+
+      function openCart() { cartOpen = true; document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+      function closeCart() { cartOpen = false; document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+
+      document.getElementById('cartToggle').addEventListener('click', openCart);
+      document.getElementById('cartClose').addEventListener('click', closeCart);
+      document.getElementById('cartOverlay').addEventListener('click', closeCart);
+
+      document.getElementById('cartCheckout').addEventListener('click', function() {
+        var lines = cart.map(function(i){ var p = getProduct(i.id); return (p ? p.name + ' x' + i.qty + ' = €' + (p.price * i.qty) : ''); });
+        var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
+        var body = lines.join('%0D%0A') + '%0D%0ATotal: €' + total + '%0D%0A%0D%0APlease confirm availability and payment options.';
+        window.location.href = 'mailto:info@asaoz.com?subject=Order%20Enquiry&body=' + body;
+      });
+
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
+      updateCartUI();
     })();
   </script>
 </body>
