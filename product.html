@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asa-OZ — Store</title>
+  <title>Asa-OZ — Product</title>
   <meta name="theme-color" content="#2b2118" />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
@@ -353,21 +353,110 @@
       transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
     }
     .store-card .add-btn:hover { background: var(--espresso); color: var(--paper); border-color: var(--espresso); }
-    .view-link {
-      display: inline-block;
-      margin-top: 0.7rem;
-      font-size: 0.78rem;
+
+    @media (max-width: 860px) {
+      .store-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .store-grid { grid-template-columns: 1fr; }
+      .similar-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- Product detail ---------- */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--cafe-ink);
-      text-decoration: underline;
-      text-underline-offset: 2px;
+      text-decoration: none;
+      margin-bottom: 1.6rem;
     }
-    .view-link:hover { color: var(--espresso); }
+    .back-link:hover { color: var(--espresso); }
+    .product-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 4vw, 4rem);
+      align-items: start;
+    }
+    .product-media {
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--cream);
+      box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
+    }
+    .product-media img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+      filter: saturate(0.92) contrast(1.02);
+    }
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .product-info h1 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      line-height: 1.1;
+      color: var(--espresso);
+      letter-spacing: -0.01em;
+    }
+    .product-badge {
+      display: inline-flex;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--paper);
+      background: var(--sage-deep);
+      border-radius: 100px;
+      padding: 0.25rem 0.7rem;
+      align-self: flex-start;
+    }
+    .product-badge.virtual { background: var(--cafe-ink); }
+    .product-desc {
+      font-size: 1rem;
+      color: var(--ink);
+      line-height: 1.7;
+      max-width: 52ch;
+    }
+    .product-price {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--cafe-ink);
+      margin-top: 0.4rem;
+    }
+    .product-add-btn {
+      margin-top: 0.6rem;
+      width: fit-content;
+      padding: 0.85rem 1.6rem;
+      border-radius: 100px;
+      border: 1px solid rgba(111,90,63,0.28);
+      background: var(--espresso);
+      color: var(--paper);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .product-add-btn:hover { background: var(--sage-deep); transform: translateY(-1px); }
+    .product-add-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    @media (max-width: 860px) {
+      .product-detail { grid-template-columns: 1fr; gap: 1.6rem; }
+      .product-add-btn { width: 100%; }
+      .similar-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     .similar-section {
       position: relative;
       z-index: 2;
-      padding-top: 1rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
     }
     .similar-section h2 {
       font-family: var(--serif);
@@ -381,15 +470,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: clamp(1rem, 2.4vw, 2rem);
-    }
-
-    @media (max-width: 860px) {
-      .store-grid { grid-template-columns: repeat(2, 1fr); }
-      .similar-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 560px) {
-      .store-grid { grid-template-columns: 1fr; }
-      .similar-grid { grid-template-columns: 1fr; }
     }
 
     /* ---------- Cart drawer ---------- */
@@ -600,21 +680,12 @@
 
     <main>
       <section class="store-hero">
-        <h1 class="reveal">Tools for the journey</h1>
-        <p class="lede reveal">Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.</p>
+        <a class="back-link reveal" href="/store.html">&larr; Back to the store</a>
+        <div id="productDetail" class="product-detail reveal"></div>
       </section>
-
-      <section class="store-section" aria-label="Shop">
-        <div class="store-filters reveal">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="physical">Physical</button>
-          <button class="filter-btn" data-filter="virtual">Virtual</button>
-        </div>
-        <div class="store-grid" id="storeGrid"></div>
-        <section class="similar-section" aria-label="You may also like">
-          <h2 class="reveal">You may also like</h2>
-          <div class="similar-grid" id="similarGrid"></div>
-        </section>
+      <section class="similar-section" aria-label="You may also like">
+        <h2 class="reveal">You may also like</h2>
+        <div class="similar-grid" id="similarGrid"></div>
       </section>
     </main>
 
@@ -662,45 +733,35 @@
         { id: 'letter', name: 'Renewal Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
       ];
 
-      function renderStore(filter) {
-        var grid = document.getElementById('storeGrid');
-        grid.innerHTML = '';
-        products.forEach(function(p) {
-          if (filter && filter !== 'all' && p.type !== filter) return;
-          var card = document.createElement('div');
-          card.className = 'store-card reveal';
-          card.setAttribute('data-type', p.type);
-          card.innerHTML =
-            '<img class="media" src="' + p.img + '" alt="' + p.name + '" loading="lazy" decoding="async" />' +
-            '<div class="body">' +
-              '<span class="badge ' + p.type + '">' + p.type + '</span>' +
-              '<h3>' + p.name + '</h3>' +
-              '<p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">' + p.desc + '</p>' +
-              '<div class="price">' + (p.price === 0 ? 'Free' : '&euro;' + p.price) + '</div>' +
-              '<button class="add-btn" data-id="' + p.id + '">Add to cart</button>' +
-              '<a class="view-link" href="/product.html?id=' + p.id + '">View details</a>' +
-            '</div>';
-          grid.appendChild(card);
-        });
-        grid.querySelectorAll('.add-btn').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            addToCart(btn.getAttribute('data-id'));
-          });
-        });
-        requestAnimationFrame(function() {
-          grid.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('in'); });
-        });
+      function getQueryParam(name) {
+        var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return m ? decodeURIComponent(m[1]) : null;
       }
 
-      document.querySelectorAll('.filter-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          renderStore(btn.getAttribute('data-filter'));
+      function renderProduct() {
+        var id = getQueryParam('id');
+        var container = document.getElementById('productDetail');
+        if (!container) return;
+        var p = products.find(function(x){ return x.id === id; });
+        if (!p) {
+          container.innerHTML = '<p class="product-desc">Product not found. <a href="/store.html">Return to the store</a>.</p>';
+          requestAnimationFrame(function(){ container.classList.add('in'); });
+          return;
+        }
+        container.innerHTML =
+          '<div class="product-media"><img src="' + p.img + '" alt="' + p.name + '" loading="eager" /></div>' +
+          '<div class="product-info">' +
+            '<span class="product-badge ' + p.type + '">' + p.type + '</span>' +
+            '<h1>' + p.name + '</h1>' +
+            '<p class="product-desc">' + p.desc + '</p>' +
+            '<p class="product-price">' + (p.price === 0 ? 'Free' : '&euro;' + p.price) + '</p>' +
+            '<button class="product-add-btn" data-id="' + p.id + '">Add to cart</button>' +
+          '</div>';
+        container.querySelector('.product-add-btn').addEventListener('click', function() {
+          addToCart(p.id);
         });
-      });
-
-      renderStore('all');
+        requestAnimationFrame(function() { container.classList.add('in'); });
+      }
 
       function getSimilarProducts(currentId, count) {
         var current = products.find(function(p){ return p.id === currentId; });
@@ -734,8 +795,6 @@
           container.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('in'); });
         });
       }
-
-      renderSimilar('similarGrid', null, 3);
 
       var cartKey = 'asa-oz-cart';
       var cart = (function() {
@@ -819,6 +878,12 @@
 
       document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
       updateCartUI();
+      renderProduct();
+      var currentProductId = (function() {
+        var m = new RegExp('[?&]id=([^&]*)').exec(window.location.search);
+        return m ? decodeURIComponent(m[1]) : null;
+      })();
+      if (currentProductId) { renderSimilar('similarGrid', currentProductId, 3); }
     })();
   </script>
 </body>

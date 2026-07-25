@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AsaOZ — Return to Yourself</title>
-  <meta name="description" content="AsaOZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
+  <title>Asa-OZ — Return to Yourself</title>
+  <meta name="description" content="Asa-OZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
   <meta name="theme-color" content="#2b2118" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="AsaOZ — Return to Yourself" />
+  <meta property="og:title" content="Asa-OZ — Return to Yourself" />
   <meta property="og:description" content="A movement for identity, belonging & renewal. Coming soon." />
-  <meta property="og:site_name" content="AsaOZ" />
+  <meta property="og:site_name" content="Asa-OZ" />
   <meta property="og:url" content="https://asa-oz.com" />
   <!--
     Social share image: drop a 1200x630 cover at /og-cover.jpg (rooted at the
@@ -23,7 +23,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AsaOZ — Return to Yourself" />
+  <meta name="twitter:title" content="Asa-OZ — Return to Yourself" />
   <meta name="twitter:description" content="A movement for identity, belonging & renewal. Coming soon." />
 
   <!-- Inline SVG favicon (no external file) -->
@@ -157,25 +157,28 @@
       padding-top: clamp(1.6rem, 4vw, 2.6rem);
     }
     .brand {
+      display: flex;
+      align-items: center;
+    }
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-logo-img {
+      display: block;
+      max-height: 36px;
+      width: auto;
+    }
+    .brand-logo-fallback {
       font-family: var(--serif);
       font-weight: 500;
       font-size: clamp(1.35rem, 2.4vw, 1.6rem);
       letter-spacing: 0.02em;
       color: var(--espresso);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
     }
-     .brand .mark {
-       display: inline-grid;
-       place-items: center;
-       width: 34px; height: 34px;
-       border: 1.5px solid var(--cafe);
-       border-radius: 50%;
-       font-size: 0.95rem;
-       color: var(--cafe-ink);
-       font-style: italic;
-     }
      .header-actions {
        display: flex;
        align-items: center;
@@ -797,7 +800,7 @@
        .steps { grid-template-columns: 1fr; }
      }
 
-     /* ---------- Who AsaOZ Is For ---------- */
+     /* ---------- Who Asa-OZ Is For ---------- */
      .who-for {
        position: relative;
        z-index: 2;
@@ -907,6 +910,105 @@
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--ink);
+      }
+      .founder-video {
+        margin-bottom: 1.1rem;
+      }
+      .founder-video-wrap {
+        position: relative;
+        aspect-ratio: 16/9;
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(140deg, var(--cream) 0%, var(--paper) 100%);
+        box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
+      }
+      .founder-video-backdrop {
+        position: absolute;
+        inset: 0;
+        opacity: 0.55;
+        background:
+          radial-gradient(circle at 30% 40%, rgba(166,123,91,0.18) 0%, transparent 55%),
+          radial-gradient(circle at 70% 70%, rgba(143,160,92,0.14) 0%, transparent 55%);
+        pointer-events: none;
+      }
+      .founder-video-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(111,90,63,0.07) 100%);
+        pointer-events: none;
+      }
+      .founder-video-btn {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--cream);
+        border: 1.5px solid rgba(111,90,63,0.35);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        color: var(--espresso);
+        transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
+      }
+      .founder-video-btn:hover {
+        background: var(--paper);
+        border-color: var(--cafe);
+        transform: translate(-50%, -50%) scale(1.06);
+      }
+      .founder-video-btn:disabled,
+      .founder-video-btn[aria-disabled="true"] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .founder-video-coming {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-family: var(--sans);
+        opacity: 0.85;
+        margin-top: 1.8rem;
+      }
+      .founder-video iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .founder-credentials {
+        position: absolute;
+        z-index: 2;
+        bottom: 0.9rem;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0;
+      }
+      .founder-credential {
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--paper);
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 100px;
+        padding: 0.35rem 0.75rem;
+        background: rgba(43,33,24,0.45);
+        backdrop-filter: blur(6px);
       }
      .founder-signature {
        font-family: var(--serif);
@@ -1253,6 +1355,19 @@
        background: var(--cafe);
        margin: 1.4rem auto 0;
      }
+     .testimonial-photo {
+       width: 64px;
+       height: 64px;
+       margin: 0 auto 1.2rem;
+       border-radius: 50%;
+       overflow: hidden;
+       border: 2px solid rgba(244,236,224,0.4);
+       box-shadow: 0 6px 22px -12px rgba(43,33,24,0.28);
+     }
+     .testimonial-photo img {
+       width: 100%; height: 100%; object-fit: cover; display: block;
+       filter: saturate(0.88) contrast(1.05) brightness(1.02);
+     }
 
      /* ---------- Responsive gallery tweaks ---------- */
       @media (max-width: 860px) {
@@ -1273,6 +1388,8 @@
        .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
        .ethos { grid-template-columns: 1fr; gap: clamp(2rem, 5vw, 3rem); }
        .ethos > .reveal:first-child { position: static; border-right: none; padding-right: 0; }
+       .founder-credentials { bottom: 0.6rem; gap: 0.4rem; }
+       .founder-credential { font-size: 0.62rem; padding: 0.28rem 0.6rem; }
      }
      @media (max-width: 560px) {
        .status-pill { display: none; }
@@ -1420,7 +1537,7 @@
 </head>
   <body>
   <div class="countdown-bar" id="countdownBar" role="status" aria-label="Time until launch">
-    <span class="cd-label">Our website launches in <b>2 weeks</b> — AsaOZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
+    <span class="cd-label">Our website launches in <b>2 weeks</b> — Asa-OZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
     <span class="cd-units" id="cdUnits" aria-hidden="true">
       <span class="cd-unit"><span class="n" id="cdD">--</span><span class="u">Days</span></span>
       <span class="cd-unit"><span class="n" id="cdH">--</span><span class="u">Hrs</span></span>
@@ -1438,13 +1555,16 @@
   <div class="shell">
     <header>
       <div class="brand">
-        <span class="mark" aria-hidden="true"></span>
-        <a href="/index.html">AsaOZ</a>
+        <a href="/index.html" class="brand-link">
+          <span class="brand-logo-fallback">Asa-OZ</span>
+          <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
+        </a>
       </div>
       <nav class="main-nav" aria-label="Main">
         <a href="#how-it-works">Journey</a>
+        <a href="#ethos">About</a>
         <a href="/store.html">Store</a>
-        <a href="mailto:info@asaoz.com">Connect</a>
+        <a href="mailto:info@asa-oz.com">Connect</a>
       </nav>
       <div class="header-actions">
         <div class="status-pill">
@@ -1468,9 +1588,9 @@
           <p class="eyebrow reveal">Identity • Culture • Belonging</p>
           <h1 class="reveal">Return to Self.</h1>
           <p class="lede reveal">
-            AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.
+            Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.
           </p>
-          <p class="supporting reveal">Meet like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, AsaOZ helps you connect with others before travelling together.</p>
+          <p class="supporting reveal">Meet like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together.</p>
 
           <div class="signup reveal">
             <!--
@@ -1494,7 +1614,7 @@
               <button type="submit">Join the journey</button>
             </form>
             <p class="note">No spam — only an invitation when we open our doors.</p>
-            <p class="cta-alt"><a href="mailto:info@asaoz.com?subject=Discovery%20Call%20Request">Book a discovery call</a></p>
+            <p class="cta-alt"><a href="mailto:info@asa-oz.com?subject=Discovery%20Call%20Request">Book a discovery call</a></p>
             <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You&rsquo;ll be among the first to return to yourself.</p>
           </div>
         </div>
@@ -1514,7 +1634,7 @@
         </div>
       </section>
 
-      <section class="how-it-works" aria-label="How AsaOZ works">
+      <section class="how-it-works" aria-label="How Asa-OZ works">
         <h2 class="reveal">How it works</h2>
         <div class="steps">
           <div class="step reveal">
@@ -1540,7 +1660,7 @@
         </div>
       </section>
 
-      <section class="pillars" aria-label="What AsaOZ offers">
+      <section class="pillars" aria-label="What Asa-OZ offers">
         <div class="pillar reveal">
           <span class="num">01</span>
           <h3>Identity</h3>
@@ -1605,7 +1725,7 @@
         <p class="tools-cta reveal"><a href="/store.html">Visit the store</a></p>
       </section>
 
-      <section class="gallery" aria-label="Moments from AsaOZ">
+      <section class="gallery" aria-label="Moments from Asa-OZ">
         <h2 class="reveal">Moments of return</h2>
         <div class="gallery-stage reveal" id="galleryStage">
           <div class="gallery-track" id="galleryTrack"></div>
@@ -1616,8 +1736,11 @@
       </section>
 
       <section class="testimonial-ribbon" aria-label="Testimonials">
+        <div class="testimonial-photo reveal" id="testimonialPhoto" aria-hidden="true">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80" alt="" loading="lazy" />
+        </div>
         <blockquote class="reveal" id="testimonialQuote">
-          <p>&ldquo;AsaOZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.&rdquo;</p>
+          <p>&ldquo;Asa-OZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.&rdquo;</p>
         </blockquote>
         <p class="author reveal" id="testimonialAuthor">
           Margaret
@@ -1626,9 +1749,9 @@
         <div class="ribbon-rule reveal"></div>
       </section>
 
-      <section class="who-for" aria-label="Who AsaOZ is for">
-        <h2 class="reveal">Who AsaOZ is for</h2>
-        <p class="who-for-intro reveal">AsaOZ is for people who:</p>
+      <section class="who-for" aria-label="Who Asa-OZ is for">
+        <h2 class="reveal">Who Asa-OZ is for</h2>
+        <p class="who-for-intro reveal">Asa-OZ is for people who:</p>
         <ul class="who-for-list">
           <li class="reveal">Feel disconnected from their identity or heritage</li>
           <li class="reveal">Are navigating a major life transition</li>
@@ -1639,12 +1762,12 @@
         <p class="who-for-tagline reveal">Designed for adults aged 45 and above who are ready for something more than another holiday.</p>
       </section>
 
-      <section class="ethos">
+      <section class="ethos" id="ethos">
         <div class="reveal">
           <blockquote>
             You don’t have to shrink to fit the life you’ve <span>outgrown.</span>
           </blockquote>
-          <p class="from">The AsaOZ Promise</p>
+          <p class="from">The Asa-OZ Promise</p>
           <div class="not-list">
             <span><s>Not therapy</s></span>
             <span><s>Not clinical</s></span>
@@ -1654,6 +1777,23 @@
         </div>
 
         <div class="founder reveal">
+          <div class="founder-video reveal">
+            <div class="founder-video-wrap">
+              <div class="founder-video-backdrop"></div>
+              <div class="founder-video-gradient"></div>
+              <button class="founder-video-btn" aria-label="Play founder introduction video" type="button">
+                <svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+              <p class="founder-video-coming">Founder video coming soon</p>
+              <p class="founder-credentials">
+                <span class="founder-credential">25+ years cultural travel</span>
+                <span class="founder-credential">Cultural Guide</span>
+                <span class="founder-credential">Community Builder</span>
+              </p>
+            </div>
+          </div>
           <p>
             “My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world,
             discovering that travel can do much more than take us to new places. It can restore
@@ -1667,9 +1807,9 @@
             themselves and unsure of what the next chapter of life should look like.”
           </p>
           <p>“I understood that feeling.”</p>
-          <p>“That's why I created AsaOZ.”</p>
+          <p>“That's why I created Asa-OZ.”</p>
           <p>
-            “AsaOZ is designed for adults aged 45 and above who are ready for something more than
+            “Asa-OZ is designed for adults aged 45 and above who are ready for something more than
             another holiday. It is for those seeking meaningful experiences, genuine human
             connection, cultural discovery, and the chance to embrace life with renewed purpose.”
           </p>
@@ -1700,14 +1840,14 @@
         <h2 class="reveal">Questions, gently answered.</h2>
 
         <details class="reveal">
-          <summary>What is AsaOZ?<span class="sign" aria-hidden="true"></span></summary>
+          <summary>What is Asa-OZ?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>AsaOZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
+            <p>Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
           </div>
         </details>
 
         <details class="reveal">
-          <summary>Who is AsaOZ for?<span class="sign" aria-hidden="true"></span></summary>
+          <summary>Who is Asa-OZ for?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
             <p>Adults 45+ who feel disconnected from their identity or heritage, are navigating a major life transition, long for meaningful community, want intentional travel experiences, or are seeking reflection and personal growth.</p>
           </div>
@@ -1786,14 +1926,14 @@
         <details class="reveal">
           <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>No. AsaOZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
+            <p>No. Asa-OZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
           </div>
         </details>
 
         <details class="reveal">
           <summary>Do you sell travel packages?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>No. Participants book their own travel. AsaOZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
+            <p>No. Participants book their own travel. Asa-OZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
           </div>
         </details>
       </section>
@@ -1801,17 +1941,17 @@
 
     <footer>
       <p class="who">
-        <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.<br />
-        Sole Trader: Ifeoma t/a AsaOZ &middot; Ireland<br />
+        <b>Asa-OZ</b> — a movement for identity, belonging &amp; renewal.<br />
+        Sole Trader: Ifeoma t/a Asa-OZ &middot; Ireland<br />
         RC No: Not applicable (sole trader)<br />
-        Contact: <a href="mailto:info@asaoz.com">info@asaoz.com</a> &middot; Phone: [to be added]<br />
+        Contact: <a href="mailto:info@asa-oz.com">info@asa-oz.com</a> &middot; Phone: [to be added]<br />
         <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
       </p>
       <div class="social-links">
         <a href="#" target="_blank" rel="noopener">Instagram</a>
         <a href="#" target="_blank" rel="noopener">Facebook</a>
       </div>
-      <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
+      <p class="copy">© <span id="year"></span> Asa-OZ. All rights reserved.</p>
     </footer>
   </div>
 
@@ -1836,7 +1976,7 @@
       <p id="ckText">
         We use strictly necessary cookies to run this site. With your consent, we’d also like to
         use analytics cookies to understand how visitors find us. You can accept, reject, or change
-        your choice any time. See our <a href="/privacy" id="ckPrivacy">privacy notice</a>.
+        your choice any time. See our privacy notice.
       </p>
       <div class="ck-actions">
         <button type="button" class="ck-reject" id="ckReject">Reject non-essential</button>
@@ -1958,14 +2098,40 @@
           });
         }
       }
+      // ---- Founder video (click-to-load, no network request until play) ----
+      var FOUNDER_VIDEO_ID = "";
+      var founderVideoBlock = document.querySelector('.founder-video');
+      if (founderVideoBlock) {
+        var fvBtn = founderVideoBlock.querySelector('.founder-video-btn');
+        var fvWrap = founderVideoBlock.querySelector('.founder-video-wrap');
+        if (!FOUNDER_VIDEO_ID) {
+          fvBtn.setAttribute('disabled', '');
+          fvBtn.setAttribute('aria-disabled', 'true');
+          fvBtn.addEventListener('click', function(e) { e.preventDefault(); });
+        } else {
+          fvBtn.addEventListener('click', function() {
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + FOUNDER_VIDEO_ID + '?autoplay=1&rel=0';
+            iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.title = 'Founder introduction video';
+            fvWrap.appendChild(iframe);
+            var btnEl = fvWrap.querySelector('.founder-video-btn');
+            if (btnEl) btnEl.style.display = 'none';
+            var comingEl = fvWrap.querySelector('.founder-video-coming');
+            if (comingEl) comingEl.style.display = 'none';
+          });
+        }
+      }
       // ---- Testimonial ribbon rotator ----
       var quoteEl = document.getElementById('testimonialQuote');
       var authorEl = document.getElementById('testimonialAuthor');
+      var testimonialPhotoEl = document.getElementById('testimonialPhoto');
       if (quoteEl && authorEl) {
         var testimonials = [
-          { text: 'AsaOZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.', name: 'Margaret', location: 'Ireland', role: 'Community Member' },
-          { text: 'I arrived alone, unsure of what to expect. I left with friendships that feel like home and a sense of belonging I haven\'t felt in years.', name: 'Thomas', location: 'Ireland', role: 'Journey Participant' },
-          { text: 'The cultural storytelling sessions reminded me that my heritage has something to say. I felt seen, heard, and valued for the first time in a long while.', name: 'Eileen', location: 'Co. Clare', role: 'Identity Circle Member' }
+          { text: 'Asa-OZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.', name: 'Margaret', location: 'Ireland', role: 'Community Member', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80' },
+          { text: 'I arrived alone, unsure of what to expect. I left with friendships that feel like home and a sense of belonging I haven\'t felt in years.', name: 'Thomas', location: 'Ireland', role: 'Journey Participant', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80' },
+          { text: 'The cultural storytelling sessions reminded me that my heritage has something to say. I felt seen, heard, and valued for the first time in a long while.', name: 'Eileen', location: 'Co. Clare', role: 'Identity Circle Member', photo: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?w=200&q=80' }
         ];
         var tIndex = 0;
         var tInterval;
@@ -1977,13 +2143,22 @@
           quoteEl.style.transform = 'translateY(8px)';
           authorEl.style.opacity = '0';
           authorEl.style.transform = 'translateY(8px)';
+          if (testimonialPhotoEl) { testimonialPhotoEl.style.opacity = '0'; testimonialPhotoEl.style.transform = 'translateY(6px)'; }
           setTimeout(function() {
             quoteEl.innerHTML = '<p>&ldquo;' + t.text + '&rdquo;</p>';
             authorEl.innerHTML = t.name + ', ' + t.location + '<span>' + t.role + '</span>';
+            if (testimonialPhotoEl && t.photo) {
+              var img = testimonialPhotoEl.querySelector('img');
+              if (img) { img.src = t.photo; img.alt = t.name + ', ' + t.role; }
+              testimonialPhotoEl.style.display = '';
+            } else if (testimonialPhotoEl) {
+              testimonialPhotoEl.style.display = 'none';
+            }
             quoteEl.style.opacity = '1';
             quoteEl.style.transform = 'none';
             authorEl.style.opacity = '1';
             authorEl.style.transform = 'none';
+            if (testimonialPhotoEl) { testimonialPhotoEl.style.opacity = '1'; testimonialPhotoEl.style.transform = 'none'; }
           }, reducedMotion ? 0 : 400);
         }
 
@@ -1996,6 +2171,7 @@
         function resetAuto() { clearInterval(tInterval); startAuto(); }
         quoteEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
         authorEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+        if (testimonialPhotoEl) { testimonialPhotoEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)'; }
         quoteEl.style.cursor = 'pointer';
         authorEl.style.cursor = 'pointer';
         quoteEl.addEventListener('click', function() { tIndex = (tIndex + 1) % testimonials.length; showTestimonial(tIndex); resetAuto(); });
@@ -2082,7 +2258,7 @@
         if (diff <= 0) {
           cd.bar.classList.add("is-past");
           cd.bar.querySelector(".cd-label").innerHTML =
-            "The AsaOZ website is live. Welcome — you don’t have to begin again alone.";
+            "The Asa-OZ website is live. Welcome — you don’t have to begin again alone.";
           clearInterval(timer);
           return;
         }
@@ -2234,7 +2410,7 @@
         var lines = cart.map(function(i){ var p = getProduct(i.id); return (p ? p.name + ' x' + i.qty + ' = €' + (p.price * i.qty) : ''); });
         var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
         var body = lines.join('%0D%0A') + '%0D%0ATotal: €' + total + '%0D%0A%0D%0APlease confirm availability and payment options.';
-        window.location.href = 'mailto:info@asaoz.com?subject=Order%20Enquiry&body=' + body;
+        window.location.href = 'mailto:info@asa-oz.com?subject=Order%20Enquiry&body=' + body;
       });
 
       document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
