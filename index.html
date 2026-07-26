@@ -213,39 +213,32 @@
         transition: transform 0.4s var(--ease);
         border-radius: 2px;
       }
-      .main-nav a::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: calc(100% + 8px);
-        transform: translateY(-50%) scale(0);
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--cafe-ink);
-        transition: transform 0.35s var(--ease), background 0.35s var(--ease);
-      }
-      .main-nav a:hover::before {
-        transform: translateX(-50%) scaleX(1);
-      }
-      .main-nav a:hover::after {
-        transform: translateY(-50%) scale(1);
-      }
-      .main-nav a:hover {
+       .main-nav a:hover::before {
+         transform: translateX(-50%) scaleX(1);
+       }
+       .main-nav a:hover {
         color: var(--espresso);
       }
       .main-nav a.active {
         color: var(--espresso);
       }
-      .main-nav a.active::before {
-        transform: translateX(-50%) scaleX(1);
-        background: var(--sage-deep);
-      }
-      .main-nav a.active::after {
-        transform: translateY(-50%) scale(1);
-        background: var(--sage);
-        box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
-      }
+       .main-nav a.active::before {
+         transform: translateX(-50%) scaleX(1);
+         background: var(--sage-deep);
+       }
+       .main-nav a.active::after {
+         content: "";
+         position: absolute;
+         top: 50%;
+         right: calc(100% + 8px);
+         transform: translateY(-50%) scale(1);
+         width: 6px;
+         height: 6px;
+         border-radius: 50%;
+         background: var(--sage);
+         box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
+         transition: transform 0.35s var(--ease), background 0.35s var(--ease);
+       }
      .status-pill {
        display: inline-flex;
        align-items: center;
@@ -309,29 +302,190 @@
       box-shadow: inset 0 0 0 1px rgba(244,236,224,0.4);
       pointer-events: none;
     }
-    .large { width: 65%; height: 68%; right: 0; top: 12%; z-index: 1; }
-    .medium { width: 48%; height: 36%; left: 4%; top: 4%; z-index: 2; transform: translateX(-8px); }
-    .small { width: 32%; height: 28%; }
-    .small:nth-child(3) { left: 2%; bottom: 18%; z-index: 3; transform: translateY(-6px); }
-    .small:nth-child(4) { right: -6px; bottom: 6%; z-index: 1; }
+    .large { width: 65%; height: 52%; right: 0; top: 8%; z-index: 1; }
+    .medium { width: 48%; height: 34%; left: 4%; top: 4%; z-index: 2; transform: translateX(-8px); }
+    .small { width: 32%; height: 22%; }
+    .small:nth-child(3) { left: 2%; bottom: 20%; z-index: 3; transform: translateY(-3px); }
+    .small:nth-child(4) { right: 2%; bottom: 6%; z-index: 1; }
 
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; gap: 2rem; }
       .hero-collage { height: 380px; }
-      .large { width: 62%; height: 62%; right: 0; top: 10%; }
-      .medium { width: 50%; height: 34%; left: 5%; top: 8%; transform: translateX(-6px); }
-      .small:nth-child(3) { width: 34%; height: 28%; left: 5%; bottom: 12%; }
-      .small:nth-child(4) { width: 30%; height: 24%; right: -4px; bottom: 6%; }
+      .large { width: 62%; height: 48%; right: 0; top: 10%; }
+      .medium { width: 50%; height: 32%; left: 5%; top: 8%; transform: translateX(-6px); }
+      .small:nth-child(3) { width: 34%; height: 22%; left: 5%; bottom: 16%; }
+      .small:nth-child(4) { width: 30%; height: 20%; right: 2%; bottom: 6%; }
     }
-    @media (max-width: 560px) {
-      .hero-collage { height: 280px; }
-      .hero-shot { border-radius: 20px; }
-      .hero-shot::after { border-radius: 20px; }
-      .large { width: 65%; height: 65%; }
-      .medium { width: 55%; height: 38%; }
-      .small:nth-child(3) { width: 38%; height: 30%; }
-      .small:nth-child(4) { width: 32%; height: 26%; }
-    }
+     @media (max-width: 560px) {
+       .hero-collage { height: 280px; }
+       .hero-shot { border-radius: 20px; }
+       .hero-shot::after { border-radius: 20px; }
+       .large { width: 65%; height: 44%; }
+       .medium { width: 55%; height: 30%; }
+       .small:nth-child(3) { width: 38%; height: 20%; bottom: 16%; }
+       .small:nth-child(4) { width: 32%; height: 18%; bottom: 6%; }
+     }
+
+     /* ---------- Wall of Moments easter egg ---------- */
+     .wall-trigger {
+       position: absolute;
+       inset: 0;
+       z-index: 5;
+       cursor: pointer;
+       opacity: 0;
+       pointer-events: none;
+     }
+     .wall-trigger:focus {
+       pointer-events: auto;
+       opacity: 1;
+       outline: none;
+       box-shadow: inset 0 0 0 3px var(--sage-deep), 0 0 0 1px rgba(111,90,63,0.35);
+       border-radius: 28px;
+       transition: box-shadow 0.2s var(--ease);
+     }
+     .sr-only-focusable {
+       position: absolute;
+       width: 1px; height: 1px;
+       padding: 0; margin: -1px;
+       overflow: hidden; clip: rect(0,0,0,0);
+       white-space: nowrap; border: 0;
+     }
+     .sr-only-focusable:focus {
+       position: fixed;
+       width: auto; height: auto;
+       padding: 0.6rem 1.2rem;
+       margin: 1rem;
+       overflow: visible; clip: auto;
+       white-space: normal;
+       background: var(--paper);
+       color: var(--espresso);
+       font-family: var(--sans);
+       font-size: 0.82rem;
+       letter-spacing: 0.12em;
+       text-transform: uppercase;
+       border-radius: 100px;
+       border: 1px solid rgba(111,90,63,0.28);
+       z-index: 100;
+       box-shadow: 0 8px 30px -14px rgba(43,33,24,0.28);
+       outline: 2px solid var(--sage-deep);
+       outline-offset: 3px;
+     }
+     .wall-overlay {
+       position: fixed;
+       inset: 0;
+       z-index: 90;
+       background: var(--espresso);
+       display: none;
+       opacity: 0;
+       transition: opacity 0.4s var(--ease);
+     }
+     .wall-overlay.open { display: block; opacity: 1; }
+     .wall-canvas-wrap {
+       position: absolute;
+       inset: 0;
+     }
+     .wall-canvas-wrap canvas {
+       display: block;
+       width: 100%;
+       height: 100%;
+     }
+     .wall-close {
+       position: absolute;
+       z-index: 2;
+       top: 1.4rem;
+       right: 1.4rem;
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       border: 1.5px solid rgba(244,236,224,0.35);
+       background: rgba(43,33,24,0.45);
+       backdrop-filter: blur(6px);
+       cursor: pointer;
+       color: var(--paper);
+       font-size: 1rem;
+       display: grid;
+       place-items: center;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
+     }
+     .wall-close:hover {
+       background: rgba(43,33,24,0.7);
+       border-color: var(--sand);
+       transform: scale(1.06);
+     }
+     .wall-loading {
+       position: absolute;
+       z-index: 1;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 36px;
+       height: 36px;
+       border-radius: 50%;
+       border: 2px solid rgba(244,236,224,0.15);
+       border-top-color: var(--cafe);
+       animation: wallSpin 0.9s linear infinite;
+     }
+     @keyframes wallSpin {
+       to { transform: translate(-50%, -50%) rotate(360deg); }
+     }
+     .wall-brand {
+       position: absolute;
+       z-index: 2;
+       top: 1.4rem;
+       left: 1.4rem;
+       font-family: var(--serif);
+       font-weight: 500;
+       font-size: 0.95rem;
+       letter-spacing: 0.06em;
+       color: rgba(244,236,224,0.55);
+       pointer-events: none;
+       user-select: none;
+     }
+     .wall-hints {
+       position: absolute;
+       z-index: 2;
+       bottom: 1.4rem;
+       right: 1.4rem;
+       display: flex;
+       align-items: center;
+       gap: 0.55rem;
+       padding: 0.5rem 0.85rem;
+       border-radius: 100px;
+       background: rgba(43,33,24,0.45);
+       backdrop-filter: blur(6px);
+       border: 1px solid rgba(244,236,224,0.18);
+       color: rgba(244,236,224,0.75);
+       font-family: var(--sans);
+       font-size: 0.72rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       pointer-events: none;
+       user-select: none;
+       transition: opacity 0.6s var(--ease);
+     }
+     .wall-hints.hidden { opacity: 0; }
+     .wall-hints .hint-icon {
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       width: 22px;
+       height: 22px;
+       flex-shrink: 0;
+     }
+     .wall-hints .hint-icon svg {
+       width: 18px;
+       height: 18px;
+       stroke: rgba(244,236,224,0.7);
+       fill: none;
+       stroke-width: 1.8;
+       stroke-linecap: round;
+       stroke-linejoin: round;
+     }
+     @media (max-width: 560px) {
+       .wall-brand { font-size: 0.8rem; top: 1rem; left: 1rem; }
+       .wall-hints { bottom: 1rem; right: 1rem; gap: 0.4rem; padding: 0.4rem 0.7rem; font-size: 0.65rem; }
+       .wall-hints .hint-icon svg { width: 15px; height: 15px; }
+     }
     .eyebrow {
       font-size: 0.78rem;
       letter-spacing: 0.34em;
@@ -432,6 +586,14 @@
       text-underline-offset: 2px;
     }
      .cta-alt a:hover { color: var(--espresso); }
+     .booking-trigger {
+       background: transparent; border: none; padding: 0; margin: 0;
+       font-family: var(--sans); font-weight: 500; font-size: 0.9rem;
+       color: var(--sage-deep); text-decoration: underline; text-underline-offset: 2px;
+       cursor: pointer; letter-spacing: 0.02em;
+       transition: color 0.35s var(--ease);
+     }
+     .booking-trigger:hover { color: var(--espresso); }
      .supporting {
        margin-top: 1.2rem;
        font-size: clamp(0.95rem, 1.4vw, 1.05rem);
@@ -714,7 +876,120 @@
        text-align: center; padding: 3rem 1rem; color: var(--muted); font-style: italic;
      }
 
-     /* ---------- Pillars ---------- */
+     /* ---------- Booking Modal ---------- */
+     .booking-overlay {
+       position: fixed; inset: 0; z-index: 60;
+       background: rgba(43,33,24,0.35);
+       opacity: 0; pointer-events: none;
+       transition: opacity 0.4s var(--ease);
+       display: flex; align-items: center; justify-content: center;
+       padding: clamp(1rem, 3vw, 2rem);
+     }
+     .booking-overlay.open { opacity: 1; pointer-events: auto; }
+     .booking-modal {
+       width: min(520px, 100%);
+       max-height: min(92vh, 720px);
+       background: var(--paper);
+       border: 1px solid rgba(111,90,63,0.18);
+       border-radius: 18px;
+       box-shadow: 0 28px 70px -32px rgba(43,33,24,0.55);
+       display: flex; flex-direction: column;
+       transform: translateY(18px);
+       transition: transform 0.5s var(--ease), opacity 0.4s var(--ease);
+       opacity: 0;
+     }
+     .booking-overlay.open .booking-modal { transform: none; opacity: 1; }
+     .booking-header {
+       display: flex; justify-content: space-between; align-items: center;
+       padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(111,90,63,0.18);
+     }
+     .booking-header h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--espresso);
+       margin: 0;
+     }
+     .booking-close {
+       width: 36px; height: 36px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 1.1rem;
+       display: grid; place-items: center; transition: background 0.3s var(--ease);
+     }
+     .booking-close:hover { background: rgba(111,90,63,0.08); }
+     .booking-body {
+       flex: 1; overflow-y: auto; padding: 1.4rem 1.6rem;
+       display: flex; flex-direction: column; gap: 1.1rem;
+     }
+     .booking-field {
+       display: flex; flex-direction: column; gap: 0.35rem;
+     }
+     .booking-field label {
+       font-family: var(--sans); font-size: 0.72rem; font-weight: 500;
+       letter-spacing: 0.14em; text-transform: uppercase; color: var(--cafe-ink);
+     }
+     .booking-field input,
+     .booking-field textarea {
+       border: 1px solid rgba(111,90,63,0.28);
+       border-radius: 12px; padding: 0.75rem 1rem;
+       font-family: var(--sans); font-size: 0.95rem; color: var(--ink);
+       background: rgba(255,255,255,0.55); outline: none;
+       transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+     }
+     .booking-field input:focus,
+     .booking-field textarea:focus {
+       border-color: var(--sage); background: #fff;
+       box-shadow: 0 8px 30px -18px rgba(95,109,61,0.45);
+     }
+     .booking-field input::placeholder,
+     .booking-field textarea::placeholder { color: var(--cafe-ink); opacity: 0.7; }
+     .booking-field textarea { resize: vertical; min-height: 90px; }
+     .booking-field .error-msg {
+       font-size: 0.78rem; color: #b54848; display: none;
+     }
+     .booking-field.is-invalid input,
+     .booking-field.is-invalid textarea { border-color: #b54848; }
+     .booking-field.is-invalid .error-msg { display: block; }
+     .booking-row {
+       display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+     }
+     .booking-footer {
+       padding: 1.2rem 1.6rem; border-top: 1px solid rgba(111,90,63,0.18);
+       display: flex; justify-content: flex-end; gap: 0.7rem;
+     }
+     .booking-btn {
+       border: none; border-radius: 100px; padding: 0.85rem 1.6rem;
+       font-family: var(--sans); font-weight: 500; font-size: 0.82rem;
+       letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+       transition: background 0.35s var(--ease), transform 0.35s var(--ease), opacity 0.35s var(--ease);
+     }
+     .booking-btn-primary {
+       background: var(--espresso); color: var(--paper);
+     }
+     .booking-btn-primary:hover { background: var(--sage-deep); transform: translateY(-1px); }
+     .booking-btn-secondary {
+       background: transparent; color: var(--ink);
+       border: 1px solid rgba(111,90,63,0.3);
+     }
+     .booking-btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+     .booking-confirmation {
+       display: none; flex-direction: column; align-items: center; justify-content: center;
+       text-align: center; gap: 1rem; padding: 2.5rem 1.6rem;
+     }
+     .booking-confirmation .confirm-icon {
+       width: 56px; height: 56px; border-radius: 50%;
+       background: var(--sage); color: var(--paper);
+       display: grid; place-items: center; font-size: 1.6rem;
+     }
+     .booking-confirmation h4 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--espresso); margin: 0;
+     }
+     .booking-confirmation p {
+       font-size: 0.9rem; color: var(--ink); max-width: 38ch; line-height: 1.6;
+     }
+     @media (max-width: 560px) {
+       .booking-row { grid-template-columns: 1fr; }
+       .booking-modal { max-height: 94vh; }
+       .booking-header, .booking-body, .booking-footer { padding-left: 1.2rem; padding-right: 1.2rem; }
+       .booking-footer { flex-direction: column; }
+       .booking-btn { width: 100%; text-align: center; }
+     }
     .pillars {
       position: relative;
       z-index: 2;
@@ -1614,7 +1889,7 @@
               <button type="submit">Join the journey</button>
             </form>
             <p class="note">No spam — only an invitation when we open our doors.</p>
-            <p class="cta-alt"><a href="mailto:info@asa-oz.com?subject=Discovery%20Call%20Request">Book a discovery call</a></p>
+            <p class="cta-alt"><button type="button" class="booking-trigger" id="bookingTrigger">Book a discovery call</button></p>
             <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You&rsquo;ll be among the first to return to yourself.</p>
           </div>
         </div>
@@ -1631,6 +1906,7 @@
           <figure class="hero-shot small">
             <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80" alt="Hands on woven textile" loading="lazy">
           </figure>
+          <button class="wall-trigger" aria-label="View the wall of moments">View the wall of moments</button>
         </div>
       </section>
 
@@ -1983,7 +2259,67 @@
         <button type="button" class="ck-accept" id="ckAccept">Accept all</button>
       </div>
     </div>
-  </aside>
+    </aside>
+
+    <div class="wall-overlay" id="wallOverlay" role="dialog" aria-modal="true" aria-label="Wall of moments">
+      <div class="wall-brand" aria-hidden="true">Asa-OZ</div>
+      <div class="wall-canvas-wrap" id="wallCanvasWrap"></div>
+      <div class="wall-loading" id="wallLoading" aria-hidden="true"></div>
+      <button class="wall-close" id="wallClose" aria-label="Close wall of moments" type="button">&#10005;</button>
+      <div class="wall-hints" id="wallHints" aria-hidden="true"></div>
+    </div>
+
+    <div class="booking-overlay" id="bookingOverlay" role="dialog" aria-modal="true" aria-label="Book a discovery call">
+      <div class="booking-modal">
+        <div class="booking-header">
+          <h3>Book a discovery call</h3>
+          <button class="booking-close" id="bookingClose" aria-label="Close booking form" type="button">&#10005;</button>
+        </div>
+        <div class="booking-body" id="bookingBody">
+          <form id="bookingForm" novalidate>
+            <div class="booking-field" id="fieldName">
+              <label for="bName">Full name</label>
+              <input type="text" id="bName" name="name" placeholder="Your full name" required />
+              <span class="error-msg">Please enter your name.</span>
+            </div>
+            <div class="booking-field" id="fieldEmail">
+              <label for="bEmail">Email</label>
+              <input type="email" id="bEmail" name="email" placeholder="you@example.com" autocomplete="email" required />
+              <span class="error-msg">Please enter a valid email.</span>
+            </div>
+            <div class="booking-field" id="fieldPhone">
+              <label for="bPhone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+              <input type="tel" id="bPhone" name="phone" placeholder="+353 ..." autocomplete="tel" />
+            </div>
+            <div class="booking-row">
+              <div class="booking-field" id="fieldDate">
+                <label for="bDate">Preferred date</label>
+                <input type="date" id="bDate" name="date" required />
+                <span class="error-msg">Please choose a date.</span>
+              </div>
+              <div class="booking-field" id="fieldTime">
+                <label for="bTime">Preferred time</label>
+                <input type="time" id="bTime" name="time" required />
+                <span class="error-msg">Please choose a time.</span>
+              </div>
+            </div>
+            <div class="booking-field" id="fieldMessage">
+              <label for="bMessage">What would you like to discuss?</label>
+              <textarea id="bMessage" name="message" placeholder="Tell us a little about what you are looking for..."></textarea>
+            </div>
+          </form>
+          <div class="booking-confirmation" id="bookingConfirm">
+            <div class="confirm-icon" aria-hidden="true">&#10003;</div>
+            <h4>You&rsquo;re in</h4>
+            <p>We&rsquo;ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">info@asa-oz.com</a>.</p>
+          </div>
+        </div>
+        <div class="booking-footer" id="bookingFooter">
+          <button type="button" class="booking-btn booking-btn-secondary" id="bookingCancel">Cancel</button>
+          <button type="submit" class="booking-btn booking-btn-primary" form="bookingForm">Request booking</button>
+        </div>
+      </div>
+    </div>
 
   <script>
     (function () {
@@ -2416,6 +2752,433 @@
       document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
       updateCartUI();
     })();
+
+      // ---- Wall of Moments (lazy Three.js easter egg) ----
+      (function() {
+        if (!document.querySelector('.wall-overlay')) return;
+
+        var ARC_SPAN = 140 * Math.PI / 180;
+        var ROWS = 3;
+        var COLS = 4;
+        var RADIUS = 4.5;
+        var FOV = 60 * Math.PI / 180;
+        var HALF_FOV = FOV / 2;
+        var ARC_HALF = ARC_SPAN / 2;
+        var FOV_MARGIN = HALF_FOV * 0.9;
+        var THETA_MIN = -(ARC_HALF - FOV_MARGIN);
+        var THETA_MAX = (ARC_HALF - FOV_MARGIN);
+        var PHI_MIN = -0.35;
+        var PHI_MAX = 0.35;
+        var DRAG_SENS = 0.005;
+        var DAMPING = 0.92;
+        var EPS = 0.0001;
+
+        var wallUrls = [
+          'https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=800&q=80',
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80',
+          'https://images.unsplash.com/photo-1522075469751-3a6694c2c3c1?w=500&q=80',
+          'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80'
+        ];
+
+        var THREE_CDN = 'https://unpkg.com/three@0.160.0/build/three.min.js';
+        var THREE_LOADED = false;
+        var THREE_READY = null;
+
+        function loadThree() {
+          if (THREE_LOADED) return Promise.resolve(THREE_READY);
+          return new Promise(function(resolve, reject) {
+            var s = document.createElement('script');
+            s.src = THREE_CDN;
+            s.onload = function() { THREE_LOADED = true; THREE_READY = window.THREE; resolve(window.THREE); };
+            s.onerror = function() { console.warn('Asa-OZ wall: Three.js failed to load'); reject(new Error('Three.js load failed')); };
+            document.head.appendChild(s);
+          });
+        }
+
+        var overlay = document.getElementById('wallOverlay');
+        var closeBtn = document.getElementById('wallClose');
+        var canvasWrap = document.getElementById('wallCanvasWrap');
+        var loadingEl = document.getElementById('wallLoading');
+        var trigger = document.querySelector('.wall-trigger');
+
+        var renderer = null, scene = null, camera = null;
+        var tiles = [], rafId = null, isOpen = false;
+        var theta = 0, phi = 0;
+        var targetTheta = 0, targetPhi = 0;
+        var velocityTheta = 0, velocityPhi = 0;
+        var isDragging = false, pointerMoved = false;
+        var prevPointer = { x: 0, y: 0 };
+        var pointerDownTime = 0;
+        var lastTapTime = 0;
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var textureLoader = null;
+        var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+        var hintsEl = document.getElementById('wallHints');
+        var hintsVisible = false;
+
+        function showHints() {
+          if (!hintsEl) return;
+          hintsEl.classList.remove('hidden');
+          if (isTouch) {
+            hintsEl.innerHTML = '<span class="hint-icon"><svg viewBox="0 0 24 24"><path d="M14 4l-8 8 8 8"/><path d="M20 4l-8 8 8 8"/></svg></span> Swipe to explore';
+          } else {
+            hintsEl.innerHTML = '<span class="hint-icon"><svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4"/><path d="M9 5v14"/></svg></span> Drag to rotate &middot; Scroll to spin &middot; Mouse to look';
+          }
+          hintsVisible = true;
+          setTimeout(function() { hideHints(); }, 5000);
+        }
+
+        function hideHints() {
+          if (!hintsEl || !hintsVisible) return;
+          hintsVisible = false;
+          hintsEl.classList.add('hidden');
+        }
+
+        function openWall() {
+          if (isOpen) return;
+          isOpen = true;
+          try { requestOrientation(); } catch(e) {}
+          overlay.classList.add('open');
+          showHints();
+          document.body.style.overflow = 'hidden';
+          loadingEl.style.display = 'block';
+          loadThree().then(function(THREE) {
+            loadingEl.style.display = 'none';
+            initScene(THREE);
+          }).catch(function() {
+            closeWall();
+          });
+        }
+
+        function closeWall() {
+          if (!isOpen) return;
+          isOpen = false;
+          tiles.forEach(function(t) {
+            t.mesh.geometry.dispose();
+            t.mesh.material.dispose();
+            if (t.mesh.material.map) t.mesh.material.map.dispose();
+            t.border.geometry.dispose();
+            t.border.material.dispose();
+          });
+          tiles = [];
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+          if (renderer) {
+            if (renderer.domElement && renderer.domElement.parentNode) {
+              renderer.domElement.parentNode.removeChild(renderer.domElement);
+            }
+            renderer.dispose();
+            renderer = null;
+          }
+          scene = null;
+          camera = null;
+          textureLoader = null;
+           theta = 0; phi = 0;
+           velocityTheta = 0; velocityPhi = 0;
+           targetTheta = 0; targetPhi = 0;
+           overlay.classList.remove('open');
+           document.body.style.overflow = '';
+           hintsVisible = false;
+           if (hintsEl) { hintsEl.classList.remove('hidden'); }
+           if (trigger) { document.body.focus(); }
+         }
+
+        function initScene(THREE) {
+          textureLoader = new THREE.TextureLoader();
+          scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x2b2118);
+          camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+          camera.position.set(0, 0, 0.01);
+          camera.rotation.order = 'YXZ';
+          renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setPixelRatio(dpr);
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          canvasWrap.appendChild(renderer.domElement);
+          var colStep = ARC_SPAN / (COLS - 1);
+          var tileW = 2.0, tileH = 1.3;
+          var entranceStart = performance.now();
+          for (var row = 0; row < ROWS; row++) {
+            for (var col = 0; col < COLS; col++) {
+              var angle = (col - (COLS - 1) / 2) * colStep;
+              var x = RADIUS * Math.sin(angle);
+              var z = -RADIUS * Math.cos(angle);
+              var y = (row - (ROWS - 1) / 2) * 1.55;
+              var geom = new THREE.PlaneGeometry(tileW, tileH);
+              var tex = textureLoader.load(wallUrls[col % wallUrls.length]);
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              var mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+              var mesh = new THREE.Mesh(geom, mat);
+              mesh.position.set(x, y, z);
+              mesh.rotation.y = -angle;
+              mesh.scale.setScalar(0);
+              var borderGeom = new THREE.PlaneGeometry(tileW + 0.12, tileH + 0.12);
+              var borderMat = new THREE.MeshBasicMaterial({ color: 0xf4ece0, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+              var borderMesh = new THREE.Mesh(borderGeom, borderMat);
+              borderMesh.position.set(x + Math.sin(angle) * 0.015, y, z + Math.cos(angle) * 0.015);
+              borderMesh.rotation.y = -angle;
+              borderMesh.scale.setScalar(0);
+              scene.add(mesh);
+              scene.add(borderMesh);
+              tiles.push({ mesh: mesh, border: borderMesh, delay: (row * COLS + col) * 40, start: entranceStart });
+            }
+          }
+          setupControls();
+          renderLoop();
+        }
+
+        function renderLoop() {
+          if (!isOpen || !renderer) return;
+          var now = performance.now();
+          if (!reducedMotion) {
+            tiles.forEach(function(t) {
+              var elapsed = now - t.start;
+              if (elapsed < t.delay) return;
+              var p = Math.min((elapsed - t.delay) / 500, 1);
+              var ease = p < 0.5 ? 2*p*p : -1 + (4 - 2*p)*p;
+              t.mesh.material.opacity = ease;
+              t.border.material.opacity = ease * 0.35;
+              t.mesh.scale.setScalar(ease);
+              t.border.scale.setScalar(ease);
+            });
+          } else {
+            tiles.forEach(function(t) {
+              t.mesh.material.opacity = 1;
+              t.border.material.opacity = 0.35;
+              t.mesh.scale.setScalar(1);
+              t.border.scale.setScalar(1);
+            });
+          }
+          if (!isDragging) {
+            velocityTheta *= DAMPING;
+            velocityPhi *= DAMPING;
+            if (Math.abs(velocityTheta) < EPS) velocityTheta = 0;
+            if (Math.abs(velocityPhi) < EPS) velocityPhi = 0;
+            theta += velocityTheta;
+            phi += velocityPhi;
+          }
+          if (theta < THETA_MIN) { theta += (THETA_MIN - theta) * 0.1; velocityTheta = 0; }
+          if (theta > THETA_MAX) { theta -= (theta - THETA_MAX) * 0.1; velocityTheta = 0; }
+          phi = Math.max(PHI_MIN, Math.min(PHI_MAX, phi));
+          camera.rotation.y = -theta;
+          camera.rotation.x = -phi;
+          renderer.render(scene, camera);
+          rafId = requestAnimationFrame(renderLoop);
+        }
+
+        function setupControls() {
+          var el = renderer.domElement;
+          el.addEventListener('pointerdown', function(e) {
+            if (e.pointerType === 'mouse' && e.button === 0) {
+              isDragging = true;
+              prevPointer.x = e.clientX;
+              prevPointer.y = e.clientY;
+              pointerDownTime = Date.now();
+              pointerMoved = false;
+              velocityTheta = 0;
+              velocityPhi = 0;
+              try { el.setPointerCapture(e.pointerId); } catch(err) {}
+            }
+          });
+          el.addEventListener('pointermove', function(e) {
+            if (isDragging) {
+              var dx = e.clientX - prevPointer.x;
+              var dy = e.clientY - prevPointer.y;
+              if (Math.abs(dx) > 2 || Math.abs(dy) > 2) pointerMoved = true;
+              velocityTheta = dx * DRAG_SENS;
+              velocityPhi = dy * DRAG_SENS;
+              theta += velocityTheta;
+              phi -= velocityPhi;
+              prevPointer.x = e.clientX;
+              prevPointer.y = e.clientY;
+            } else {
+              var mx = (e.clientX / window.innerWidth - 0.5) * 2;
+              var my = (e.clientY / window.innerHeight - 0.5) * 2;
+              targetTheta = mx * 0.15;
+              targetPhi = -my * 0.1;
+              if (Math.abs(velocityTheta) < 0.001 && Math.abs(velocityPhi) < 0.001) {
+                theta += (targetTheta - theta) * 0.02;
+                phi += (targetPhi - phi) * 0.02;
+              }
+            }
+          });
+          el.addEventListener('pointerup', function(e) {
+            if (isDragging) { isDragging = false; try { el.releasePointerCapture(e.pointerId); } catch(err) {} }
+          });
+          el.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            velocityTheta += e.deltaY * 0.0005;
+            velocityTheta = Math.max(-0.05, Math.min(0.05, velocityTheta));
+          }, { passive: false });
+
+          function requestOrientation() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+              DeviceOrientationEvent.requestPermission().then(function(state) {
+                if (state !== 'granted') return;
+                window.addEventListener('deviceorientation', function(e) {
+                  if (!isOpen) return;
+                  var gamma = e.gamma || 0;
+                  if (!isDragging) { theta += gamma * 0.002; }
+                });
+              }).catch(function() {});
+            }
+          }
+           var resizeTimer;
+           window.addEventListener('resize', function() {
+             clearTimeout(resizeTimer);
+             resizeTimer = setTimeout(function() {
+               if (!renderer || !camera) return;
+               camera.aspect = window.innerWidth / window.innerHeight;
+               camera.updateProjectionMatrix();
+               renderer.setSize(window.innerWidth, window.innerHeight);
+             }, 150);
+           });
+           if (hintsEl) {
+             function dismissHints() { hideHints(); }
+             el.addEventListener('pointerdown', dismissHints, { once: true });
+             el.addEventListener('wheel', dismissHints, { once: true });
+             el.addEventListener('pointermove', dismissHints, { once: true });
+           }
+         }
+
+        if (trigger) {
+          trigger.addEventListener('click', function(e) { e.preventDefault(); openWall(); });
+          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWall(); } });
+        }
+        var heroCollage = document.querySelector('.hero-collage');
+        if (heroCollage) {
+          var ltX = 0, ltY = 0;
+          heroCollage.addEventListener('dblclick', function(e) { e.preventDefault(); if (!isOpen) openWall(); else closeWall(); });
+          heroCollage.addEventListener('touchstart', function(e) { ltX = e.touches[0].clientX; ltY = e.touches[0].clientY; }, { passive: true });
+          heroCollage.addEventListener('touchend', function(e) {
+            var now = Date.now(), dt = now - lastTapTime, dx = 0, dy = 0;
+            if (e.changedTouches.length) { dx = Math.abs(e.changedTouches[0].clientX - ltX); dy = Math.abs(e.changedTouches[0].clientY - ltY); }
+            if (dt < 300 && dx < 30 && dy < 30) { if (!isOpen) openWall(); else closeWall(); }
+            lastTapTime = now;
+          });
+        }
+        closeBtn.addEventListener('click', closeWall);
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isOpen) closeWall(); });
+      })();
+
+      // ---- Booking: Discovery Call ----
+      (function() {
+        if (!document.getElementById('bookingOverlay')) return;
+
+        var overlay = document.getElementById('bookingOverlay');
+        var modal = overlay.querySelector('.booking-modal');
+        var trigger = document.getElementById('bookingTrigger');
+        var closeBtn = document.getElementById('bookingClose');
+        var cancelBtn = document.getElementById('bookingCancel');
+        var form = document.getElementById('bookingForm');
+        var confirmEl = document.getElementById('bookingConfirm');
+        var bookingFooter = document.getElementById('bookingFooter');
+        var bookingBody = document.getElementById('bookingBody');
+
+        function openBooking() {
+          if (!overlay) return;
+          overlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeBooking() {
+          if (!overlay) return;
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function resetForm() {
+          form.reset();
+          Object.keys(form.elements).forEach(function(k) {
+            var el = form.elements[k];
+            var field = el.closest ? el.closest('.booking-field') : null;
+            if (field) field.classList.remove('is-invalid');
+          });
+          if (confirmEl) confirmEl.style.display = 'none';
+          if (form) form.style.display = 'block';
+          if (bookingFooter) bookingFooter.style.display = 'flex';
+        }
+
+        function validateField(field) {
+          var input = field.querySelector('input, textarea');
+          if (!input) return true;
+          if (input.hasAttribute('required') && !input.value.trim()) {
+            field.classList.add('is-invalid');
+            return false;
+          }
+          if (input.type === 'email' && input.value.trim()) {
+            var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(input.value.trim())) {
+              field.classList.add('is-invalid');
+              return false;
+            }
+          }
+          field.classList.remove('is-invalid');
+          return true;
+        }
+
+        function showConfirmation() {
+          if (form) form.style.display = 'none';
+          if (bookingFooter) bookingFooter.style.display = 'none';
+          if (confirmEl) {
+            confirmEl.style.display = 'flex';
+            setTimeout(closeBooking, 4000);
+          }
+        }
+
+        if (trigger) {
+          trigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeBooking);
+        if (cancelBtn) cancelBtn.addEventListener('click', function() { closeBooking(); resetForm(); });
+
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) { closeBooking(); resetForm(); }
+        });
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var fields = form.querySelectorAll('.booking-field');
+          var valid = true;
+          fields.forEach(function(f) { if (!validateField(f)) valid = false; });
+          if (!valid) return;
+
+          var data = {
+            name: (document.getElementById('bName').value || '').trim(),
+            email: (document.getElementById('bEmail').value || '').trim(),
+            phone: (document.getElementById('bPhone').value || '').trim(),
+            date: document.getElementById('bDate').value,
+            time: document.getElementById('bTime').value,
+            message: (document.getElementById('bMessage').value || '').trim()
+          };
+
+          var subject = encodeURIComponent('Discovery Call Request - ' + data.name);
+          var body = encodeURIComponent(
+            'Hi Asa-OZ team,%0D%0A%0D%0A' +
+            'I would like to book a discovery call.%0D%0A%0D%0A' +
+            'Name: ' + data.name + '%0D%0A' +
+            'Email: ' + data.email + '%0D%0A' +
+            'Phone: ' + (data.phone || 'N/A') + '%0D%0A' +
+            'Preferred date: ' + data.date + '%0D%0A' +
+            'Preferred time: ' + data.time + '%0D%0A' +
+            'Message: ' + (data.message || 'N/A') + '%0D%0A%0D%0A' +
+            'Looking forward to hearing from you.'
+          );
+          var mailto = 'mailto:info@asa-oz.com?subject=' + subject + '&body=' + body;
+          window.location.href = mailto;
+          showConfirmation();
+        });
+
+        form.addEventListener('input', function() {
+          var fields = form.querySelectorAll('.booking-field');
+          fields.forEach(function(f) { validateField(f); });
+        });
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) { closeBooking(); resetForm(); } });
+      })();
   </script>
 </body>
 </html>
