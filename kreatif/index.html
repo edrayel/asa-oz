@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kreatif — Politically Engaged Creative Agency</title>
+  <meta name="description" content="Kreatif is a politically engaged creative agency specializing in web design, graphic design, branding, marketing, and social media management for local businesses, government, and political entities.">
+  <meta name="theme-color" content="#050505">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#050505',
+            surface: '#0f0f0f',
+            accent: '#3b82f6',
+            glow: '#8b5cf6',
+            warm: '#f59e0b',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #050505;
+      --surface: #0f0f0f;
+      --accent: #3b82f6;
+      --glow: #8b5cf6;
+      --warm: #f59e0b;
+      --text: #f8f9fa;
+      --muted: #9ca3af;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Three.js Canvas */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Grain overlay */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Typography */
+    .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+
+    /* Magnetic Button */
+    .magnetic-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 2.5rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: border-color 0.4s ease, background 0.4s ease;
+      overflow: hidden;
+    }
+    .magnetic-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent), var(--glow));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: -1;
+    }
+    .magnetic-btn:hover {
+      border-color: transparent;
+    }
+    .magnetic-btn:hover::before {
+      opacity: 1;
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+    }
+    .bento-card {
+      background: rgba(15, 15, 15, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 2rem;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .bento-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-4px);
+    }
+    .bento-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .bento-card:hover::after {
+      opacity: 1;
+    }
+
+    /* Glassmorphism nav */
+    .glass-nav {
+      background: rgba(5, 5, 5, 0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Scroll sections */
+    .scroll-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Reveal animations */
+    .reveal-text {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    @media (max-width: 768px) {
+      .bento-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Three.js Background -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="grain"></div>
+
+  <!-- Navigation -->
+  <nav class="glass-nav fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="/" class="font-serif text-2xl font-semibold tracking-tight">Kreatif</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#services" class="text-sm text-gray-400 hover:text-white transition-colors">Services</a>
+        <a href="#work" class="text-sm text-gray-400 hover:text-white transition-colors">Work</a>
+        <a href="#about" class="text-sm text-gray-400 hover:text-white transition-colors">About</a>
+        <a href="#contact" class="text-sm text-gray-400 hover:text-white transition-colors">Contact</a>
+        <a href="/privacy.html" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
+        <a href="/terms.html" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
+      </div>
+      <button class="magnetic-btn">Start Project</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="scroll-section min-h-screen flex items-center justify-center relative px-6">
+    <div class="max-w-6xl mx-auto text-center pt-20">
+      <p class="reveal-text text-sm uppercase tracking-[0.3em] text-gray-500 mb-6">Politically Engaged Creative Agency</p>
+      <h1 class="reveal-text font-serif text-6xl md:text-8xl lg:text-9xl font-medium leading-[0.95] mb-8">
+        We craft<br>
+        <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-amber-400">digital</span> voices
+      </h1>
+      <p class="reveal-text text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+        Empowering local businesses, government bodies, and political entities through strategic design, compelling narratives, and digital innovation.
+      </p>
+      <div class="reveal-text flex flex-col sm:flex-row gap-4 justify-center">
+        <button class="magnetic-btn">View Our Work</button>
+        <button class="magnetic-btn" style="border-color: rgba(255,255,255,0.1);">Get in Touch</button>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+      <span class="text-xs uppercase tracking-widest">Scroll</span>
+      <div class="w-px h-12 bg-gradient-to-b from-white to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- Services Bento Grid -->
+  <section id="services" class="py-32 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-20">
+        <p class="reveal-text text-sm uppercase tracking-[0.3em] text-gray-500 mb-4">What We Do</p>
+        <h2 class="reveal-text font-serif text-5xl md:text-7xl font-medium">Services</h2>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Card 1 - Large -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-8 row-span-2">
+          <div class="h-full flex flex-col justify-between">
+            <div>
+              <span class="text-xs uppercase tracking-widest text-blue-400 mb-4 block">01</span>
+              <h3 class="font-serif text-3xl md:text-4xl font-medium mb-4">Web Design & Development</h3>
+              <p class="text-gray-400 max-w-lg leading-relaxed">
+                Custom websites that tell your story. From political campaign sites to government portals, we build fast, accessible, and visually striking digital experiences.
+              </p>
+            </div>
+            <div class="mt-8 flex flex-wrap gap-2">
+              <span class="px-3 py-1 text-xs rounded-full border border-white/10 text-gray-400">React</span>
+              <span class="px-3 py-1 text-xs rounded-full border border-white/10 text-gray-400">Next.js</span>
+              <span class="px-3 py-1 text-xs rounded-full border border-white/10 text-gray-400">WordPress</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-4">
+          <span class="text-xs uppercase tracking-widest text-purple-400 mb-4 block">02</span>
+          <h3 class="font-serif text-2xl font-medium mb-3">Branding & Identity</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Strategic brand systems that resonate. Logos, typography, color systems, and guidelines that define your political or commercial identity.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-4">
+          <span class="text-xs uppercase tracking-widest text-amber-400 mb-4 block">03</span>
+          <h3 class="font-serif text-2xl font-medium mb-3">Graphic Design</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Print and digital graphics that communicate clearly. Posters, reports, infographics, and social assets designed for impact.
+          </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-4">
+          <span class="text-xs uppercase tracking-widest text-green-400 mb-4 block">04</span>
+          <h3 class="font-serif text-2xl font-medium mb-3">Marketing Strategy</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Data-driven campaigns that reach the right audience. Digital advertising, SEO, and content strategy tailored to your goals.
+          </p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-4">
+          <span class="text-xs uppercase tracking-widest text-pink-400 mb-4 block">05</span>
+          <h3 class="font-serif text-2xl font-medium mb-3">Social Media Management</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Full-service social media: content creation, community management, and analytics for sustained engagement.
+          </p>
+        </div>
+
+        <!-- Card 6 - Large -->
+        <div class="bento-card reveal-text col-span-12 md:col-span-4">
+          <div class="h-full flex flex-col justify-between">
+            <div>
+              <span class="text-xs uppercase tracking-widest text-cyan-400 mb-4 block">06</span>
+              <h3 class="font-serif text-2xl font-medium mb-3">Political Campaign Design</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                End-to-end creative for political campaigns: strategy, visual identity, web presence, and print materials.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Philosophy Section -->
+  <section id="about" class="py-32 px-6 relative">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="reveal-text text-sm uppercase tracking-[0.3em] text-gray-500 mb-4">Our Philosophy</p>
+        <h2 class="reveal-text font-serif text-5xl md:text-6xl font-medium mb-8 leading-tight">
+          Design with<br>
+          <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">purpose</span>
+        </h2>
+        <p class="reveal-text text-gray-400 text-lg leading-relaxed mb-6">
+          We believe creative work should do more than look beautiful—it should drive action, shape narratives, and build trust. Every pixel we push serves a strategic objective.
+        </p>
+        <p class="reveal-text text-gray-400 leading-relaxed">
+          Based in Malta, working globally. We partner with organizations that matter: local businesses driving growth, government institutions serving citizens, and political campaigns shaping the future.
+        </p>
+      </div>
+      <div class="reveal-text relative">
+        <div class="aspect-[4/5] rounded-3xl bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-amber-500/20 border border-white/10 backdrop-blur-sm flex items-center justify-center">
+          <p class="font-serif text-2xl italic text-gray-300 text-center px-8">
+            "Creativity is the foundation of political communication. We build that foundation."
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee / Clients -->
+  <section class="py-24 border-y border-white/5 overflow-hidden">
+    <div class="flex whitespace-nowrap animate-marquee">
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">STRATEGY</span>
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">DESIGN</span>
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">DEVELOPMENT</span>
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">BRANDING</span>
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">POLITICS</span>
+      <span class="mx-8 text-4xl md:text-6xl font-serif text-white/10">GOVERNMENT</span>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-32 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="reveal-text text-sm uppercase tracking-[0.3em] text-gray-500 mb-4">Start a Conversation</p>
+      <h2 class="reveal-text font-serif text-5xl md:text-7xl font-medium mb-8">
+        Let's build<br>
+        <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">together</span>
+      </h2>
+      <p class="reveal-text text-gray-400 text-lg mb-12 max-w-xl mx-auto">
+        Whether you need a complete brand overhaul or a targeted campaign, we're ready to listen.
+      </p>
+      <button class="magnetic-btn text-lg px-8 py-4">hello@kreatif.agency</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-8">
+        <a href="/" class="font-serif text-xl font-medium">Kreatif</a>
+        <span class="text-sm text-gray-600">© 2024 All rights reserved.</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="/privacy.html" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Privacy Policy</a>
+        <a href="/terms.html" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    // ========== THREE.JS BACKGROUND ==========
+    const canvas = document.getElementById('bg-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Particles
+    const particlesGeometry = new THREE.BufferGeometry();
+    const count = 2000;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    for(let i = 0; i < count * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 20;
+      positions[i + 1] = (Math.random() - 0.5) * 20;
+      positions[i + 2] = (Math.random() - 0.5) * 20;
+
+      // Blue to purple to amber gradient
+      const t = Math.random();
+      if(t < 0.33) {
+        colors[i] = 0.23; colors[i+1] = 0.51; colors[i+2] = 0.96;
+      } else if(t < 0.66) {
+        colors[i] = 0.55; colors[i+1] = 0.36; colors[i+2] = 0.96;
+      } else {
+        colors[i] = 0.96; colors[i+1] = 0.62; colors[i+2] = 0.04;
+      }
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.03,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.6,
+      sizeAttenuation: true,
+    });
+
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
+
+    camera.position.z = 5;
+
+    // Mouse interaction
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      particles.rotation.y += 0.001;
+      particles.rotation.x += 0.0005;
+      particles.rotation.y += mouseX * 0.0005;
+      particles.rotation.x += mouseY * 0.0005;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ========== GSAP ANIMATIONS ==========
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Reveal text animations
+    const reveals = document.querySelectorAll('.reveal-text');
+    reveals.forEach((el, i) => {
+      gsap.to(el, {
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        },
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        delay: i % 4 * 0.15,
+        ease: 'power3.out',
+      });
+    });
+
+    // Parallax on hero
+    gsap.to('.scroll-section', {
+      scrollTrigger: {
+        trigger: '.scroll-section',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1,
+      },
+      y: -100,
+      opacity: 0.3,
+    });
+
+    // ========== MAGNETIC BUTTONS ==========
+    const magneticBtns = document.querySelectorAll('.magnetic-btn');
+    magneticBtns.forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, {
+          x: x * 0.3,
+          y: y * 0.3,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.3)',
+        });
+      });
+    });
+
+    // ========== MARQUEE ==========
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-marquee {
+        animation: marquee 30s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

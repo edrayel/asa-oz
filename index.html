@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AsaOZ — Return to Yourself</title>
-  <meta name="description" content="AsaOZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
+  <title>Asa-OZ — Return to Yourself</title>
+  <meta name="description" content="Asa-OZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone." />
   <meta name="theme-color" content="#2b2118" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="AsaOZ — Return to Yourself" />
+  <meta property="og:title" content="Asa-OZ — Return to Yourself" />
   <meta property="og:description" content="A movement for identity, belonging & renewal. Coming soon." />
-  <meta property="og:site_name" content="AsaOZ" />
+  <meta property="og:site_name" content="Asa-OZ" />
   <meta property="og:url" content="https://asa-oz.com" />
   <!--
     Social share image: drop a 1200x630 cover at /og-cover.jpg (rooted at the
@@ -23,7 +23,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AsaOZ — Return to Yourself" />
+  <meta name="twitter:title" content="Asa-OZ — Return to Yourself" />
   <meta name="twitter:description" content="A movement for identity, belonging & renewal. Coming soon." />
 
   <!-- Inline SVG favicon (no external file) -->
@@ -142,7 +142,7 @@
 
     /* ---------- Layout shell ---------- */
     .shell {
-      max-width: 1180px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 clamp(1.4rem, 5vw, 4rem);
     }
@@ -157,39 +157,102 @@
       padding-top: clamp(1.6rem, 4vw, 2.6rem);
     }
     .brand {
+      display: flex;
+      align-items: center;
+    }
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-logo-img {
+      display: block;
+      max-height: 36px;
+      width: auto;
+    }
+    .brand-logo-fallback {
       font-family: var(--serif);
       font-weight: 500;
       font-size: clamp(1.35rem, 2.4vw, 1.6rem);
       letter-spacing: 0.02em;
       color: var(--espresso);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
     }
-    .brand .mark {
-      display: inline-grid;
-      place-items: center;
-      width: 34px; height: 34px;
-      border: 1.5px solid var(--cafe);
-      border-radius: 50%;
-      font-size: 0.95rem;
-      color: var(--cafe-ink);
-      font-style: italic;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-      border: 1px solid rgba(111, 90, 63, 0.28);
-      padding: 0.5rem 0.95rem;
-      border-radius: 100px;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(6px);
-    }
+     .header-actions {
+       display: flex;
+       align-items: center;
+       gap: 0.8rem;
+     }
+      .main-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.4rem;
+        margin-right: 0.6rem;
+      }
+      .main-nav a {
+        position: relative;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--cafe-ink);
+        text-decoration: none;
+        padding: 0.35rem 0;
+        transition: color 0.35s var(--ease);
+      }
+      .main-nav a::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: 70%;
+        height: 1.5px;
+        background: var(--espresso);
+        transform-origin: center;
+        transition: transform 0.4s var(--ease);
+        border-radius: 2px;
+      }
+       .main-nav a:hover::before {
+         transform: translateX(-50%) scaleX(1);
+       }
+       .main-nav a:hover {
+        color: var(--espresso);
+      }
+      .main-nav a.active {
+        color: var(--espresso);
+      }
+       .main-nav a.active::before {
+         transform: translateX(-50%) scaleX(1);
+         background: var(--sage-deep);
+       }
+       .main-nav a.active::after {
+         content: "";
+         position: absolute;
+         top: 50%;
+         right: calc(100% + 8px);
+         transform: translateY(-50%) scale(1);
+         width: 6px;
+         height: 6px;
+         border-radius: 50%;
+         background: var(--sage);
+         box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
+         transition: transform 0.35s var(--ease), background 0.35s var(--ease);
+       }
+     .status-pill {
+       display: inline-flex;
+       align-items: center;
+       gap: 0.55rem;
+       font-size: 0.72rem;
+       letter-spacing: 0.22em;
+       text-transform: uppercase;
+       color: var(--espresso);
+       border: 1px solid rgba(111, 90, 63, 0.32);
+       padding: 0.5rem 0.95rem;
+       border-radius: 100px;
+       background: rgba(255, 255, 255, 0.65);
+       backdrop-filter: blur(6px);
+     }
     .status-pill .dot {
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--sage);
@@ -206,8 +269,223 @@
     .hero {
       position: relative;
       z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 4vw, 4rem);
+      align-items: center;
       padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
     }
+    .hero-content {
+      max-width: 520px;
+    }
+    .hero-collage {
+      position: relative;
+      height: 550px;
+    }
+    .hero-shot {
+      position: absolute;
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--cream);
+    }
+    .hero-shot img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: sepia(0.06) saturate(0.92) contrast(1.04) brightness(1.03);
+      transition: transform 0.6s var(--ease);
+    }
+    .hero-shot:hover img { transform: scale(1.03); }
+    .hero-shot::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      box-shadow: inset 0 0 0 1px rgba(244,236,224,0.4);
+      pointer-events: none;
+    }
+    .large { width: 65%; height: 52%; right: 0; top: 8%; z-index: 1; }
+    .medium { width: 48%; height: 34%; left: 4%; top: 4%; z-index: 2; transform: translateX(-8px); }
+    .small { width: 32%; height: 22%; }
+    .small:nth-child(3) { left: 2%; bottom: 20%; z-index: 3; transform: translateY(-3px); }
+    .small:nth-child(4) { right: 2%; bottom: 6%; z-index: 1; }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; gap: 2rem; }
+      .hero-collage { height: 380px; }
+      .large { width: 62%; height: 48%; right: 0; top: 10%; }
+      .medium { width: 50%; height: 32%; left: 5%; top: 8%; transform: translateX(-6px); }
+      .small:nth-child(3) { width: 34%; height: 22%; left: 5%; bottom: 16%; }
+      .small:nth-child(4) { width: 30%; height: 20%; right: 2%; bottom: 6%; }
+    }
+     @media (max-width: 560px) {
+       .hero-collage { height: 280px; }
+       .hero-shot { border-radius: 20px; }
+       .hero-shot::after { border-radius: 20px; }
+       .large { width: 65%; height: 44%; }
+       .medium { width: 55%; height: 30%; }
+       .small:nth-child(3) { width: 38%; height: 20%; bottom: 16%; }
+       .small:nth-child(4) { width: 32%; height: 18%; bottom: 6%; }
+     }
+
+     /* ---------- Wall of Moments easter egg ---------- */
+     .wall-trigger {
+       position: absolute;
+       inset: 0;
+       z-index: 5;
+       cursor: pointer;
+       opacity: 0;
+       pointer-events: none;
+     }
+     .wall-trigger:focus {
+       pointer-events: auto;
+       opacity: 1;
+       outline: none;
+       box-shadow: inset 0 0 0 3px var(--sage-deep), 0 0 0 1px rgba(111,90,63,0.35);
+       border-radius: 28px;
+       transition: box-shadow 0.2s var(--ease);
+     }
+     .sr-only-focusable {
+       position: absolute;
+       width: 1px; height: 1px;
+       padding: 0; margin: -1px;
+       overflow: hidden; clip: rect(0,0,0,0);
+       white-space: nowrap; border: 0;
+     }
+     .sr-only-focusable:focus {
+       position: fixed;
+       width: auto; height: auto;
+       padding: 0.6rem 1.2rem;
+       margin: 1rem;
+       overflow: visible; clip: auto;
+       white-space: normal;
+       background: var(--paper);
+       color: var(--espresso);
+       font-family: var(--sans);
+       font-size: 0.82rem;
+       letter-spacing: 0.12em;
+       text-transform: uppercase;
+       border-radius: 100px;
+       border: 1px solid rgba(111,90,63,0.28);
+       z-index: 100;
+       box-shadow: 0 8px 30px -14px rgba(43,33,24,0.28);
+       outline: 2px solid var(--sage-deep);
+       outline-offset: 3px;
+     }
+     .wall-overlay {
+       position: fixed;
+       inset: 0;
+       z-index: 90;
+       background: var(--espresso);
+       display: none;
+       opacity: 0;
+       transition: opacity 0.4s var(--ease);
+     }
+     .wall-overlay.open { display: block; opacity: 1; }
+     .wall-canvas-wrap {
+       position: absolute;
+       inset: 0;
+     }
+     .wall-canvas-wrap canvas {
+       display: block;
+       width: 100%;
+       height: 100%;
+     }
+     .wall-close {
+       position: absolute;
+       z-index: 2;
+       top: 1.4rem;
+       right: 1.4rem;
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       border: 1.5px solid rgba(244,236,224,0.35);
+       background: rgba(43,33,24,0.45);
+       backdrop-filter: blur(6px);
+       cursor: pointer;
+       color: var(--paper);
+       font-size: 1rem;
+       display: grid;
+       place-items: center;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
+     }
+     .wall-close:hover {
+       background: rgba(43,33,24,0.7);
+       border-color: var(--sand);
+       transform: scale(1.06);
+     }
+     .wall-loading {
+       position: absolute;
+       z-index: 1;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 36px;
+       height: 36px;
+       border-radius: 50%;
+       border: 2px solid rgba(244,236,224,0.15);
+       border-top-color: var(--cafe);
+       animation: wallSpin 0.9s linear infinite;
+     }
+     @keyframes wallSpin {
+       to { transform: translate(-50%, -50%) rotate(360deg); }
+     }
+     .wall-brand {
+       position: absolute;
+       z-index: 2;
+       top: 1.4rem;
+       left: 1.4rem;
+       font-family: var(--serif);
+       font-weight: 500;
+       font-size: 0.95rem;
+       letter-spacing: 0.06em;
+       color: rgba(244,236,224,0.55);
+       pointer-events: none;
+       user-select: none;
+     }
+     .wall-hints {
+       position: absolute;
+       z-index: 2;
+       bottom: 1.4rem;
+       right: 1.4rem;
+       display: flex;
+       align-items: center;
+       gap: 0.55rem;
+       padding: 0.5rem 0.85rem;
+       border-radius: 100px;
+       background: rgba(43,33,24,0.45);
+       backdrop-filter: blur(6px);
+       border: 1px solid rgba(244,236,224,0.18);
+       color: rgba(244,236,224,0.75);
+       font-family: var(--sans);
+       font-size: 0.72rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       pointer-events: none;
+       user-select: none;
+       transition: opacity 0.6s var(--ease);
+     }
+     .wall-hints.hidden { opacity: 0; }
+     .wall-hints .hint-icon {
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       width: 22px;
+       height: 22px;
+       flex-shrink: 0;
+     }
+     .wall-hints .hint-icon svg {
+       width: 18px;
+       height: 18px;
+       stroke: rgba(244,236,224,0.7);
+       fill: none;
+       stroke-width: 1.8;
+       stroke-linecap: round;
+       stroke-linejoin: round;
+     }
+     @media (max-width: 560px) {
+       .wall-brand { font-size: 0.8rem; top: 1rem; left: 1rem; }
+       .wall-hints { bottom: 1rem; right: 1rem; gap: 0.4rem; padding: 0.4rem 0.7rem; font-size: 0.65rem; }
+       .wall-hints .hint-icon svg { width: 15px; height: 15px; }
+     }
     .eyebrow {
       font-size: 0.78rem;
       letter-spacing: 0.34em;
@@ -264,7 +542,7 @@
       color: var(--ink);
       outline: none;
     }
-    .signup input::placeholder { color: var(--muted); }
+     .signup input::placeholder { color: var(--cafe-ink); }
     .signup button {
       border: none;
       cursor: pointer;
@@ -281,12 +559,12 @@
       transition: background 0.35s var(--ease), transform 0.35s var(--ease);
     }
     .signup button:hover { background: var(--sage-deep); transform: translateY(-1px); }
-    .signup .note {
-      margin-top: 0.9rem;
-      font-size: 0.82rem;
-      color: var(--muted);
-      padding-left: 0.4rem;
-    }
+     .signup .note {
+       margin-top: 0.9rem;
+       font-size: 0.82rem;
+       color: var(--ink);
+       padding-left: 0.4rem;
+     }
     .signup .msg {
       margin-top: 0.9rem;
       font-size: 0.9rem;
@@ -297,8 +575,421 @@
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
     .signup .msg.show { opacity: 1; transform: none; }
+    .cta-alt {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .cta-alt a {
+      color: var(--sage-deep);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+     .cta-alt a:hover { color: var(--espresso); }
+     .booking-trigger {
+       background: transparent; border: none; padding: 0; margin: 0;
+       font-family: var(--sans); font-weight: 500; font-size: 0.9rem;
+       color: var(--sage-deep); text-decoration: underline; text-underline-offset: 2px;
+       cursor: pointer; letter-spacing: 0.02em;
+       transition: color 0.35s var(--ease);
+     }
+     .booking-trigger:hover { color: var(--espresso); }
+     .supporting {
+       margin-top: 1.2rem;
+       font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+       max-width: 56ch;
+       color: var(--ink);
+       font-weight: 400;
+       line-height: 1.7;
+     }
 
-    /* ---------- Pillars ---------- */
+      /* ---------- Store ---------- */
+      .store-grid {
+       display: grid;
+       grid-template-columns: repeat(3, 1fr);
+       gap: clamp(1.2rem, 2.8vw, 2.4rem);
+     }
+       .store-card {
+         position: relative;
+         background: var(--cream);
+         border-radius: 18px;
+         box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
+         overflow: hidden;
+         transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease);
+         display: flex;
+         flex-direction: column;
+       }
+       .store-card:nth-child(2) { border-radius: 18px; }
+       .store-card:nth-child(3) { border-radius: 18px; }
+       .store-card:nth-child(4) { border-radius: 18px; }
+       .store-card:nth-child(5) { border-radius: 18px; }
+       .store-card:nth-child(6) { border-radius: 18px; }
+     .store-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -22px rgba(43,33,24,0.32); }
+     .store-card .media {
+       width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+       filter: saturate(0.92) contrast(1.02);
+     }
+     .store-card .body {
+       padding: 1.2rem 1.4rem 1.4rem;
+       display: flex; flex-direction: column; gap: 0.4rem; flex: 1;
+     }
+     .store-card .badge {
+       font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+       color: var(--paper); background: var(--sage-deep); border-radius: 100px;
+       padding: 0.25rem 0.7rem; align-self: flex-start;
+     }
+     .store-card .badge.virtual { background: var(--cafe-ink); }
+     .store-card h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.15rem;
+       color: var(--espresso); margin-top: 0.2rem;
+     }
+     .store-card .price {
+       font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--cafe-ink);
+       margin-top: auto; padding-top: 0.4rem;
+     }
+     .store-card .add-btn {
+       margin-top: 0.8rem; width: 100%; padding: 0.75rem; border-radius: 100px; border: 1px solid rgba(111,90,63,0.28);
+       background: transparent; color: var(--ink); font-family: var(--sans); font-weight: 500;
+       font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+       transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .store-card .add-btn:hover { background: var(--espresso); color: var(--paper); border-color: var(--espresso); }
+     .store-cta {
+       text-align: center;
+       margin-top: 1.6rem;
+     }
+     .store-cta a {
+       display: inline-block;
+       font-family: var(--sans);
+       font-weight: 500;
+       font-size: 0.82rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       color: var(--paper);
+       background: var(--espresso);
+       padding: 0.85rem 1.6rem;
+       border-radius: 100px;
+       transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+     }
+     .store-cta a:hover { background: var(--sage-deep); transform: translateY(-1px); }
+
+      @media (max-width: 860px) {
+        .store-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 560px) {
+        .store-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ---------- Tools (minimal) ---------- */
+      .tools {
+        position: relative;
+        z-index: 2;
+        padding: clamp(3rem, 8vh, 5.5rem) 0;
+        border-top: 1px solid rgba(111, 90, 63, 0.18);
+      }
+      .tools h2 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        color: var(--espresso);
+        max-width: 18ch;
+        margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+      }
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(1rem, 2.5vw, 2rem);
+      }
+      .tool-item {
+        padding: 1.4rem 1.2rem;
+        border: 1px solid rgba(111, 90, 63, 0.16);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(8px);
+        transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+      }
+      .tool-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 36px -20px rgba(43,33,24,0.28);
+      }
+      .tool-item .tool-num {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 0.82rem;
+        color: var(--cafe-ink);
+        display: block;
+        margin-bottom: 0.6rem;
+      }
+      .tool-item h3 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: 1.05rem;
+        color: var(--espresso);
+        margin-bottom: 0.35rem;
+      }
+      .tool-item p {
+        font-size: 0.88rem;
+        color: var(--ink);
+        line-height: 1.55;
+      }
+      .tool-item .tool-price {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 0.92rem;
+        color: var(--cafe-ink);
+        margin-top: 0.6rem;
+      }
+      .tools-cta {
+        text-align: center;
+        margin-top: 1.4rem;
+      }
+      .tools-cta a {
+        display: inline-block;
+        font-family: var(--sans);
+        font-weight: 500;
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        background: transparent;
+        border: 1px solid rgba(111,90,63,0.3);
+        padding: 0.7rem 1.4rem;
+        border-radius: 100px;
+        transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+      }
+      .tools-cta a:hover {
+        background: var(--espresso);
+        color: var(--paper);
+        border-color: var(--espresso);
+      }
+      @media (max-width: 860px) {
+        .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 560px) {
+        .tools-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ---------- Cart drawer ---------- */
+     .cart-toggle {
+       position: relative;
+       display: inline-grid;
+       place-items: center;
+       width: 40px; height: 40px;
+       border-radius: 100px;
+       border: 1px solid rgba(111,90,63,0.25);
+       background: rgba(255,255,255,0.55);
+       backdrop-filter: blur(6px);
+       cursor: pointer;
+       color: var(--espresso);
+       font-size: 1rem;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .cart-toggle:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+     .cart-toggle:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+     .cart-count {
+       position: absolute; top: -4px; right: -4px;
+       width: 18px; height: 18px; border-radius: 100px;
+       background: var(--espresso); color: var(--paper);
+       font-size: 0.65rem; font-weight: 500;
+       display: grid; place-items: center;
+       opacity: 0; transform: scale(0.6);
+       transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+     }
+     .cart-count.show { opacity: 1; transform: scale(1); }
+     .cart-overlay {
+       position: fixed; inset: 0; z-index: 50;
+       background: rgba(43,33,24,0.25);
+       opacity: 0; pointer-events: none;
+       transition: opacity 0.4s var(--ease);
+     }
+     .cart-overlay.open { opacity: 1; pointer-events: auto; }
+     .cart-drawer {
+       position: fixed; top: 0; right: 0; bottom: 0; z-index: 55;
+       width: min(420px, 92vw);
+       background: var(--paper);
+       border-left: 1px solid rgba(111,90,63,0.18);
+       box-shadow: -14px 0 50px -28px rgba(43,33,24,0.35);
+       transform: translateX(105%);
+       transition: transform 0.5s var(--ease);
+       display: flex; flex-direction: column;
+     }
+     .cart-drawer.open { transform: translateX(0); }
+     .cart-header {
+       display: flex; justify-content: space-between; align-items: center;
+       padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(111,90,63,0.18);
+     }
+     .cart-header h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.25rem; color: var(--espresso);
+     }
+     .cart-close {
+       width: 36px; height: 36px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 1.1rem;
+       display: grid; place-items: center; transition: background 0.3s var(--ease);
+     }
+     .cart-close:hover { background: rgba(111,90,63,0.08); }
+     .cart-items { flex: 1; overflow-y: auto; padding: 1.2rem 1.6rem; }
+     .cart-item {
+       display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(111,90,63,0.12);
+     }
+     .cart-item-img {
+       width: 64px; height: 64px; border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+       background: var(--cream); overflow: hidden; flex: none;
+     }
+     .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+     .cart-item-body { flex: 1; }
+     .cart-item-body h4 { font-family: var(--serif); font-weight: 400; font-size: 1rem; color: var(--espresso); }
+     .cart-item-body .meta { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+     .cart-item-qty {
+       display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;
+     }
+     .cart-item-qty button {
+       width: 28px; height: 28px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 0.9rem;
+       display: grid; place-items: center; transition: background 0.2s var(--ease);
+     }
+     .cart-item-qty button:hover { background: rgba(111,90,63,0.08); }
+     .cart-item-qty span { font-size: 0.9rem; color: var(--ink); min-width: 20px; text-align: center; }
+     .cart-item-remove {
+       background: transparent; border: none; color: var(--muted); font-size: 0.8rem;
+       text-decoration: underline; text-underline-offset: 2px; cursor: pointer; margin-top: 0.4rem;
+     }
+     .cart-item-remove:hover { color: var(--espresso); }
+     .cart-footer {
+       padding: 1.4rem 1.6rem; border-top: 1px solid rgba(111,90,63,0.18);
+     }
+     .cart-total {
+       display: flex; justify-content: space-between; align-items: baseline;
+       font-family: var(--serif); font-size: 1.1rem; color: var(--espresso); margin-bottom: 1rem;
+     }
+     .cart-total span:last-child { font-style: italic; }
+     .cart-checkout {
+       width: 100%; padding: 0.9rem; border-radius: 100px; border: none;
+       background: var(--espresso); color: var(--paper); font-family: var(--sans);
+       font-weight: 500; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
+       cursor: pointer; transition: background 0.35s var(--ease);
+     }
+     .cart-checkout:hover { background: var(--sage-deep); }
+     .cart-checkout:disabled { opacity: 0.55; cursor: not-allowed; }
+     .cart-empty {
+       text-align: center; padding: 3rem 1rem; color: var(--muted); font-style: italic;
+     }
+
+     /* ---------- Booking Modal ---------- */
+     .booking-overlay {
+       position: fixed; inset: 0; z-index: 60;
+       background: rgba(43,33,24,0.35);
+       opacity: 0; pointer-events: none;
+       transition: opacity 0.4s var(--ease);
+       display: flex; align-items: center; justify-content: center;
+       padding: clamp(1rem, 3vw, 2rem);
+     }
+     .booking-overlay.open { opacity: 1; pointer-events: auto; }
+     .booking-modal {
+       width: min(520px, 100%);
+       max-height: min(92vh, 720px);
+       background: var(--paper);
+       border: 1px solid rgba(111,90,63,0.18);
+       border-radius: 18px;
+       box-shadow: 0 28px 70px -32px rgba(43,33,24,0.55);
+       display: flex; flex-direction: column;
+       transform: translateY(18px);
+       transition: transform 0.5s var(--ease), opacity 0.4s var(--ease);
+       opacity: 0;
+     }
+     .booking-overlay.open .booking-modal { transform: none; opacity: 1; }
+     .booking-header {
+       display: flex; justify-content: space-between; align-items: center;
+       padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(111,90,63,0.18);
+     }
+     .booking-header h3 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--espresso);
+       margin: 0;
+     }
+     .booking-close {
+       width: 36px; height: 36px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+       background: transparent; cursor: pointer; color: var(--espresso); font-size: 1.1rem;
+       display: grid; place-items: center; transition: background 0.3s var(--ease);
+     }
+     .booking-close:hover { background: rgba(111,90,63,0.08); }
+     .booking-body {
+       flex: 1; overflow-y: auto; padding: 1.4rem 1.6rem;
+       display: flex; flex-direction: column; gap: 1.1rem;
+     }
+     .booking-field {
+       display: flex; flex-direction: column; gap: 0.35rem;
+     }
+     .booking-field label {
+       font-family: var(--sans); font-size: 0.72rem; font-weight: 500;
+       letter-spacing: 0.14em; text-transform: uppercase; color: var(--cafe-ink);
+     }
+     .booking-field input,
+     .booking-field textarea {
+       border: 1px solid rgba(111,90,63,0.28);
+       border-radius: 12px; padding: 0.75rem 1rem;
+       font-family: var(--sans); font-size: 0.95rem; color: var(--ink);
+       background: rgba(255,255,255,0.55); outline: none;
+       transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+     }
+     .booking-field input:focus,
+     .booking-field textarea:focus {
+       border-color: var(--sage); background: #fff;
+       box-shadow: 0 8px 30px -18px rgba(95,109,61,0.45);
+     }
+     .booking-field input::placeholder,
+     .booking-field textarea::placeholder { color: var(--cafe-ink); opacity: 0.7; }
+     .booking-field textarea { resize: vertical; min-height: 90px; }
+     .booking-field .error-msg {
+       font-size: 0.78rem; color: #b54848; display: none;
+     }
+     .booking-field.is-invalid input,
+     .booking-field.is-invalid textarea { border-color: #b54848; }
+     .booking-field.is-invalid .error-msg { display: block; }
+     .booking-row {
+       display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+     }
+     .booking-footer {
+       padding: 1.2rem 1.6rem; border-top: 1px solid rgba(111,90,63,0.18);
+       display: flex; justify-content: flex-end; gap: 0.7rem;
+     }
+     .booking-btn {
+       border: none; border-radius: 100px; padding: 0.85rem 1.6rem;
+       font-family: var(--sans); font-weight: 500; font-size: 0.82rem;
+       letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+       transition: background 0.35s var(--ease), transform 0.35s var(--ease), opacity 0.35s var(--ease);
+     }
+     .booking-btn-primary {
+       background: var(--espresso); color: var(--paper);
+     }
+     .booking-btn-primary:hover { background: var(--sage-deep); transform: translateY(-1px); }
+     .booking-btn-secondary {
+       background: transparent; color: var(--ink);
+       border: 1px solid rgba(111,90,63,0.3);
+     }
+     .booking-btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+     .booking-confirmation {
+       display: none; flex-direction: column; align-items: center; justify-content: center;
+       text-align: center; gap: 1rem; padding: 2.5rem 1.6rem;
+     }
+     .booking-confirmation .confirm-icon {
+       width: 56px; height: 56px; border-radius: 50%;
+       background: var(--sage); color: var(--paper);
+       display: grid; place-items: center; font-size: 1.6rem;
+     }
+     .booking-confirmation h4 {
+       font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--espresso); margin: 0;
+     }
+     .booking-confirmation p {
+       font-size: 0.9rem; color: var(--ink); max-width: 38ch; line-height: 1.6;
+     }
+     @media (max-width: 560px) {
+       .booking-row { grid-template-columns: 1fr; }
+       .booking-modal { max-height: 94vh; }
+       .booking-header, .booking-body, .booking-footer { padding-left: 1.2rem; padding-right: 1.2rem; }
+       .booking-footer { flex-direction: column; }
+       .booking-btn { width: 100%; text-align: center; }
+     }
     .pillars {
       position: relative;
       z-index: 2;
@@ -326,23 +1017,138 @@
       color: var(--espresso);
       margin-bottom: 0.4rem;
     }
-    .pillar p {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.55;
-    }
+     .pillar p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
 
-    /* ---------- Ethos strip ---------- */
-    .ethos {
-      position: relative;
-      z-index: 2;
-      padding: clamp(3rem, 8vh, 5.5rem) 0;
-      border-top: 1px solid rgba(111, 90, 63, 0.18);
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(2rem, 6vw, 5rem);
-      align-items: center;
-    }
+     /* ---------- How It Works ---------- */
+     .how-it-works {
+       position: relative;
+       z-index: 2;
+       padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .how-it-works h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .steps {
+       display: grid;
+       grid-template-columns: repeat(4, 1fr);
+       gap: clamp(1rem, 2.5vw, 2rem);
+     }
+     .step {
+       text-align: left;
+     }
+     .step .num {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 0.9rem;
+       color: var(--cafe-ink);
+       display: block;
+       margin-bottom: 0.7rem;
+     }
+     .step h3 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+       color: var(--espresso);
+       margin-bottom: 0.4rem;
+     }
+     .step p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
+     @media (max-width: 860px) {
+       .steps { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+     }
+     @media (max-width: 560px) {
+       .steps { grid-template-columns: 1fr; }
+     }
+
+     /* ---------- Who Asa-OZ Is For ---------- */
+     .who-for {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .who-for h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .who-for-intro {
+       font-size: 1.1rem;
+       color: var(--ink);
+       margin-bottom: 1.2rem;
+       font-weight: 400;
+     }
+     .who-for-list {
+       list-style: none;
+       padding: 0;
+       display: grid;
+       gap: 0.9rem;
+     }
+     .who-for-list li {
+       position: relative;
+       padding-left: 1.5rem;
+       font-size: 1rem;
+       color: var(--ink);
+       line-height: 1.6;
+     }
+     .who-for-list li::before {
+       content: "—";
+       position: absolute;
+       left: 0;
+       color: var(--cafe-ink);
+       font-style: italic;
+       font-family: var(--serif);
+     }
+     .who-for-tagline {
+       margin-top: 1.8rem;
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 1.15rem;
+       color: var(--espresso);
+       max-width: 50ch;
+     }
+     @media (max-width: 560px) {
+       .who-for-list { gap: 0.7rem; }
+     }
+
+      /* ---------- Ethos strip ---------- */
+      .ethos {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+       display: grid;
+       grid-template-columns: 0.9fr 1.1fr;
+       gap: clamp(2.5rem, 6vw, 5rem);
+       align-items: start;
+     }
+     .ethos > .reveal:first-child {
+       position: sticky;
+       top: clamp(2rem, 5vh, 4rem);
+       align-self: start;
+       padding-right: clamp(1.5rem, 3vw, 2.5rem);
+       border-right: 1px solid rgba(111, 90, 63, 0.18);
+     }
     .ethos blockquote {
       font-family: var(--serif);
       font-weight: 400;
@@ -374,14 +1180,120 @@
       color: var(--espresso);
       font-style: italic;
     }
-    .ethos .founder .role {
-      font-size: 0.78rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+      .ethos .founder .role {
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .founder-video {
+        margin-bottom: 1.1rem;
+      }
+      .founder-video-wrap {
+        position: relative;
+        aspect-ratio: 16/9;
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(140deg, var(--cream) 0%, var(--paper) 100%);
+        box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
+      }
+      .founder-video-backdrop {
+        position: absolute;
+        inset: 0;
+        opacity: 0.55;
+        background:
+          radial-gradient(circle at 30% 40%, rgba(166,123,91,0.18) 0%, transparent 55%),
+          radial-gradient(circle at 70% 70%, rgba(143,160,92,0.14) 0%, transparent 55%);
+        pointer-events: none;
+      }
+      .founder-video-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(111,90,63,0.07) 100%);
+        pointer-events: none;
+      }
+      .founder-video-btn {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--cream);
+        border: 1.5px solid rgba(111,90,63,0.35);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        color: var(--espresso);
+        transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
+      }
+      .founder-video-btn:hover {
+        background: var(--paper);
+        border-color: var(--cafe);
+        transform: translate(-50%, -50%) scale(1.06);
+      }
+      .founder-video-btn:disabled,
+      .founder-video-btn[aria-disabled="true"] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .founder-video-coming {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-family: var(--sans);
+        opacity: 0.85;
+        margin-top: 1.8rem;
+      }
+      .founder-video iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .founder-credentials {
+        position: absolute;
+        z-index: 2;
+        bottom: 0.9rem;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0;
+      }
+      .founder-credential {
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--paper);
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 100px;
+        padding: 0.35rem 0.75rem;
+        background: rgba(43,33,24,0.45);
+        backdrop-filter: blur(6px);
+      }
+     .founder-signature {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 1.15rem;
+       color: var(--espresso);
+       margin-top: 0.6rem;
+     }
 
-    .not-list {
+     .not-list {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
@@ -391,15 +1303,32 @@
       font-size: 0.74rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--cafe-ink);
       border: 1px solid rgba(111, 90, 63, 0.25);
       border-radius: 100px;
       padding: 0.4rem 0.85rem;
     }
     .not-list span s { color: var(--cafe-ink); }
 
-    /* ---------- Footer ---------- */
-    footer {
+     /* ---------- Footer ---------- */
+      .refund-note {
+        font-size: 0.78rem;
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.8rem;
+      }
+      .social-links a {
+        font-size: 0.82rem;
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .social-links a:hover { color: var(--espresso); }
+      footer {
       position: relative;
       z-index: 2;
       padding: clamp(2.5rem, 5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
@@ -410,20 +1339,20 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-    footer .who {
-      font-size: 0.9rem;
-      color: var(--muted);
-      max-width: 46ch;
-    }
+     footer .who {
+       font-size: 0.9rem;
+       color: var(--ink);
+       max-width: 46ch;
+     }
     footer .who b {
       color: var(--espresso);
       font-weight: 500;
     }
-    footer .copy {
-      font-size: 0.78rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
+     footer .copy {
+       font-size: 0.78rem;
+       letter-spacing: 0.1em;
+       color: var(--ink);
+     }
 
     /* ---------- Keyboard focus (a11y) ---------- */
     a:focus-visible,
@@ -441,8 +1370,60 @@
       * { animation: none !important; transition: none !important; }
     }
 
-    /* ---------- FAQ ---------- */
-    .faq {
+     /* ---------- What To Expect ---------- */
+     .expect {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) 0;
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .expect h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+     }
+     .expect-grid {
+       display: grid;
+       grid-template-columns: repeat(5, 1fr);
+       gap: clamp(1rem, 2.5vw, 2rem);
+     }
+     .expect-item {
+       text-align: left;
+     }
+     .expect-item .num {
+       font-family: var(--serif);
+       font-style: italic;
+       font-size: 0.9rem;
+       color: var(--cafe-ink);
+       display: block;
+       margin-bottom: 0.7rem;
+     }
+     .expect-item h3 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+       color: var(--espresso);
+       margin-bottom: 0.4rem;
+     }
+     .expect-item p {
+       font-size: 0.88rem;
+       color: var(--ink);
+       line-height: 1.55;
+     }
+     @media (max-width: 860px) {
+       .expect-grid { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+     }
+     @media (max-width: 560px) {
+       .expect-grid { grid-template-columns: 1fr; }
+     }
+
+     /* ---------- FAQ ---------- */
+     .faq {
       position: relative;
       z-index: 2;
       padding: clamp(3rem, 8vh, 5.5rem) 0;
@@ -513,24 +1494,187 @@
     }
     .reveal.in { opacity: 1; transform: none; }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-      .reveal { opacity: 1; transform: none; }
-    }
+     @media (prefers-reduced-motion: reduce) {
+       *, *::before, *::after { animation: none !important; transition: none !important; }
+       .reveal { opacity: 1; transform: none; }
+     }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 860px) {
-      .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
-      .ethos { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 560px) {
-      .status-pill { display: none; }
-      .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
-      .signup input { text-align: center; padding: 0.4rem 0; }
-      .signup button { width: 100%; padding: 0.95rem; }
-      .pillars { grid-template-columns: 1fr; }
-      footer { flex-direction: column; align-items: flex-start; }
-    }
+     /* ---------- Gallery ("Moments of return") ---------- */
+     .gallery {
+       position: relative;
+       z-index: 2;
+       max-width: none;
+       width: 100vw;
+       margin-left: calc(-50vw + 50%);
+       padding: clamp(3rem, 8vh, 5.5rem) max(1.4rem, 5vw);
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+     }
+     .gallery h2 {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-size: clamp(1.8rem, 4vw, 2.8rem);
+       line-height: 1.1;
+       letter-spacing: -0.01em;
+       color: var(--espresso);
+       max-width: 18ch;
+       margin: 0 auto clamp(1.8rem, 4vw, 2.6rem);
+       text-align: center;
+     }
+      .gallery-stage {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: clamp(1rem, 2.5vw, 2rem);
+        height: clamp(340px, 48vh, 520px);
+        perspective: 1200px;
+      }
+     .gallery-track {
+       display: flex;
+       justify-content: center;
+       align-items: flex-end;
+       gap: inherit;
+     }
+     .gallery-card {
+       position: relative;
+       flex: 0 0 auto;
+       width: clamp(180px, 26vw, 300px);
+       aspect-ratio: 3/4;
+       background: var(--cream);
+       border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
+       box-shadow: 0 14px 44px -18px rgba(43,33,24,0.28);
+       overflow: hidden;
+       transition: transform 0.7s var(--ease), opacity 0.7s var(--ease), filter 0.7s var(--ease);
+       will-change: transform;
+       transform-origin: center bottom;
+     }
+     .gallery-card:nth-child(2) { border-radius: 55% 45% 55% 45% / 45% 55% 45% 55%; }
+     .gallery-card:nth-child(3) { border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%; }
+     .gallery-card:nth-child(4) { border-radius: 45% 55% 50% 50% / 50% 50% 45% 55%; }
+     .gallery-card:nth-child(5) { border-radius: 55% 45% 55% 45% / 45% 55% 50% 50%; }
+     .gallery-card img {
+       width: 100%; height: 100%; object-fit: cover; display: block;
+       filter: saturate(0.92) contrast(1.02);
+     }
+     .gallery-card.active { transform: translateY(0) scale(1) rotate(0deg) !important; z-index: 3; opacity: 1; filter: none; }
+     .gallery-card:not(.active) { opacity: 0.75; filter: saturate(0.7) contrast(1); }
+     .gallery-card:not(.active):hover { opacity: 0.95; filter: saturate(0.9) contrast(1.02); }
+      .gallery-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.55);
+        border: 1px solid rgba(111,90,63,0.22);
+        backdrop-filter: blur(8px);
+        border-radius: 100px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: var(--espresso);
+        display: grid; place-items: center;
+        transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+        z-index: 10;
+      }
+      .gallery-nav.prev { left: max(1.4rem, 5vw); }
+      .gallery-nav.next { right: max(1.4rem, 5vw); }
+      .gallery-nav:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+      .gallery-nav:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+      .gallery-caption {
+       margin-top: 1.2rem;
+       font-size: 0.88rem;
+       color: var(--muted);
+       text-align: center;
+       font-style: italic;
+       min-height: 1.4em;
+     }
+
+     /* ---------- Testimonial ribbon ---------- */
+     .testimonial-ribbon {
+       position: relative;
+       z-index: 2;
+       padding: clamp(3rem, 8vh, 5.5rem) clamp(1.4rem, 5vw, 4rem);
+       border-top: 1px solid rgba(111, 90, 63, 0.18);
+       text-align: center;
+     }
+     .testimonial-ribbon blockquote {
+       font-family: var(--serif);
+       font-weight: 400;
+       font-style: italic;
+       font-size: clamp(1.4rem, 3vw, 2rem);
+       line-height: 1.35;
+       color: var(--espresso);
+       max-width: 38ch;
+       margin: 0 auto;
+       letter-spacing: -0.01em;
+     }
+     .testimonial-ribbon blockquote p { margin-bottom: 1.2rem; }
+     .testimonial-ribbon blockquote p:last-child { margin-bottom: 0; }
+     .testimonial-ribbon .author {
+       margin-top: 1.6rem;
+       font-family: var(--sans);
+       font-size: 0.82rem;
+       letter-spacing: 0.14em;
+       text-transform: uppercase;
+       color: var(--cafe-ink);
+     }
+     .testimonial-ribbon .author span {
+       display: block;
+       margin-top: 0.3rem;
+       font-size: 0.78rem;
+       color: var(--muted);
+       letter-spacing: 0.08em;
+       text-transform: none;
+     }
+     .testimonial-ribbon .ribbon-rule {
+       width: 40px; height: 1px;
+       background: var(--cafe);
+       margin: 1.4rem auto 0;
+     }
+     .testimonial-photo {
+       width: 64px;
+       height: 64px;
+       margin: 0 auto 1.2rem;
+       border-radius: 50%;
+       overflow: hidden;
+       border: 2px solid rgba(244,236,224,0.4);
+       box-shadow: 0 6px 22px -12px rgba(43,33,24,0.28);
+     }
+     .testimonial-photo img {
+       width: 100%; height: 100%; object-fit: cover; display: block;
+       filter: saturate(0.88) contrast(1.05) brightness(1.02);
+     }
+
+     /* ---------- Responsive gallery tweaks ---------- */
+      @media (max-width: 860px) {
+        .gallery-stage { gap: 1.2rem; height: auto; flex-wrap: wrap; justify-content: center; padding-bottom: 1rem; }
+        .gallery-card { width: 42vw; max-width: 260px; }
+        .gallery-nav { display: none; }
+      }
+      @media (max-width: 560px) {
+        .gallery-stage { gap: 1rem; }
+        .gallery-card { width: 70vw; max-width: 280px; }
+        .gallery-stage.is-mobile .gallery-card { display: none; }
+        .gallery-stage.is-mobile .gallery-card.active { display: block; }
+        .testimonial-ribbon blockquote { font-size: 1.25rem; }
+      }
+
+     /* ---------- Responsive ---------- */
+     @media (max-width: 860px) {
+       .pillars { grid-template-columns: repeat(2, 1fr); row-gap: 2.2rem; }
+       .ethos { grid-template-columns: 1fr; gap: clamp(2rem, 5vw, 3rem); }
+       .ethos > .reveal:first-child { position: static; border-right: none; padding-right: 0; }
+       .founder-credentials { bottom: 0.6rem; gap: 0.4rem; }
+       .founder-credential { font-size: 0.62rem; padding: 0.28rem 0.6rem; }
+     }
+     @media (max-width: 560px) {
+       .status-pill { display: none; }
+       .main-nav { gap: 0.8rem; }
+       .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
+       .signup input { text-align: center; padding: 0.4rem 0; }
+       .signup button { width: 100%; padding: 0.95rem; }
+       .pillars { grid-template-columns: 1fr; }
+       footer { flex-direction: column; align-items: flex-start; }
+     }
 
     /* ---------- Launch countdown banner ---------- */
     .countdown-bar {
@@ -646,7 +1790,7 @@
     }
     .cookie-bar .ck-reject {
       background: transparent;
-      color: var(--muted);
+      color: var(--ink);
       border-color: rgba(111, 90, 63, 0.3);
     }
     .cookie-bar .ck-reject:hover { color: var(--ink); border-color: var(--ink); }
@@ -668,7 +1812,7 @@
 </head>
   <body>
   <div class="countdown-bar" id="countdownBar" role="status" aria-label="Time until launch">
-    <span class="cd-label">Our website launches in <b>2 weeks</b> — AsaOZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
+    <span class="cd-label">Our website launches in <b>2 weeks</b> — Asa-OZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
     <span class="cd-units" id="cdUnits" aria-hidden="true">
       <span class="cd-unit"><span class="n" id="cdD">--</span><span class="u">Days</span></span>
       <span class="cd-unit"><span class="n" id="cdH">--</span><span class="u">Hrs</span></span>
@@ -686,51 +1830,113 @@
   <div class="shell">
     <header>
       <div class="brand">
-        <span class="mark">A</span>
-        AsaOZ
+        <a href="/index.html" class="brand-link">
+          <span class="brand-logo-fallback">Asa-OZ</span>
+          <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
+        </a>
       </div>
-      <div class="status-pill">
-        <span class="dot"></span>
-        Arriving soon
+      <nav class="main-nav" aria-label="Main">
+        <a href="#how-it-works">Journey</a>
+        <a href="#ethos">About</a>
+        <a href="/store.html">Store</a>
+        <a href="mailto:info@asa-oz.com">Connect</a>
+      </nav>
+      <div class="header-actions">
+        <div class="status-pill">
+          <span class="dot"></span>
+          Arriving soon
+        </div>
+        <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
       </div>
     </header>
 
     <main>
       <section class="hero">
-        <p class="eyebrow reveal">Identity · Belonging · Renewal</p>
-        <h1 class="reveal">You are not starting over. You are <em>starting deeper.</em></h1>
-        <p class="lede reveal">
-          AsaOZ is a cultural reconnection movement for adults 45+ who want to feel
-          seen again — through culture, companionship, community, and meaningful travel.
-        </p>
+        <div class="hero-content">
+          <p class="eyebrow reveal">Identity • Culture • Belonging</p>
+          <h1 class="reveal">Return to Self.</h1>
+          <p class="lede reveal">
+            Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.
+          </p>
+          <p class="supporting reveal">Meet like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together.</p>
 
-        <div class="signup reveal">
-          <!--
-            To make this live, point the form at your provider, e.g.:
-            <form id="waitform" action="https://formspree.io/f/XXXX" method="POST">
-            or swap to Mailchimp/ConvertKit. The inline JS below handles
-            validation + confirmation and will not fire if the form
-            is set to actually submit (remove novalidate + the preventDefault).
-          -->
-          <form id="waitform" novalidate>
-            <input type="hidden" name="source" value="asa-oz-coming-soon" />
-            <input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Enter your email to be the first to know"
-              aria-label="Email address"
-              autocomplete="email"
-              required
-            />
-            <button type="submit">Join the journey</button>
-          </form>
-          <p class="note">No spam — only an invitation when we open our doors.</p>
-          <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You’ll be among the first to return to yourself.</p>
+          <div class="signup reveal">
+            <!--
+              To make this live, point the form at your provider, e.g.:
+              <form id="waitform" action="https://formspree.io/f/XXXX" method="POST">
+              or swap to Mailchimp/ConvertKit. The inline JS below handles
+              validation + confirmation and will not fire if the form
+              is set to actually submit (remove novalidate + the preventDefault).
+            -->
+            <form id="waitform" novalidate>
+              <input type="hidden" name="source" value="asa-oz-coming-soon" />
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="Enter your email to be the first to know"
+                aria-label="Email address"
+                autocomplete="email"
+                required
+              />
+              <button type="submit">Join the journey</button>
+            </form>
+            <p class="note">No spam — only an invitation when we open our doors.</p>
+            <p class="cta-alt"><button type="button" class="booking-trigger" id="bookingTrigger">Book a discovery call</button></p>
+            <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You&rsquo;ll be among the first to return to yourself.</p>
+          </div>
+        </div>
+        <div class="hero-collage" aria-hidden="true">
+          <figure class="hero-shot large">
+            <img src="https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=800&q=80" alt="Community sharing a meal outdoors" loading="eager" fetchpriority="high">
+          </figure>
+          <figure class="hero-shot medium">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80" alt="Friends walking through a historic market" loading="lazy">
+          </figure>
+          <figure class="hero-shot small">
+            <img src="https://images.unsplash.com/photo-1522075469751-3a6694c2c3c1?w=500&q=80" alt="Quiet conversation among friends" loading="lazy">
+          </figure>
+          <figure class="hero-shot small">
+            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80" alt="Hands on woven textile" loading="lazy">
+          </figure>
+          <button class="wall-trigger" aria-label="View the wall of moments">View the wall of moments</button>
         </div>
       </section>
 
-      <section class="pillars" aria-label="What AsaOZ offers">
+      <section class="how-it-works" aria-label="How Asa-OZ works">
+        <h2 class="reveal">How it works</h2>
+        <div class="steps">
+          <div class="step reveal">
+            <span class="num">01</span>
+            <h3>Apply or join the waitlist</h3>
+            <p>Begin your journey with a simple expression of interest.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">02</span>
+            <h3>Attend guided online sessions</h3>
+            <p>Join our community from anywhere through curated online gatherings.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">03</span>
+            <h3>Join community experiences</h3>
+            <p>Connect in person through identity circles, storytelling, and shared meals.</p>
+          </div>
+          <div class="step reveal">
+            <span class="num">04</span>
+            <h3>Participate in curated cultural journeys</h3>
+            <p>Travel with meaning, guided by culture and community.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="pillars" aria-label="What Asa-OZ offers">
         <div class="pillar reveal">
           <span class="num">01</span>
           <h3>Identity</h3>
@@ -758,12 +1964,86 @@
         </div>
       </section>
 
-      <section class="ethos">
+      <section class="expect" aria-label="What to expect">
+        <h2 class="reveal">What to expect</h2>
+        <div class="expect-grid">
+          <div class="expect-item reveal">
+            <span class="num">01</span>
+            <h3>Online events</h3>
+            <p>Regular sessions to connect, reflect, and grow together.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">02</span>
+            <h3>Group discussions &amp; identity circles</h3>
+            <p>Safe spaces to share, listen, and be seen.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">03</span>
+            <h3>Cultural talks &amp; storytelling</h3>
+            <p>Stories that remember you, and heritage that heals.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">04</span>
+            <h3>Hosted trips &amp; curated journeys</h3>
+            <p>Travel that restores identity and awakens joy.</p>
+          </div>
+          <div class="expect-item reveal">
+            <span class="num">05</span>
+            <h3>Community membership</h3>
+            <p>A space to belong — details and fees to be confirmed.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tools" aria-label="Tools for the journey">
+        <h2 class="reveal">Tools for the journey</h2>
+        <div class="tools-grid" id="toolsGrid"></div>
+        <p class="tools-cta reveal"><a href="/store.html">Visit the store</a></p>
+      </section>
+
+      <section class="gallery" aria-label="Moments from Asa-OZ">
+        <h2 class="reveal">Moments of return</h2>
+        <div class="gallery-stage reveal" id="galleryStage">
+          <div class="gallery-track" id="galleryTrack"></div>
+        </div>
+        <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous">&#8592;</button>
+        <button class="gallery-nav next" id="galleryNext" aria-label="Next">&#8594;</button>
+        <p class="gallery-caption reveal" id="galleryCaption"></p>
+      </section>
+
+      <section class="testimonial-ribbon" aria-label="Testimonials">
+        <div class="testimonial-photo reveal" id="testimonialPhoto" aria-hidden="true">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80" alt="" loading="lazy" />
+        </div>
+        <blockquote class="reveal" id="testimonialQuote">
+          <p>&ldquo;Asa-OZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.&rdquo;</p>
+        </blockquote>
+        <p class="author reveal" id="testimonialAuthor">
+          Margaret
+          <span>Community Member</span>
+        </p>
+        <div class="ribbon-rule reveal"></div>
+      </section>
+
+      <section class="who-for" aria-label="Who Asa-OZ is for">
+        <h2 class="reveal">Who Asa-OZ is for</h2>
+        <p class="who-for-intro reveal">Asa-OZ is for people who:</p>
+        <ul class="who-for-list">
+          <li class="reveal">Feel disconnected from their identity or heritage</li>
+          <li class="reveal">Are navigating a major life transition</li>
+          <li class="reveal">Long for meaningful community</li>
+          <li class="reveal">Want intentional travel experiences</li>
+          <li class="reveal">Are seeking reflection and personal growth</li>
+        </ul>
+        <p class="who-for-tagline reveal">Designed for adults aged 45 and above who are ready for something more than another holiday.</p>
+      </section>
+
+      <section class="ethos" id="ethos">
         <div class="reveal">
           <blockquote>
             You don’t have to shrink to fit the life you’ve <span>outgrown.</span>
           </blockquote>
-          <p class="from">The AsaOZ Promise</p>
+          <p class="from">The Asa-OZ Promise</p>
           <div class="not-list">
             <span><s>Not therapy</s></span>
             <span><s>Not clinical</s></span>
@@ -773,12 +2053,58 @@
         </div>
 
         <div class="founder reveal">
+          <div class="founder-video reveal">
+            <div class="founder-video-wrap">
+              <div class="founder-video-backdrop"></div>
+              <div class="founder-video-gradient"></div>
+              <button class="founder-video-btn" aria-label="Play founder introduction video" type="button">
+                <svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+              <p class="founder-video-coming">Founder video coming soon</p>
+              <p class="founder-credentials">
+                <span class="founder-credential">25+ years cultural travel</span>
+                <span class="founder-credential">Cultural Guide</span>
+                <span class="founder-credential">Community Builder</span>
+              </p>
+            </div>
+          </div>
           <p>
-            “I’ve spent over 25 years travelling the world, learning how deeply travel
-            can heal and restore identity. I created AsaOZ for those who feel unseen,
-            stuck, or unsure where to begin again.”
+            “My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world,
+            discovering that travel can do much more than take us to new places. It can restore
+            confidence, create meaningful connections, and help us rediscover parts of ourselves
+            we thought were lost.”
           </p>
-          <p>“You don’t have to start over alone. I walk with you.”</p>
+          <p>
+            “Along the way, I met countless people whose lives had been shaped by responsibility.
+            They had spent years building careers, raising families, caring for loved ones, and
+            putting everyone else first. Yet many quietly admitted they felt disconnected from
+            themselves and unsure of what the next chapter of life should look like.”
+          </p>
+          <p>“I understood that feeling.”</p>
+          <p>“That's why I created Asa-OZ.”</p>
+          <p>
+            “Asa-OZ is designed for adults aged 45 and above who are ready for something more than
+            another holiday. It is for those seeking meaningful experiences, genuine human
+            connection, cultural discovery, and the chance to embrace life with renewed purpose.”
+          </p>
+          <p>
+            “This is not about escaping your life. It is about returning to yourself.”
+          </p>
+          <p>
+            “Through thoughtfully curated journeys, shared experiences, and supportive community,
+            I will walk alongside you as you discover new places, build lasting friendships, and
+            reconnect with the joy, confidence, and sense of belonging that may have faded over
+            time.”
+          </p>
+          <p>
+            “Because no matter where life has taken you, there is always room for new memories, new
+            friendships, and new beginnings.”
+          </p>
+          <p class="founder-signature">
+            “You are not starting over. You are simply discovering a deeper, richer version of yourself.”
+          </p>
           <p>
             <span class="name">Ifeoma Adaora</span><br />
             <span class="role">Founder &amp; Cultural Guide</span>
@@ -790,37 +2116,100 @@
         <h2 class="reveal">Questions, gently answered.</h2>
 
         <details class="reveal">
-          <summary>Is AsaOZ a wellness programme?<span class="sign" aria-hidden="true"></span></summary>
+          <summary>What is Asa-OZ?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p><em>No.</em> AsaOZ is a cultural identity and belonging initiative — a movement for adults 45+ who want to feel seen again.</p>
+            <p>Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Who is Asa-OZ for?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Adults 45+ who feel disconnected from their identity or heritage, are navigating a major life transition, long for meaningful community, want intentional travel experiences, or are seeking reflection and personal growth.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>What do I receive after joining?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Online events, group identity circles, cultural talks and storytelling sessions, hosted trips and curated journeys, and community membership.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How long is the programme?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Programme length varies. Some experiences are one-off gatherings; others form part of an ongoing journey. Details will be shared as we finalise the calendar.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Is it online or in person?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Both. We begin with guided online sessions to build connection, then move into in-person community experiences and curated cultural journeys.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How much does it cost?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Membership fees are still being finalised. Join the waitlist to be the first to know when pricing is confirmed.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Which countries or cultures will be explored?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are starting in Ireland, with plans to expand. Destinations will be announced as our community grows.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>How often are experiences organised?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>The calendar is still forming. We expect a mix of regular online sessions, monthly in-person circles, and periodic curated journeys. Exact cadence to be confirmed soon.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Is it UK/Ireland-based or international?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are Ireland-based, with ambitions to grow internationally over time.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>When do journeys take place?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Dates will be shared as journeys are confirmed. Join the waitlist and we will reach out with the first invitations.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>Can I join from another country?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Yes. Many of our online sessions are open internationally. In-person journeys may be Ireland-based initially, but international participation is welcome where possible.</p>
+          </div>
+        </details>
+
+        <details class="reveal">
+          <summary>What happens after I register?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>You will receive a welcome message with next steps, including invitations to upcoming online sessions and community events.</p>
           </div>
         </details>
 
         <details class="reveal">
           <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>No. We do not provide mental-health treatment or clinical services. AsaOZ is built on culture, storytelling, companionship, and meaningful travel — not clinical frameworks.</p>
+            <p>No. Asa-OZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
           </div>
         </details>
 
         <details class="reveal">
           <summary>Do you sell travel packages?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p>No. Participants book their own travel. AsaOZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Who is AsaOZ for?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Adults 45+ seeking identity, belonging, companionship, and renewal — especially those who feel unseen, stuck, or unsure where to begin again.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Can I join alone?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Yes. Many participants come solo. You don’t have to start over alone — you’ll be walking with a community from the very first step.</p>
+            <p>No. Participants book their own travel. Asa-OZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
           </div>
         </details>
       </section>
@@ -828,12 +2217,34 @@
 
     <footer>
       <p class="who">
-        <b>AsaOZ</b> — a movement for identity, belonging &amp; renewal.
-        An invitation to return to yourself.
+        <b>Asa-OZ</b> — a movement for identity, belonging &amp; renewal.<br />
+        Sole Trader: Ifeoma t/a Asa-OZ &middot; Ireland<br />
+        RC No: Not applicable (sole trader)<br />
+        Contact: <a href="mailto:info@asa-oz.com">info@asa-oz.com</a> &middot; Phone: [to be added]<br />
+        <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
       </p>
-      <p class="copy">© <span id="year"></span> AsaOZ. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#" target="_blank" rel="noopener">Instagram</a>
+        <a href="#" target="_blank" rel="noopener">Facebook</a>
+      </div>
+      <p class="copy">© <span id="year"></span> Asa-OZ. All rights reserved.</p>
     </footer>
   </div>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
+    <div class="cart-header">
+      <h3>Your cart</h3>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">&#10005;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <p class="cart-empty">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><span id="cartTotal">€0</span></div>
+      <button class="cart-checkout" id="cartCheckout" disabled>Enquire to purchase</button>
+    </div>
+  </aside>
 
   <aside class="cookie-bar" id="cookieBar" role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="ckText">
     <span class="ck-icon" aria-hidden="true">⚪</span>
@@ -841,18 +2252,291 @@
       <p id="ckText">
         We use strictly necessary cookies to run this site. With your consent, we’d also like to
         use analytics cookies to understand how visitors find us. You can accept, reject, or change
-        your choice any time. See our <a href="/privacy" id="ckPrivacy">privacy notice</a>.
+        your choice any time. See our privacy notice.
       </p>
       <div class="ck-actions">
         <button type="button" class="ck-reject" id="ckReject">Reject non-essential</button>
         <button type="button" class="ck-accept" id="ckAccept">Accept all</button>
       </div>
     </div>
-  </aside>
+    </aside>
+
+    <div class="wall-overlay" id="wallOverlay" role="dialog" aria-modal="true" aria-label="Wall of moments">
+      <div class="wall-brand" aria-hidden="true">Asa-OZ</div>
+      <div class="wall-canvas-wrap" id="wallCanvasWrap"></div>
+      <div class="wall-loading" id="wallLoading" aria-hidden="true"></div>
+      <button class="wall-close" id="wallClose" aria-label="Close wall of moments" type="button">&#10005;</button>
+      <div class="wall-hints" id="wallHints" aria-hidden="true"></div>
+    </div>
+
+    <div class="booking-overlay" id="bookingOverlay" role="dialog" aria-modal="true" aria-label="Book a discovery call">
+      <div class="booking-modal">
+        <div class="booking-header">
+          <h3>Book a discovery call</h3>
+          <button class="booking-close" id="bookingClose" aria-label="Close booking form" type="button">&#10005;</button>
+        </div>
+        <div class="booking-body" id="bookingBody">
+          <form id="bookingForm" novalidate>
+            <div class="booking-field" id="fieldName">
+              <label for="bName">Full name</label>
+              <input type="text" id="bName" name="name" placeholder="Your full name" required />
+              <span class="error-msg">Please enter your name.</span>
+            </div>
+            <div class="booking-field" id="fieldEmail">
+              <label for="bEmail">Email</label>
+              <input type="email" id="bEmail" name="email" placeholder="you@example.com" autocomplete="email" required />
+              <span class="error-msg">Please enter a valid email.</span>
+            </div>
+            <div class="booking-field" id="fieldPhone">
+              <label for="bPhone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+              <input type="tel" id="bPhone" name="phone" placeholder="+353 ..." autocomplete="tel" />
+            </div>
+            <div class="booking-row">
+              <div class="booking-field" id="fieldDate">
+                <label for="bDate">Preferred date</label>
+                <input type="date" id="bDate" name="date" required />
+                <span class="error-msg">Please choose a date.</span>
+              </div>
+              <div class="booking-field" id="fieldTime">
+                <label for="bTime">Preferred time</label>
+                <input type="time" id="bTime" name="time" required />
+                <span class="error-msg">Please choose a time.</span>
+              </div>
+            </div>
+            <div class="booking-field" id="fieldMessage">
+              <label for="bMessage">What would you like to discuss?</label>
+              <textarea id="bMessage" name="message" placeholder="Tell us a little about what you are looking for..."></textarea>
+            </div>
+          </form>
+          <div class="booking-confirmation" id="bookingConfirm">
+            <div class="confirm-icon" aria-hidden="true">&#10003;</div>
+            <h4>You&rsquo;re in</h4>
+            <p>We&rsquo;ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">info@asa-oz.com</a>.</p>
+          </div>
+        </div>
+        <div class="booking-footer" id="bookingFooter">
+          <button type="button" class="booking-btn booking-btn-secondary" id="bookingCancel">Cancel</button>
+          <button type="submit" class="booking-btn booking-btn-primary" form="bookingForm">Request booking</button>
+        </div>
+      </div>
+    </div>
 
   <script>
     (function () {
       document.getElementById("year").textContent = new Date().getFullYear();
+      // ---- Gallery: Arch Deck ----
+      var track = document.getElementById('galleryTrack');
+      var prevBtn = document.getElementById('galleryPrev');
+      var nextBtn = document.getElementById('galleryNext');
+      var captionEl = document.getElementById('galleryCaption');
+      var stageEl = document.getElementById('galleryStage');
+      if (track) {
+        var images = [
+          { src: 'https://picsum.photos/seed/asaoz-culture/600/800', alt: 'Cultural gathering and storytelling' },
+          { src: 'https://picsum.photos/seed/asaoz-travel/600/800', alt: 'Meaningful travel and exploration' },
+          { src: 'https://picsum.photos/seed/asaoz-community/600/800', alt: 'Community connection and belonging' },
+          { src: 'https://picsum.photos/seed/asaoz-nature/600/800', alt: 'Nature and reflection' },
+          { src: 'https://picsum.photos/seed/asaoz-heritage/600/800', alt: 'Heritage and identity' }
+        ];
+        var currentIndex = 0;
+        var isAnimating = false;
+        var cards = [];
+        var isMobile = window.innerWidth <= 560;
+        var isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
+        function archPose(index, total) {
+          var mid = Math.floor(total / 2);
+          var offset = index - mid;
+          var dir = offset === 0 ? 0 : offset / Math.abs(offset);
+          var dist = Math.abs(offset);
+          var depth = isMobile ? 0 : (hasFinePointer ? 1 : 0.5);
+          var scale = Math.max(0.72, 1 - dist * 0.08 * depth);
+          var translateY = dist * 30 * depth;
+          var rotate = dir * dist * 2.5 * depth;
+          return { scale: scale, translateY: translateY, rotate: rotate };
+        }
+
+        function applyMobileClass() {
+          if (stageEl) {
+            stageEl.classList.toggle('is-mobile', isMobile && !isReducedMotion);
+          }
+        }
+
+        function render() {
+          var total = images.length;
+          cards.forEach(function(card, i) {
+            var pose = archPose(i, total);
+            var isActive = i === currentIndex;
+            card.classList.toggle('active', isActive);
+            if (!isMobile && !isReducedMotion) {
+              card.style.transform = 'translateY(' + pose.translateY + 'px) scale(' + pose.scale + ') rotate(' + pose.rotate + 'deg)';
+            }
+            card.style.zIndex = isActive ? 3 : (total - Math.abs(i - currentIndex));
+          });
+          captionEl.textContent = images[currentIndex].alt;
+          applyMobileClass();
+        }
+
+        function goTo(index) {
+          if (isAnimating) return;
+          isAnimating = true;
+          currentIndex = (index + images.length) % images.length;
+          render();
+          setTimeout(function() { isAnimating = false; }, 700);
+        }
+
+        images.forEach(function(img, i) {
+          var card = document.createElement('div');
+          card.className = 'gallery-card reveal';
+          var image = document.createElement('img');
+          image.src = img.src;
+          image.alt = img.alt;
+          image.loading = 'lazy';
+          image.decoding = 'async';
+          card.appendChild(image);
+          track.appendChild(card);
+          cards.push(card);
+        });
+
+        render();
+        prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); });
+        nextBtn.addEventListener('click', function() { goTo(currentIndex + 1); });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
+          if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+        });
+        var startX = 0;
+        track.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+          var diff = e.changedTouches[0].clientX - startX;
+          if (Math.abs(diff) > 40) { diff > 0 ? goTo(currentIndex - 1) : goTo(currentIndex + 1); }
+        });
+        window.addEventListener('resize', function() {
+          isMobile = window.innerWidth <= 560;
+          render();
+        });
+
+        // Mouse parallax on desktop
+        if (hasFinePointer && !isReducedMotion) {
+          stageEl.addEventListener('mousemove', function(e) {
+            var rect = stageEl.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            var centerX = rect.width / 2;
+            var centerY = rect.height / 2;
+            var rotateY = ((x - centerX) / centerX) * 4;
+            var rotateX = ((centerY - y) / centerY) * 2;
+            track.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+          });
+          stageEl.addEventListener('mouseleave', function() {
+            track.style.transform = 'rotateX(0deg) rotateY(0deg)';
+          });
+        }
+      }
+      // ---- Founder video (click-to-load, no network request until play) ----
+      var FOUNDER_VIDEO_ID = "";
+      var founderVideoBlock = document.querySelector('.founder-video');
+      if (founderVideoBlock) {
+        var fvBtn = founderVideoBlock.querySelector('.founder-video-btn');
+        var fvWrap = founderVideoBlock.querySelector('.founder-video-wrap');
+        if (!FOUNDER_VIDEO_ID) {
+          fvBtn.setAttribute('disabled', '');
+          fvBtn.setAttribute('aria-disabled', 'true');
+          fvBtn.addEventListener('click', function(e) { e.preventDefault(); });
+        } else {
+          fvBtn.addEventListener('click', function() {
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + FOUNDER_VIDEO_ID + '?autoplay=1&rel=0';
+            iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.title = 'Founder introduction video';
+            fvWrap.appendChild(iframe);
+            var btnEl = fvWrap.querySelector('.founder-video-btn');
+            if (btnEl) btnEl.style.display = 'none';
+            var comingEl = fvWrap.querySelector('.founder-video-coming');
+            if (comingEl) comingEl.style.display = 'none';
+          });
+        }
+      }
+      // ---- Testimonial ribbon rotator ----
+      var quoteEl = document.getElementById('testimonialQuote');
+      var authorEl = document.getElementById('testimonialAuthor');
+      var testimonialPhotoEl = document.getElementById('testimonialPhoto');
+      if (quoteEl && authorEl) {
+        var testimonials = [
+          { text: 'Asa-OZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.', name: 'Margaret', location: 'Ireland', role: 'Community Member', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80' },
+          { text: 'I arrived alone, unsure of what to expect. I left with friendships that feel like home and a sense of belonging I haven\'t felt in years.', name: 'Thomas', location: 'Ireland', role: 'Journey Participant', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80' },
+          { text: 'The cultural storytelling sessions reminded me that my heritage has something to say. I felt seen, heard, and valued for the first time in a long while.', name: 'Eileen', location: 'Co. Clare', role: 'Identity Circle Member', photo: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?w=200&q=80' }
+        ];
+        var tIndex = 0;
+        var tInterval;
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function showTestimonial(index) {
+          var t = testimonials[index];
+          quoteEl.style.opacity = '0';
+          quoteEl.style.transform = 'translateY(8px)';
+          authorEl.style.opacity = '0';
+          authorEl.style.transform = 'translateY(8px)';
+          if (testimonialPhotoEl) { testimonialPhotoEl.style.opacity = '0'; testimonialPhotoEl.style.transform = 'translateY(6px)'; }
+          setTimeout(function() {
+            quoteEl.innerHTML = '<p>&ldquo;' + t.text + '&rdquo;</p>';
+            authorEl.innerHTML = t.name + ', ' + t.location + '<span>' + t.role + '</span>';
+            if (testimonialPhotoEl && t.photo) {
+              var img = testimonialPhotoEl.querySelector('img');
+              if (img) { img.src = t.photo; img.alt = t.name + ', ' + t.role; }
+              testimonialPhotoEl.style.display = '';
+            } else if (testimonialPhotoEl) {
+              testimonialPhotoEl.style.display = 'none';
+            }
+            quoteEl.style.opacity = '1';
+            quoteEl.style.transform = 'none';
+            authorEl.style.opacity = '1';
+            authorEl.style.transform = 'none';
+            if (testimonialPhotoEl) { testimonialPhotoEl.style.opacity = '1'; testimonialPhotoEl.style.transform = 'none'; }
+          }, reducedMotion ? 0 : 400);
+        }
+
+        function startAuto() {
+          tInterval = setInterval(function() {
+            tIndex = (tIndex + 1) % testimonials.length;
+            showTestimonial(tIndex);
+          }, 8000);
+        }
+        function resetAuto() { clearInterval(tInterval); startAuto(); }
+        quoteEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+        authorEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+        if (testimonialPhotoEl) { testimonialPhotoEl.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)'; }
+        quoteEl.style.cursor = 'pointer';
+        authorEl.style.cursor = 'pointer';
+        quoteEl.addEventListener('click', function() { tIndex = (tIndex + 1) % testimonials.length; showTestimonial(tIndex); resetAuto(); });
+        authorEl.addEventListener('click', function() { tIndex = (tIndex + 1) % testimonials.length; showTestimonial(tIndex); resetAuto(); });
+        if (!reducedMotion) startAuto();
+      }
+
+      // ---- Tools (minimal preview) ----
+      var tools = [
+        { name: 'The Return Journal', price: '€24', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { name: 'Heritage Print', price: '€18', desc: 'A keepsake art print rooted in heritage and memory.' },
+        { name: 'Identity Circle Session', price: '€12', desc: 'Online guided circles to share and be seen.' },
+        { name: 'Renewal Letter', price: 'Free', desc: 'A welcome letter and printable reflection guide.' }
+      ];
+
+      function renderTools() {
+        var grid = document.getElementById('toolsGrid');
+        tools.forEach(function(t, i) {
+          var item = document.createElement('div');
+          item.className = 'tool-item reveal';
+          item.innerHTML =
+            '<span class="tool-num">0' + (i + 1) + '</span>' +
+            '<h3>' + t.name + '</h3>' +
+            '<p>' + t.desc + '</p>' +
+            '<div class="tool-price">' + t.price + '</div>';
+          grid.appendChild(item);
+        });
+      }
+      if (document.getElementById('toolsGrid')) renderTools();
 
       // Scroll reveal
       var items = document.querySelectorAll(".reveal");
@@ -910,7 +2594,7 @@
         if (diff <= 0) {
           cd.bar.classList.add("is-past");
           cd.bar.querySelector(".cd-label").innerHTML =
-            "The AsaOZ website is live. Welcome — you don’t have to begin again alone.";
+            "The Asa-OZ website is live. Welcome — you don’t have to begin again alone.";
           clearInterval(timer);
           return;
         }
@@ -949,7 +2633,552 @@
       document.getElementById("ckReject").addEventListener("click", function () {
         setConsent("necessary");
       });
+
+      // ---- Store / Cart ----
+      var products = [
+        { id: 'journal', name: 'The Return Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { id: 'print', name: 'Heritage Print', type: 'physical', price: 18, img: 'https://picsum.photos/seed/asaoz-print/600/450', desc: 'A keepsake art print rooted in heritage and memory.' },
+        { id: 'session', name: 'Identity Circle Session', type: 'virtual', price: 12, img: 'https://picsum.photos/seed/asaoz-circle/600/450', desc: 'Join an online guided circle to share and be seen.' },
+        { id: 'story', name: 'Cultural Storytelling Access', type: 'virtual', price: 8, img: 'https://picsum.photos/seed/asaoz-story/600/450', desc: 'Digital collection of stories that remember you.' },
+        { id: 'kit', name: 'Journey Kit', type: 'physical', price: 35, img: 'https://picsum.photos/seed/asaoz-kit/600/450', desc: 'Pre-trip materials to prepare mind and heart for travel.' },
+        { id: 'letter', name: 'Renewal Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
+      ];
+
+      function renderStore() {
+        var grid = document.getElementById('storeGrid');
+        products.forEach(function(p) {
+          var card = document.createElement('div');
+          card.className = 'store-card reveal';
+          card.innerHTML =
+            '<img class="media" src="' + p.img + '" alt="' + p.name + '" loading="lazy" decoding="async" />' +
+            '<div class="body">' +
+              '<span class="badge ' + p.type + '">' + p.type + '</span>' +
+              '<h3>' + p.name + '</h3>' +
+              '<p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">' + p.desc + '</p>' +
+              '<div class="price">' + (p.price === 0 ? 'Free' : '€' + p.price) + '</div>' +
+              '<button class="add-btn" data-id="' + p.id + '">' + (p.price === 0 ? 'Add to cart' : 'Add to cart') + '</button>' +
+            '</div>';
+          grid.appendChild(card);
+        });
+        grid.querySelectorAll('.add-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            addToCart(btn.getAttribute('data-id'));
+          });
+        });
+      }
+      if (document.getElementById('storeGrid')) renderStore();
+
+      var cartKey = 'asa-oz-cart';
+      var cart = (function() {
+        try { var s = localStorage.getItem(cartKey); return s ? JSON.parse(s) : []; } catch(e) { return []; }
+      })();
+      var cartOpen = false;
+
+      function saveCart() {
+        try { localStorage.setItem(cartKey, JSON.stringify(cart)); } catch(e) {}
+        updateCartUI();
+      }
+
+      function addToCart(id) {
+        var qty = 1; var existing = cart.find(function(i){ return i.id === id; }); if (existing) { existing.qty += 1; } else { cart.push({ id: id, qty: 1 }); } saveCart(); openCart();
+      }
+
+      function removeFromCart(id) { cart = cart.filter(function(i){ return i.id !== id; }); saveCart(); }
+
+      function changeQty(id, delta) {
+        var item = cart.find(function(i){ return i.id === id; }); if (!item) return;
+        item.qty += delta; if (item.qty <= 0) removeFromCart(id); else saveCart();
+      }
+
+      function cartCount() { return cart.reduce(function(a,b){ return a + b.qty; }, 0); }
+
+      function getProduct(id) { return products.find(function(p){ return p.id === id; }); }
+
+      function updateCartUI() {
+        var count = cartCount();
+        var countEl = document.getElementById('cartCount');
+        countEl.textContent = count;
+        countEl.classList.toggle('show', count > 0);
+        var itemsEl = document.getElementById('cartItems');
+        var totalEl = document.getElementById('cartTotal');
+        var checkoutBtn = document.getElementById('cartCheckout');
+        if (cart.length === 0) {
+          itemsEl.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+          totalEl.textContent = '€0';
+          checkoutBtn.disabled = true;
+        } else {
+          itemsEl.innerHTML = cart.map(function(item) {
+            var p = getProduct(item.id); if (!p) return '';
+            return '<div class="cart-item">' +
+              '<div class="cart-item-img"><img src="' + p.img + '" alt="' + p.name + '" /></div>' +
+              '<div class="cart-item-body">' +
+                '<h4>' + p.name + '</h4>' +
+                '<div class="meta">' + p.type + ' &middot; €' + p.price + ' each</div>' +
+                '<div class="cart-item-qty">' +
+                  '<button data-id="' + item.id + '" data-delta="-1" aria-label="Decrease">&#8722;</button>' +
+                  '<span>' + item.qty + '</span>' +
+                  '<button data-id="' + item.id + '" data-delta="1" aria-label="Increase">&#43;</button>' +
+                '</div>' +
+                '<button class="cart-item-remove" data-id="' + item.id + '">Remove</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
+          totalEl.textContent = '€' + total;
+          checkoutBtn.disabled = false;
+          itemsEl.querySelectorAll('.cart-item-qty button').forEach(function(b) {
+            b.addEventListener('click', function() { changeQty(b.getAttribute('data-id'), parseInt(b.getAttribute('data-delta'), 10)); });
+          });
+          itemsEl.querySelectorAll('.cart-item-remove').forEach(function(b) {
+            b.addEventListener('click', function() { removeFromCart(b.getAttribute('data-id')); });
+          });
+        }
+      }
+
+      function openCart() { cartOpen = true; document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+      function closeCart() { cartOpen = false; document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+
+      document.getElementById('cartToggle').addEventListener('click', openCart);
+      document.getElementById('cartClose').addEventListener('click', closeCart);
+      document.getElementById('cartOverlay').addEventListener('click', closeCart);
+
+      document.getElementById('cartCheckout').addEventListener('click', function() {
+        var lines = cart.map(function(i){ var p = getProduct(i.id); return (p ? p.name + ' x' + i.qty + ' = €' + (p.price * i.qty) : ''); });
+        var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
+        var body = lines.join('%0D%0A') + '%0D%0ATotal: €' + total + '%0D%0A%0D%0APlease confirm availability and payment options.';
+        window.location.href = 'mailto:info@asa-oz.com?subject=Order%20Enquiry&body=' + body;
+      });
+
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
+      updateCartUI();
     })();
+
+      // ---- Wall of Moments (lazy Three.js easter egg) ----
+      (function() {
+        if (!document.querySelector('.wall-overlay')) return;
+
+        var ARC_SPAN = 140 * Math.PI / 180;
+        var ROWS = 3;
+        var COLS = 4;
+        var RADIUS = 4.5;
+        var FOV = 60 * Math.PI / 180;
+        var HALF_FOV = FOV / 2;
+        var ARC_HALF = ARC_SPAN / 2;
+        var FOV_MARGIN = HALF_FOV * 0.9;
+        var THETA_MIN = -(ARC_HALF - FOV_MARGIN);
+        var THETA_MAX = (ARC_HALF - FOV_MARGIN);
+        var PHI_MIN = -0.35;
+        var PHI_MAX = 0.35;
+        var DRAG_SENS = 0.005;
+        var DAMPING = 0.92;
+        var EPS = 0.0001;
+
+        var wallUrls = [
+          'https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=800&q=80',
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80',
+          'https://images.unsplash.com/photo-1522075469751-3a6694c2c3c1?w=500&q=80',
+          'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80'
+        ];
+
+        var THREE_CDN = 'https://unpkg.com/three@0.160.0/build/three.min.js';
+        var THREE_LOADED = false;
+        var THREE_READY = null;
+
+        function loadThree() {
+          if (THREE_LOADED) return Promise.resolve(THREE_READY);
+          return new Promise(function(resolve, reject) {
+            var s = document.createElement('script');
+            s.src = THREE_CDN;
+            s.onload = function() { THREE_LOADED = true; THREE_READY = window.THREE; resolve(window.THREE); };
+            s.onerror = function() { console.warn('Asa-OZ wall: Three.js failed to load'); reject(new Error('Three.js load failed')); };
+            document.head.appendChild(s);
+          });
+        }
+
+        var overlay = document.getElementById('wallOverlay');
+        var closeBtn = document.getElementById('wallClose');
+        var canvasWrap = document.getElementById('wallCanvasWrap');
+        var loadingEl = document.getElementById('wallLoading');
+        var trigger = document.querySelector('.wall-trigger');
+
+        var renderer = null, scene = null, camera = null;
+        var tiles = [], rafId = null, isOpen = false;
+        var theta = 0, phi = 0;
+        var targetTheta = 0, targetPhi = 0;
+        var velocityTheta = 0, velocityPhi = 0;
+        var isDragging = false, pointerMoved = false;
+        var prevPointer = { x: 0, y: 0 };
+        var pointerDownTime = 0;
+        var lastTapTime = 0;
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var textureLoader = null;
+        var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+        var hintsEl = document.getElementById('wallHints');
+        var hintsVisible = false;
+
+        function showHints() {
+          if (!hintsEl) return;
+          hintsEl.classList.remove('hidden');
+          if (isTouch) {
+            hintsEl.innerHTML = '<span class="hint-icon"><svg viewBox="0 0 24 24"><path d="M14 4l-8 8 8 8"/><path d="M20 4l-8 8 8 8"/></svg></span> Swipe to explore';
+          } else {
+            hintsEl.innerHTML = '<span class="hint-icon"><svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4"/><path d="M9 5v14"/></svg></span> Drag to rotate &middot; Scroll to spin &middot; Mouse to look';
+          }
+          hintsVisible = true;
+          setTimeout(function() { hideHints(); }, 5000);
+        }
+
+        function hideHints() {
+          if (!hintsEl || !hintsVisible) return;
+          hintsVisible = false;
+          hintsEl.classList.add('hidden');
+        }
+
+        function openWall() {
+          if (isOpen) return;
+          isOpen = true;
+          try { requestOrientation(); } catch(e) {}
+          overlay.classList.add('open');
+          showHints();
+          document.body.style.overflow = 'hidden';
+          loadingEl.style.display = 'block';
+          loadThree().then(function(THREE) {
+            loadingEl.style.display = 'none';
+            initScene(THREE);
+          }).catch(function() {
+            closeWall();
+          });
+        }
+
+        function closeWall() {
+          if (!isOpen) return;
+          isOpen = false;
+          tiles.forEach(function(t) {
+            t.mesh.geometry.dispose();
+            t.mesh.material.dispose();
+            if (t.mesh.material.map) t.mesh.material.map.dispose();
+            t.border.geometry.dispose();
+            t.border.material.dispose();
+          });
+          tiles = [];
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+          if (renderer) {
+            if (renderer.domElement && renderer.domElement.parentNode) {
+              renderer.domElement.parentNode.removeChild(renderer.domElement);
+            }
+            renderer.dispose();
+            renderer = null;
+          }
+          scene = null;
+          camera = null;
+          textureLoader = null;
+           theta = 0; phi = 0;
+           velocityTheta = 0; velocityPhi = 0;
+           targetTheta = 0; targetPhi = 0;
+           overlay.classList.remove('open');
+           document.body.style.overflow = '';
+           hintsVisible = false;
+           if (hintsEl) { hintsEl.classList.remove('hidden'); }
+           if (trigger) { document.body.focus(); }
+         }
+
+        function initScene(THREE) {
+          textureLoader = new THREE.TextureLoader();
+          scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x2b2118);
+          camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+          camera.position.set(0, 0, 0.01);
+          camera.rotation.order = 'YXZ';
+          renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setPixelRatio(dpr);
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          canvasWrap.appendChild(renderer.domElement);
+          var colStep = ARC_SPAN / (COLS - 1);
+          var tileW = 2.0, tileH = 1.3;
+          var entranceStart = performance.now();
+          for (var row = 0; row < ROWS; row++) {
+            for (var col = 0; col < COLS; col++) {
+              var angle = (col - (COLS - 1) / 2) * colStep;
+              var x = RADIUS * Math.sin(angle);
+              var z = -RADIUS * Math.cos(angle);
+              var y = (row - (ROWS - 1) / 2) * 1.55;
+              var geom = new THREE.PlaneGeometry(tileW, tileH);
+              var tex = textureLoader.load(wallUrls[col % wallUrls.length]);
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              var mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+              var mesh = new THREE.Mesh(geom, mat);
+              mesh.position.set(x, y, z);
+              mesh.rotation.y = -angle;
+              mesh.scale.setScalar(0);
+              var borderGeom = new THREE.PlaneGeometry(tileW + 0.12, tileH + 0.12);
+              var borderMat = new THREE.MeshBasicMaterial({ color: 0xf4ece0, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+              var borderMesh = new THREE.Mesh(borderGeom, borderMat);
+              borderMesh.position.set(x + Math.sin(angle) * 0.015, y, z + Math.cos(angle) * 0.015);
+              borderMesh.rotation.y = -angle;
+              borderMesh.scale.setScalar(0);
+              scene.add(mesh);
+              scene.add(borderMesh);
+              tiles.push({ mesh: mesh, border: borderMesh, delay: (row * COLS + col) * 40, start: entranceStart });
+            }
+          }
+          setupControls();
+          renderLoop();
+        }
+
+        function renderLoop() {
+          if (!isOpen || !renderer) return;
+          var now = performance.now();
+          if (!reducedMotion) {
+            tiles.forEach(function(t) {
+              var elapsed = now - t.start;
+              if (elapsed < t.delay) return;
+              var p = Math.min((elapsed - t.delay) / 500, 1);
+              var ease = p < 0.5 ? 2*p*p : -1 + (4 - 2*p)*p;
+              t.mesh.material.opacity = ease;
+              t.border.material.opacity = ease * 0.35;
+              t.mesh.scale.setScalar(ease);
+              t.border.scale.setScalar(ease);
+            });
+          } else {
+            tiles.forEach(function(t) {
+              t.mesh.material.opacity = 1;
+              t.border.material.opacity = 0.35;
+              t.mesh.scale.setScalar(1);
+              t.border.scale.setScalar(1);
+            });
+          }
+          if (!isDragging) {
+            velocityTheta *= DAMPING;
+            velocityPhi *= DAMPING;
+            if (Math.abs(velocityTheta) < EPS) velocityTheta = 0;
+            if (Math.abs(velocityPhi) < EPS) velocityPhi = 0;
+            theta += velocityTheta;
+            phi += velocityPhi;
+          }
+          if (theta < THETA_MIN) { theta += (THETA_MIN - theta) * 0.1; velocityTheta = 0; }
+          if (theta > THETA_MAX) { theta -= (theta - THETA_MAX) * 0.1; velocityTheta = 0; }
+          phi = Math.max(PHI_MIN, Math.min(PHI_MAX, phi));
+          camera.rotation.y = -theta;
+          camera.rotation.x = -phi;
+          renderer.render(scene, camera);
+          rafId = requestAnimationFrame(renderLoop);
+        }
+
+        function setupControls() {
+          var el = renderer.domElement;
+          el.addEventListener('pointerdown', function(e) {
+            if (e.pointerType === 'mouse' && e.button === 0) {
+              isDragging = true;
+              prevPointer.x = e.clientX;
+              prevPointer.y = e.clientY;
+              pointerDownTime = Date.now();
+              pointerMoved = false;
+              velocityTheta = 0;
+              velocityPhi = 0;
+              try { el.setPointerCapture(e.pointerId); } catch(err) {}
+            }
+          });
+          el.addEventListener('pointermove', function(e) {
+            if (isDragging) {
+              var dx = e.clientX - prevPointer.x;
+              var dy = e.clientY - prevPointer.y;
+              if (Math.abs(dx) > 2 || Math.abs(dy) > 2) pointerMoved = true;
+              velocityTheta = dx * DRAG_SENS;
+              velocityPhi = dy * DRAG_SENS;
+              theta += velocityTheta;
+              phi -= velocityPhi;
+              prevPointer.x = e.clientX;
+              prevPointer.y = e.clientY;
+            } else {
+              var mx = (e.clientX / window.innerWidth - 0.5) * 2;
+              var my = (e.clientY / window.innerHeight - 0.5) * 2;
+              targetTheta = mx * 0.15;
+              targetPhi = -my * 0.1;
+              if (Math.abs(velocityTheta) < 0.001 && Math.abs(velocityPhi) < 0.001) {
+                theta += (targetTheta - theta) * 0.02;
+                phi += (targetPhi - phi) * 0.02;
+              }
+            }
+          });
+          el.addEventListener('pointerup', function(e) {
+            if (isDragging) { isDragging = false; try { el.releasePointerCapture(e.pointerId); } catch(err) {} }
+          });
+          el.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            velocityTheta += e.deltaY * 0.0005;
+            velocityTheta = Math.max(-0.05, Math.min(0.05, velocityTheta));
+          }, { passive: false });
+
+          function requestOrientation() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+              DeviceOrientationEvent.requestPermission().then(function(state) {
+                if (state !== 'granted') return;
+                window.addEventListener('deviceorientation', function(e) {
+                  if (!isOpen) return;
+                  var gamma = e.gamma || 0;
+                  if (!isDragging) { theta += gamma * 0.002; }
+                });
+              }).catch(function() {});
+            }
+          }
+           var resizeTimer;
+           window.addEventListener('resize', function() {
+             clearTimeout(resizeTimer);
+             resizeTimer = setTimeout(function() {
+               if (!renderer || !camera) return;
+               camera.aspect = window.innerWidth / window.innerHeight;
+               camera.updateProjectionMatrix();
+               renderer.setSize(window.innerWidth, window.innerHeight);
+             }, 150);
+           });
+           if (hintsEl) {
+             function dismissHints() { hideHints(); }
+             el.addEventListener('pointerdown', dismissHints, { once: true });
+             el.addEventListener('wheel', dismissHints, { once: true });
+             el.addEventListener('pointermove', dismissHints, { once: true });
+           }
+         }
+
+        if (trigger) {
+          trigger.addEventListener('click', function(e) { e.preventDefault(); openWall(); });
+          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWall(); } });
+        }
+        var heroCollage = document.querySelector('.hero-collage');
+        if (heroCollage) {
+          var ltX = 0, ltY = 0;
+          heroCollage.addEventListener('dblclick', function(e) { e.preventDefault(); if (!isOpen) openWall(); else closeWall(); });
+          heroCollage.addEventListener('touchstart', function(e) { ltX = e.touches[0].clientX; ltY = e.touches[0].clientY; }, { passive: true });
+          heroCollage.addEventListener('touchend', function(e) {
+            var now = Date.now(), dt = now - lastTapTime, dx = 0, dy = 0;
+            if (e.changedTouches.length) { dx = Math.abs(e.changedTouches[0].clientX - ltX); dy = Math.abs(e.changedTouches[0].clientY - ltY); }
+            if (dt < 300 && dx < 30 && dy < 30) { if (!isOpen) openWall(); else closeWall(); }
+            lastTapTime = now;
+          });
+        }
+        closeBtn.addEventListener('click', closeWall);
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isOpen) closeWall(); });
+      })();
+
+      // ---- Booking: Discovery Call ----
+      (function() {
+        if (!document.getElementById('bookingOverlay')) return;
+
+        var overlay = document.getElementById('bookingOverlay');
+        var modal = overlay.querySelector('.booking-modal');
+        var trigger = document.getElementById('bookingTrigger');
+        var closeBtn = document.getElementById('bookingClose');
+        var cancelBtn = document.getElementById('bookingCancel');
+        var form = document.getElementById('bookingForm');
+        var confirmEl = document.getElementById('bookingConfirm');
+        var bookingFooter = document.getElementById('bookingFooter');
+        var bookingBody = document.getElementById('bookingBody');
+
+        function openBooking() {
+          if (!overlay) return;
+          overlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeBooking() {
+          if (!overlay) return;
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function resetForm() {
+          form.reset();
+          Object.keys(form.elements).forEach(function(k) {
+            var el = form.elements[k];
+            var field = el.closest ? el.closest('.booking-field') : null;
+            if (field) field.classList.remove('is-invalid');
+          });
+          if (confirmEl) confirmEl.style.display = 'none';
+          if (form) form.style.display = 'block';
+          if (bookingFooter) bookingFooter.style.display = 'flex';
+        }
+
+        function validateField(field) {
+          var input = field.querySelector('input, textarea');
+          if (!input) return true;
+          if (input.hasAttribute('required') && !input.value.trim()) {
+            field.classList.add('is-invalid');
+            return false;
+          }
+          if (input.type === 'email' && input.value.trim()) {
+            var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(input.value.trim())) {
+              field.classList.add('is-invalid');
+              return false;
+            }
+          }
+          field.classList.remove('is-invalid');
+          return true;
+        }
+
+        function showConfirmation() {
+          if (form) form.style.display = 'none';
+          if (bookingFooter) bookingFooter.style.display = 'none';
+          if (confirmEl) {
+            confirmEl.style.display = 'flex';
+            setTimeout(closeBooking, 4000);
+          }
+        }
+
+        if (trigger) {
+          trigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeBooking);
+        if (cancelBtn) cancelBtn.addEventListener('click', function() { closeBooking(); resetForm(); });
+
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) { closeBooking(); resetForm(); }
+        });
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var fields = form.querySelectorAll('.booking-field');
+          var valid = true;
+          fields.forEach(function(f) { if (!validateField(f)) valid = false; });
+          if (!valid) return;
+
+          var data = {
+            name: (document.getElementById('bName').value || '').trim(),
+            email: (document.getElementById('bEmail').value || '').trim(),
+            phone: (document.getElementById('bPhone').value || '').trim(),
+            date: document.getElementById('bDate').value,
+            time: document.getElementById('bTime').value,
+            message: (document.getElementById('bMessage').value || '').trim()
+          };
+
+          var subject = encodeURIComponent('Discovery Call Request - ' + data.name);
+          var body = encodeURIComponent(
+            'Hi Asa-OZ team,%0D%0A%0D%0A' +
+            'I would like to book a discovery call.%0D%0A%0D%0A' +
+            'Name: ' + data.name + '%0D%0A' +
+            'Email: ' + data.email + '%0D%0A' +
+            'Phone: ' + (data.phone || 'N/A') + '%0D%0A' +
+            'Preferred date: ' + data.date + '%0D%0A' +
+            'Preferred time: ' + data.time + '%0D%0A' +
+            'Message: ' + (data.message || 'N/A') + '%0D%0A%0D%0A' +
+            'Looking forward to hearing from you.'
+          );
+          var mailto = 'mailto:info@asa-oz.com?subject=' + subject + '&body=' + body;
+          window.location.href = mailto;
+          showConfirmation();
+        });
+
+        form.addEventListener('input', function() {
+          var fields = form.querySelectorAll('.booking-field');
+          fields.forEach(function(f) { validateField(f); });
+        });
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) { closeBooking(); resetForm(); } });
+      })();
   </script>
 </body>
 </html>
