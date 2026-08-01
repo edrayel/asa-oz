@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asa-OZ — Store</title>
+  <title>Contact — Asa-OZ</title>
   <meta name="theme-color" content="#2b2118" />
+  <meta name="description" content="Contact Asa-OZ — send a message, book a discovery call, or reach the founder." />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
 
@@ -924,6 +925,82 @@
     @media (max-width: 560px) {
       .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
     }
+    .cart-toggle { display: none; }
+    .page-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .contact-card {
+      background: var(--paper);
+      border: 1px solid rgba(111, 90, 63, 0.18);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+    }
+    .contact-card h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.2rem;
+      color: var(--espresso);
+      margin-bottom: 0.8rem;
+    }
+    .contact-card p { font-size: 0.92rem; margin: 0.45rem 0; color: var(--ink); line-height: 1.6; }
+    .contact-card a { color: var(--sage-deep); text-decoration: none; }
+    .contact-card a:hover { text-decoration: underline; }
+    .contact-form { display: grid; gap: 1rem; }
+    .contact-form .field { display: grid; gap: 0.4rem; }
+    .contact-form label {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .contact-form input,
+    .contact-form textarea {
+      border: 1px solid rgba(111, 90, 63, 0.25);
+      border-radius: 12px;
+      padding: 0.7rem 0.9rem;
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      background: var(--paper);
+      color: var(--ink);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .contact-form textarea { min-height: 130px; resize: vertical; }
+    .contact-form input:focus,
+    .contact-form textarea:focus { outline: 2px solid var(--sage-deep); outline-offset: 2px; }
+    .contact-form .submit-btn {
+      justify-self: start;
+      border: none;
+      border-radius: 100px;
+      background: var(--espresso);
+      color: var(--paper);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.6rem;
+      cursor: pointer;
+      transition: background 0.3s var(--ease);
+    }
+    .contact-form .submit-btn:hover { background: var(--cafe-ink); }
+    .contact-form .form-msg {
+      font-size: 0.9rem;
+      color: var(--sage-deep);
+      display: none;
+    }
+    .contact-form .form-msg.show { display: block; }
+    @media (max-width: 720px) { .contact-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
   <body>
@@ -945,9 +1022,9 @@
       <nav class="main-nav" aria-label="Main">
         <a href="/index.html">Home</a>
         <a href="/about.html">About</a>
-        <a href="/store.html" class="active">Store</a>
+        <a href="/store.html">Store</a>
         <a href="/faq.html">FAQ</a>
-        <a href="/contact.html">Contact</a>
+        <a href="/contact.html" class="active">Contact</a>
       </nav>
       <div class="header-social" aria-label="Social media">
         <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
@@ -1000,21 +1077,39 @@
 
     <main>
       <section class="store-hero">
-        <h1 class="reveal">Tools for the journey</h1>
-        <p class="lede reveal">Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.</p>
+        <p class="eyebrow reveal">Contact</p>
+        <h1 class="reveal">We&rsquo;d love to hear from you.</h1>
+        <p class="lede reveal">A suggestion, a question, or a note for the founder — every message is read.</p>
       </section>
 
-      <section class="store-section" aria-label="Shop">
-        <div class="store-filters reveal">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="physical">Physical</button>
-          <button class="filter-btn" data-filter="virtual">Virtual</button>
+      <section class="page-section" aria-label="Contact">
+        <div class="contact-grid">
+          <div class="contact-card reveal">
+            <h3>Get in touch</h3>
+            <p><strong>Email:</strong> <a href="mailto:info@asa-oz.com">info@asa-oz.com</a></p>
+            <p><strong>Book a discovery call</strong> — use the &ldquo;Book a discovery call&rdquo; button in the header.</p>
+            <p><strong>Find us:</strong> Ireland, with plans to expand.</p>
+            <p>Sole Trader: Ifeoma t/a Asa-OZ &middot; Ireland</p>
+            <p>RC No: Not applicable (sole trader)</p>
+            <p>Phone: to be added</p>
+          </div>
+          <form id="contactForm" class="contact-form reveal" novalidate>
+            <div class="field">
+              <label for="cName">Name</label>
+              <input type="text" id="cName" name="name" autocomplete="name" required placeholder="Your name" />
+            </div>
+            <div class="field">
+              <label for="cEmail">Email</label>
+              <input type="email" id="cEmail" name="email" autocomplete="email" required placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label for="cMessage">Message</label>
+              <textarea id="cMessage" name="message" required placeholder="How can we help?"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send message</button>
+            <p class="form-msg" id="contactMsg" role="status" aria-live="polite">Thank you — your message has been opened in your email app.</p>
+          </form>
         </div>
-        <div class="store-grid" id="storeGrid"></div>
-        <section class="similar-section" aria-label="You may also like">
-          <h2 class="reveal">You may also like</h2>
-          <div class="similar-grid" id="similarGrid"></div>
-        </section>
       </section>
     </main>
 
@@ -1088,9 +1183,9 @@
         <nav class="mobile-menu-nav" aria-label="Mobile">
           <a href="/index.html">Home</a>
           <a href="/about.html">About</a>
-          <a href="/store.html" class="active">Store</a>
+          <a href="/store.html">Store</a>
           <a href="/faq.html">FAQ</a>
-          <a href="/contact.html">Contact</a>
+          <a href="/contact.html" class="active">Contact</a>
         </nav>
         <div class="mobile-menu-social">
           <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
@@ -1185,6 +1280,21 @@
   <script>
     (function () {
       document.getElementById("year").textContent = new Date().getFullYear();
+
+      var contactForm = document.getElementById('contactForm');
+      if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var name = document.getElementById('cName').value.trim();
+          var email = document.getElementById('cEmail').value.trim();
+          var message = document.getElementById('cMessage').value.trim();
+          if (!name || !email || !message) return;
+          var body = 'Name: ' + encodeURIComponent(name) + '%0D%0AEmail: ' + encodeURIComponent(email) + '%0D%0A%0D%0A' + encodeURIComponent(message);
+          window.location.href = 'mailto:info@asa-oz.com?subject=' + encodeURIComponent('Contact from ' + name) + '&body=' + body;
+          var msg = document.getElementById('contactMsg');
+          if (msg) msg.classList.add('show');
+        });
+      }
 
       var products = [
         { id: 'journal', name: 'Reflection Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },

@@ -184,6 +184,49 @@
        align-items: center;
        gap: 0.8rem;
      }
+     .header-booking {
+       border: 1px solid rgba(111, 90, 63, 0.32);
+       background: rgba(255, 255, 255, 0.65);
+       backdrop-filter: blur(6px);
+       color: var(--espresso);
+       padding: 0.5rem 0.95rem;
+       border-radius: 100px;
+       font-family: var(--sans);
+       font-size: 0.72rem;
+       font-weight: 500;
+       letter-spacing: 0.12em;
+       text-transform: uppercase;
+       cursor: pointer;
+       transition: all 0.3s var(--ease);
+       white-space: nowrap;
+     }
+     .header-booking:hover {
+       background: var(--espresso);
+       color: #fff;
+       border-color: var(--espresso);
+     }
+      .header-social {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .header-social a {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 100px;
+        color: var(--tobacco);
+        transition: all 0.3s var(--ease);
+      }
+      .header-social a:hover {
+        color: var(--espresso);
+        background: rgba(111, 90, 63, 0.08);
+      }
+      .header-social svg {
+        width: 15px;
+        height: 15px;
+      }
       .main-nav {
         display: flex;
         align-items: center;
@@ -226,20 +269,7 @@
          transform: translateX(-50%) scaleX(1);
          background: var(--sage-deep);
        }
-       .main-nav a.active::after {
-         content: "";
-         position: absolute;
-         top: 50%;
-         right: calc(100% + 8px);
-         transform: translateY(-50%) scale(1);
-         width: 6px;
-         height: 6px;
-         border-radius: 50%;
-         background: var(--sage);
-         box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
-         transition: transform 0.35s var(--ease), background 0.35s var(--ease);
-       }
-     .status-pill {
+      .status-pill {
        display: inline-flex;
        align-items: center;
        gap: 0.55rem;
@@ -265,83 +295,203 @@
       100% { box-shadow: 0 0 0 0 rgba(138,154,91,0); }
     }
 
+    /* ---------- Mobile menu ---------- */
+    .header-booking-text { display: inline; }
+    .header-booking-icon { display: none; }
+    .menu-toggle { display: none; }
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--paper);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease);
+    }
+    .mobile-menu.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-menu-inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mobile-menu-close {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 100px;
+      border: 1px solid rgba(111, 90, 63, 0.25);
+      background: transparent;
+      color: var(--espresso);
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+    .mobile-menu-close:hover {
+      background: rgba(111, 90, 63, 0.08);
+    }
+    .mobile-menu-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .mobile-menu-nav a {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 400;
+      color: var(--espresso);
+      text-decoration: none;
+      line-height: 1.2;
+      transition: color 0.3s var(--ease);
+    }
+    .mobile-menu-nav a:hover {
+      color: var(--cafe-ink);
+    }
+    .mobile-menu-nav a.active {
+      color: var(--sage-deep);
+    }
+    .mobile-menu-social {
+      display: flex;
+      gap: 0.75rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(111, 90, 63, 0.12);
+    }
+    .mobile-menu-social a {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 100px;
+      border: 1px solid rgba(111, 90, 63, 0.2);
+      color: var(--tobacco);
+      transition: all 0.3s var(--ease);
+    }
+    .mobile-menu-social a:hover {
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
+    }
+    .mobile-menu-social svg {
+      width: 20px;
+      height: 20px;
+    }
+
     /* ---------- Hero ---------- */
     .hero {
       position: relative;
       z-index: 2;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(2rem, 4vw, 4rem);
-      align-items: center;
-      padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
+      padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(2rem, 4vh, 3rem);
     }
     .hero-content {
-      max-width: 520px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
     }
-    .hero-collage {
+
+    /* ---------- Hero scrolling image rows ---------- */
+    .hero-marquee {
       position: relative;
-      height: 550px;
-    }
-    .hero-shot {
-      position: absolute;
-      border-radius: 28px;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-top: clamp(2rem, 5vh, 3.5rem);
       overflow: hidden;
-      background: var(--cream);
-    }
-    .hero-shot img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-      filter: sepia(0.06) saturate(0.92) contrast(1.04) brightness(1.03);
-      transition: transform 0.6s var(--ease);
-    }
-    .hero-shot:hover img { transform: scale(1.03); }
-    .hero-shot::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 28px;
-      box-shadow: inset 0 0 0 1px rgba(244,236,224,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.8rem, 2vw, 1.25rem);
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 80%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 80%, transparent 100%);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
       pointer-events: none;
     }
-    .large { width: 65%; height: 52%; right: 0; top: 8%; z-index: 1; }
-    .medium { width: 48%; height: 34%; left: 4%; top: 4%; z-index: 2; transform: translateX(-8px); }
-    .small { width: 32%; height: 22%; }
-    .small:nth-child(3) { left: 2%; bottom: 20%; z-index: 3; transform: translateY(-3px); }
-    .small:nth-child(4) { right: 2%; bottom: 6%; z-index: 1; }
-
-    @media (max-width: 860px) {
-      .hero { grid-template-columns: 1fr; gap: 2rem; }
-      .hero-collage { height: 380px; }
-      .large { width: 62%; height: 48%; right: 0; top: 10%; }
-      .medium { width: 50%; height: 32%; left: 5%; top: 8%; transform: translateX(-6px); }
-      .small:nth-child(3) { width: 34%; height: 22%; left: 5%; bottom: 16%; }
-      .small:nth-child(4) { width: 30%; height: 20%; right: 2%; bottom: 6%; }
+    .marquee-row {
+      display: flex;
+      overflow: hidden;
     }
-     @media (max-width: 560px) {
-       .hero-collage { height: 280px; }
-       .hero-shot { border-radius: 20px; }
-       .hero-shot::after { border-radius: 20px; }
-       .large { width: 65%; height: 44%; }
-       .medium { width: 55%; height: 30%; }
-       .small:nth-child(3) { width: 38%; height: 20%; bottom: 16%; }
-       .small:nth-child(4) { width: 32%; height: 18%; bottom: 6%; }
-     }
+    .marquee-track {
+      display: flex;
+      flex: none;
+      width: max-content;
+      will-change: transform;
+      animation: marqueeRight var(--row-dur, 60s) linear infinite;
+    }
+    .marquee-row:nth-child(2) .marquee-track { animation-name: marqueeLeft; }
+    .marquee-row:nth-child(3) .marquee-track { animation-name: marqueeRight; }
+    .marquee-row:nth-child(1) { --row-dur: 58s; --row-h: clamp(120px, 15vw, 200px); }
+    .marquee-row:nth-child(2) { --row-dur: 72s; --row-h: clamp(100px, 13vw, 170px); }
+    .marquee-row:nth-child(3) { --row-dur: 64s; --row-h: clamp(110px, 14vw, 185px); }
+    .marquee-group {
+      display: flex;
+      flex: none;
+      gap: clamp(0.8rem, 2vw, 1.25rem);
+      padding-right: clamp(0.8rem, 2vw, 1.25rem);
+    }
+    .marquee-group img {
+      height: var(--row-h);
+      width: auto;
+      max-width: none;
+      object-fit: cover;
+      display: block;
+      border-radius: 14px;
+      filter: sepia(0.06) saturate(0.92) contrast(1.04) brightness(1.03);
+      box-shadow: 0 18px 40px -24px rgba(43,33,24,0.4);
+    }
+    @keyframes marqueeRight {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+    @keyframes marqueeLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @media (max-width: 560px) {
+      .marquee-row:nth-child(1) { --row-h: 92px; }
+      .marquee-row:nth-child(2) { --row-h: 78px; }
+      .marquee-row:nth-child(3) { --row-h: 84px; }
+      .hero-marquee { margin-top: 1.6rem; }
+    }
+
+    .wall-cta {
+      text-align: center;
+      margin-top: 1.4rem;
+    }
 
      /* ---------- Wall of Moments easter egg ---------- */
      .wall-trigger {
-       position: absolute;
-       inset: 0;
-       z-index: 5;
+       display: inline-flex;
+       align-items: center;
+       gap: 0.5rem;
+       padding: 0.6rem 1.2rem;
+       border: 1px solid rgba(111,90,63,0.28);
+       border-radius: 100px;
+       background: rgba(255,255,255,0.55);
+       color: var(--cafe-ink);
+       font-family: var(--sans);
+       font-size: 0.76rem;
+       letter-spacing: 0.08em;
+       text-transform: uppercase;
        cursor: pointer;
-       opacity: 0;
-       pointer-events: none;
+       transition: all 0.3s var(--ease);
      }
-     .wall-trigger:focus {
-       pointer-events: auto;
-       opacity: 1;
-       outline: none;
-       box-shadow: inset 0 0 0 3px var(--sage-deep), 0 0 0 1px rgba(111,90,63,0.35);
-       border-radius: 28px;
-       transition: box-shadow 0.2s var(--ease);
+     .wall-trigger:hover {
+       background: var(--espresso);
+       color: var(--paper);
+       border-color: var(--espresso);
+       transform: translateY(-1px);
+     }
+     .wall-trigger:focus-visible {
+       outline: 2px solid var(--sage-deep);
+       outline-offset: 3px;
      }
      .sr-only-focusable {
        position: absolute;
@@ -388,6 +538,7 @@
        display: block;
        width: 100%;
        height: 100%;
+       touch-action: none;
      }
      .wall-close {
        position: absolute;
@@ -500,7 +651,8 @@
       line-height: 1.02;
       letter-spacing: -0.015em;
       color: var(--espresso);
-      max-width: 15ch;
+      max-width: 19ch;
+      margin-inline: auto;
     }
     .hero h1 em {
       font-style: italic;
@@ -509,7 +661,8 @@
     .hero .lede {
       margin-top: clamp(1.6rem, 3vw, 2.2rem);
       font-size: clamp(1.05rem, 1.8vw, 1.28rem);
-      max-width: 44ch;
+      max-width: 60ch;
+      margin-inline: auto;
       color: var(--ink);
       font-weight: 400;
     }
@@ -517,7 +670,8 @@
     /* ---------- Signup ---------- */
     .signup {
       margin-top: clamp(2.2rem, 4vw, 3rem);
-      max-width: 560px;
+      max-width: 640px;
+      margin-inline: auto;
     }
     .signup form {
       display: flex;
@@ -581,23 +735,23 @@
       color: var(--ink);
     }
     .cta-alt a {
-      color: var(--sage-deep);
-      text-decoration: underline;
-      text-underline-offset: 2px;
+      color: var(--cafe-ink);
+      text-decoration: none;
     }
      .cta-alt a:hover { color: var(--espresso); }
      .booking-trigger {
        background: transparent; border: none; padding: 0; margin: 0;
        font-family: var(--sans); font-weight: 500; font-size: 0.9rem;
-       color: var(--sage-deep); text-decoration: underline; text-underline-offset: 2px;
+       color: var(--cafe-ink); text-decoration: none;
        cursor: pointer; letter-spacing: 0.02em;
        transition: color 0.35s var(--ease);
      }
-     .booking-trigger:hover { color: var(--espresso); }
+     .booking-trigger:hover { color: #fff; }
      .supporting {
        margin-top: 1.2rem;
        font-size: clamp(0.95rem, 1.4vw, 1.05rem);
-       max-width: 56ch;
+       max-width: 68ch;
+       margin-inline: auto;
        color: var(--ink);
        font-weight: 400;
        line-height: 1.7;
@@ -1186,81 +1340,23 @@
         text-transform: uppercase;
         color: var(--ink);
       }
-      .founder-video {
-        margin-bottom: 1.1rem;
-      }
-      .founder-video-wrap {
+      .founder-photo {
         position: relative;
-        aspect-ratio: 16/9;
+        margin-bottom: 1.1rem;
+        aspect-ratio: 4/5;
         border-radius: 18px;
         overflow: hidden;
         background: linear-gradient(140deg, var(--cream) 0%, var(--paper) 100%);
         box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
       }
-      .founder-video-backdrop {
-        position: absolute;
-        inset: 0;
-        opacity: 0.55;
-        background:
-          radial-gradient(circle at 30% 40%, rgba(166,123,91,0.18) 0%, transparent 55%),
-          radial-gradient(circle at 70% 70%, rgba(143,160,92,0.14) 0%, transparent 55%);
-        pointer-events: none;
-      }
-      .founder-video-gradient {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, transparent 50%, rgba(111,90,63,0.07) 100%);
-        pointer-events: none;
-      }
-      .founder-video-btn {
-        position: absolute;
-        z-index: 2;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        background: var(--cream);
-        border: 1.5px solid rgba(111,90,63,0.35);
-        cursor: pointer;
-        display: grid;
-        place-items: center;
-        color: var(--espresso);
-        transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
-      }
-      .founder-video-btn:hover {
-        background: var(--paper);
-        border-color: var(--cafe);
-        transform: translate(-50%, -50%) scale(1.06);
-      }
-      .founder-video-btn:disabled,
-      .founder-video-btn[aria-disabled="true"] {
-        opacity: 0.45;
-        cursor: not-allowed;
-        pointer-events: none;
-      }
-      .founder-video-coming {
-        position: absolute;
-        z-index: 1;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        font-size: 0.72rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted);
-        font-family: var(--sans);
-        opacity: 0.85;
-        margin-top: 1.8rem;
-      }
-      .founder-video iframe {
+      .founder-photo img {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
-        border: none;
+        object-fit: cover;
+        object-position: top center;
+        display: block;
       }
       .founder-credentials {
         position: absolute;
@@ -1311,48 +1407,120 @@
     .not-list span s { color: var(--cafe-ink); }
 
      /* ---------- Footer ---------- */
+      footer {
+        position: relative;
+        z-index: 2;
+        margin-bottom: clamp(1rem, 4vh, 2.5rem);
+        padding: clamp(3rem, 6vh, 4.5rem) 0 clamp(2rem, 4vh, 3rem);
+        border-top: 1px solid rgba(111, 90, 63, 0.18);
+        border-radius: clamp(20px, 4vw, 32px);
+        background: linear-gradient(180deg, var(--paper) 0%, var(--cream) 100%);
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 2.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 clamp(1.5rem, 4vw, 3rem);
+      }
+      .footer-brand b {
+        font-family: var(--serif);
+        font-size: 1.1rem;
+        color: var(--espresso);
+        font-weight: 500;
+      }
+      .footer-tagline {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.4rem;
+        line-height: 1.5;
+        max-width: 38ch;
+      }
+      .social-icons {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.2rem;
+      }
+      .social-icons a {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 100px;
+        border: 1px solid rgba(111, 90, 63, 0.2);
+        color: var(--tobacco);
+        transition: all 0.3s var(--ease);
+      }
+      .social-icons a:hover {
+        background: var(--espresso);
+        color: var(--paper);
+        border-color: var(--espresso);
+        transform: translateY(-2px);
+      }
+      .social-icons svg {
+        width: 18px;
+        height: 18px;
+      }
+      .footer-contact h4,
+      .footer-proof h4 {
+        font-family: var(--sans);
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.8rem;
+      }
+      .footer-contact p {
+        font-size: 0.85rem;
+        color: var(--ink);
+        line-height: 1.8;
+      }
+      .footer-contact a {
+        color: var(--cafe-ink);
+        text-decoration: none;
+        transition: color 0.3s var(--ease);
+      }
+      .footer-contact a:hover {
+        color: var(--espresso);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .footer-proof a {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--ink);
+        text-decoration: none;
+        padding: 0.2rem 0;
+        transition: color 0.3s var(--ease);
+      }
+      .footer-proof a:hover {
+        color: var(--espresso);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .footer-legal {
+        max-width: 1200px;
+        margin: 2rem auto 0;
+        padding: 1.5rem clamp(1.5rem, 4vw, 3rem) 0;
+        border-top: 1px solid rgba(111, 90, 63, 0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
       .refund-note {
         font-size: 0.78rem;
-        color: var(--ink);
+        color: var(--muted);
         line-height: 1.5;
       }
-      .social-links {
-        display: flex;
-        gap: 1rem;
-        margin-top: 0.8rem;
+      footer .copy {
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        color: var(--muted);
       }
-      .social-links a {
-        font-size: 0.82rem;
-        color: var(--ink);
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-      .social-links a:hover { color: var(--espresso); }
-      footer {
-      position: relative;
-      z-index: 2;
-      padding: clamp(2.5rem, 5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
-      border-top: 1px solid rgba(111, 90, 63, 0.18);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-     footer .who {
-       font-size: 0.9rem;
-       color: var(--ink);
-       max-width: 46ch;
-     }
-    footer .who b {
-      color: var(--espresso);
-      font-weight: 500;
-    }
-     footer .copy {
-       font-size: 0.78rem;
-       letter-spacing: 0.1em;
-       color: var(--ink);
-     }
 
     /* ---------- Keyboard focus (a11y) ---------- */
     a:focus-visible,
@@ -1485,6 +1653,231 @@
     .faq details .answer p { margin: 0 0 0.6rem; }
     .faq details .answer p:last-child { margin-bottom: 0; }
     .faq details .answer em { color: var(--sage-deep); font-style: italic; }
+
+    /* ---------- Pricing ---------- */
+    .pricing-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4rem) 0;
+    }
+    .pricing-wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .pricing-wrap h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      color: var(--espresso);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .pricing-lede {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 1.6rem;
+    }
+    .pricing-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+      padding: 0.4rem;
+      border-radius: 100px;
+      background: rgba(111,90,63,0.08);
+      border: 1px solid rgba(111,90,63,0.18);
+    }
+    .pricing-toggle button {
+      border: none;
+      background: transparent;
+      color: var(--cafe-ink);
+      padding: 0.55rem 1.2rem;
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+    .pricing-toggle button.active {
+      background: var(--espresso);
+      color: var(--paper);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(1rem, 2.4vw, 1.6rem);
+    }
+    .pricing-card {
+      background: var(--paper);
+      border: 1px solid rgba(111,90,63,0.18);
+      border-radius: 18px;
+      padding: 1.6rem 1.2rem;
+      text-align: left;
+      transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px -22px rgba(43,33,24,0.28);
+    }
+    .pricing-card.featured {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 1px var(--sage), 0 12px 40px -24px rgba(95,109,61,0.25);
+    }
+    .pricing-card .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      background: var(--sage);
+      color: var(--paper);
+      margin-bottom: 0.8rem;
+    }
+    .pricing-card h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.15rem;
+      color: var(--espresso);
+      margin-bottom: 0.3rem;
+    }
+    .pricing-card .price {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      color: var(--espresso);
+      margin-bottom: 0.2rem;
+    }
+    .pricing-card .price-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .pricing-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.2rem;
+    }
+    .pricing-card ul li {
+      font-size: 0.88rem;
+      color: var(--ink);
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(111,90,63,0.08);
+    }
+    .pricing-card ul li:last-child { border-bottom: none; }
+    .pricing-card .pricing-btn {
+      width: 100%;
+      border: none;
+      background: var(--espresso);
+      color: var(--paper);
+      padding: 0.75rem;
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .pricing-card .pricing-btn:hover { background: var(--sage-deep); transform: translateY(-1px); }
+    .pricing-card.featured .pricing-btn { background: var(--sage-deep); }
+    @media (max-width: 860px) {
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-card:nth-child(3) { grid-column: span 2; max-width: 400px; margin: 0 auto; width: 100%; }
+    }
+    @media (max-width: 560px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-card:nth-child(3) { grid-column: span 1; max-width: none; }
+    }
+
+    /* ---------- Feedback ---------- */
+    .feedback-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .feedback-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .feedback-wrap h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      color: var(--espresso);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .feedback-lede {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 1.4rem;
+    }
+    .feedback-field {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .feedback-field label {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cafe-ink);
+      margin-bottom: 0.35rem;
+    }
+    .feedback-field select,
+    .feedback-field textarea {
+      width: 100%;
+      border: 1px solid rgba(111,90,63,0.28);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: rgba(255,255,255,0.55);
+      outline: none;
+      transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+    }
+    .feedback-field select:focus,
+    .feedback-field textarea:focus {
+      border-color: var(--sage);
+      background: #fff;
+      box-shadow: 0 8px 30px -18px rgba(95,109,61,0.45);
+    }
+    .feedback-field textarea { resize: vertical; min-height: 90px; }
+    .feedback-submit {
+      border: none;
+      background: var(--espresso);
+      color: var(--paper);
+      padding: 0.85rem 1.6rem;
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .feedback-submit:hover { background: var(--sage-deep); transform: translateY(-1px); }
+    .feedback-msg {
+      margin-top: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--sage-deep);
+      font-style: italic;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    }
+    .feedback-msg.show { opacity: 1; transform: none; }
 
     /* ---------- Reveal animation ---------- */
     .reveal {
@@ -1668,12 +2061,77 @@
      }
      @media (max-width: 560px) {
        .status-pill { display: none; }
-       .main-nav { gap: 0.8rem; }
+       .main-nav { display: none; }
+       .header-social { display: none; }
+       .header-booking-text { display: none; }
+       .header-booking-icon { display: inline; }
+       .menu-toggle { display: grid; }
+       .header-actions { gap: 0.55rem; }
+       .cart-toggle { order: 1; }
+       .header-booking { order: 2; }
+       .menu-toggle { order: 3; }
+       .header-booking,
+       .menu-toggle {
+         display: grid;
+         place-items: center;
+         width: 36px; height: 36px;
+         padding: 0;
+         border-radius: 100px;
+         border: 1px solid rgba(111,90,63,0.25);
+         background: rgba(255,255,255,0.55);
+         backdrop-filter: blur(6px);
+         color: var(--espresso);
+         cursor: pointer;
+         transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+       }
+       .header-booking:hover,
+       .menu-toggle:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+       .header-booking:focus-visible,
+       .menu-toggle:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+       .cart-toggle { width: 36px; height: 36px; }
        .signup form { flex-direction: column; border-radius: 24px; padding: 1rem; gap: 0.8rem; }
        .signup input { text-align: center; padding: 0.4rem 0; }
        .signup button { width: 100%; padding: 0.95rem; }
        .pillars { grid-template-columns: 1fr; }
-       footer { flex-direction: column; align-items: flex-start; }
+       footer .footer-grid { grid-template-columns: 1fr; }
+       footer .footer-legal { flex-direction: column; align-items: flex-start; }
+     }
+
+     /* ---------- Back to top ---------- */
+     .back-to-top {
+       position: fixed;
+       z-index: 30;
+       right: 1.2rem;
+       bottom: 1.4rem;
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       border: 1.5px solid rgba(111,90,63,0.3);
+       background: rgba(43,33,24,0.6);
+       backdrop-filter: blur(6px);
+       color: var(--paper);
+       font-size: 1.1rem;
+       line-height: 1;
+       cursor: pointer;
+       display: grid;
+       place-items: center;
+       opacity: 0;
+       pointer-events: none;
+       transform: translateY(8px);
+       transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), background 0.3s var(--ease), border-color 0.3s var(--ease);
+     }
+     .back-to-top.visible {
+       opacity: 1;
+       pointer-events: auto;
+       transform: none;
+     }
+     .back-to-top:hover {
+       background: rgba(43,33,24,0.85);
+       border-color: var(--sand);
+       transform: translateY(-2px);
+     }
+     @media (max-width: 560px) {
+       .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
      }
 
     /* ---------- Launch countdown banner ---------- */
@@ -1812,7 +2270,7 @@
 </head>
   <body>
   <div class="countdown-bar" id="countdownBar" role="status" aria-label="Time until launch">
-    <span class="cd-label">Our website launches in <b>2 weeks</b> — Asa-OZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
+    <span class="cd-label">Our website launches in <span id="cdHuman">a few days</span> — Asa-OZ goes live <b id="cdDate">Monday, 3 August 2026</b></span>
     <span class="cd-units" id="cdUnits" aria-hidden="true">
       <span class="cd-unit"><span class="n" id="cdD">--</span><span class="u">Days</span></span>
       <span class="cd-unit"><span class="n" id="cdH">--</span><span class="u">Hrs</span></span>
@@ -1836,16 +2294,46 @@
         </a>
       </div>
       <nav class="main-nav" aria-label="Main">
-        <a href="#how-it-works">Journey</a>
-        <a href="#ethos">About</a>
+        <a href="/index.html" class="active">Home</a>
+        <a href="/about.html">About</a>
         <a href="/store.html">Store</a>
-        <a href="mailto:info@asa-oz.com">Connect</a>
+        <a href="/faq.html">FAQ</a>
+        <a href="/contact.html">Contact</a>
       </nav>
+      <div class="header-social" aria-label="Social media">
+        <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+        </a>
+        <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+        </a>
+        <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+        </a>
+      </div>
       <div class="header-actions">
-        <div class="status-pill">
-          <span class="dot"></span>
-          Arriving soon
-        </div>
+        <button type="button" class="header-booking" id="headerBookingTrigger">
+          <span class="header-booking-text">Book a discovery call</span>
+          <svg class="header-booking-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -1866,8 +2354,11 @@
             Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.
           </p>
           <p class="supporting reveal">Meet like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together.</p>
+          <div id="notThisNote" style="display:none; margin-top:1.2rem; padding:1rem 1.2rem; background:rgba(111,90,63,0.05); border:1px solid rgba(111,90,63,0.15); border-radius:14px; text-align:left;">
+            <p style="font-size:0.88rem; color:var(--ink); margin:0; line-height:1.6;"><strong style="color:var(--espresso);">What this is not.</strong> Asa-OZ is not spiritual practice, energy work, therapy, or meditation. It is a cultural and community experience — grounded in real conversation, shared meals, storytelling, and travel. If you are looking for healing, counselling, or spiritual guidance, this is not the right fit. If you want to connect with people, explore culture, and feel at home in the world — welcome.</p>
+          </div>
 
-          <div class="signup reveal">
+          <div class="signup reveal" id="signup">
             <!--
               To make this live, point the form at your provider, e.g.:
               <form id="waitform" action="https://formspree.io/f/XXXX" method="POST">
@@ -1889,24 +2380,31 @@
               <button type="submit">Join the journey</button>
             </form>
             <p class="note">No spam — only an invitation when we open our doors.</p>
-            <p class="cta-alt"><button type="button" class="booking-trigger" id="bookingTrigger">Book a discovery call</button></p>
             <p class="msg" id="formMsg" role="status" aria-live="polite">Thank you. You&rsquo;ll be among the first to return to yourself.</p>
           </div>
         </div>
-        <div class="hero-collage" aria-hidden="true">
-          <figure class="hero-shot large">
-            <img src="https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=800&q=80" alt="Community sharing a meal outdoors" loading="eager" fetchpriority="high">
-          </figure>
-          <figure class="hero-shot medium">
-            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80" alt="Friends walking through a historic market" loading="lazy">
-          </figure>
-          <figure class="hero-shot small">
-            <img src="https://images.unsplash.com/photo-1522075469751-3a6694c2c3c1?w=500&q=80" alt="Quiet conversation among friends" loading="lazy">
-          </figure>
-          <figure class="hero-shot small">
-            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80" alt="Hands on woven textile" loading="lazy">
-          </figure>
-          <button class="wall-trigger" aria-label="View the wall of moments">View the wall of moments</button>
+        <div class="hero-marquee" aria-hidden="true">
+          <div class="marquee-row">
+            <div class="marquee-track">
+              <div class="marquee-group"></div>
+              <div class="marquee-group"></div>
+            </div>
+          </div>
+          <div class="marquee-row">
+            <div class="marquee-track">
+              <div class="marquee-group"></div>
+              <div class="marquee-group"></div>
+            </div>
+          </div>
+          <div class="marquee-row">
+            <div class="marquee-track">
+              <div class="marquee-group"></div>
+              <div class="marquee-group"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wall-cta">
+          <button class="wall-trigger" type="button" aria-label="View the wall of moments">View the wall of moments</button>
         </div>
       </section>
 
@@ -2011,7 +2509,7 @@
         <p class="gallery-caption reveal" id="galleryCaption"></p>
       </section>
 
-      <section class="testimonial-ribbon" aria-label="Testimonials">
+      <section class="testimonial-ribbon" id="testimonials" aria-label="Testimonials">
         <div class="testimonial-photo reveal" id="testimonialPhoto" aria-hidden="true">
           <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80" alt="" loading="lazy" />
         </div>
@@ -2053,22 +2551,17 @@
         </div>
 
         <div class="founder reveal">
-          <div class="founder-video reveal">
-            <div class="founder-video-wrap">
-              <div class="founder-video-backdrop"></div>
-              <div class="founder-video-gradient"></div>
-              <button class="founder-video-btn" aria-label="Play founder introduction video" type="button">
-                <svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </button>
-              <p class="founder-video-coming">Founder video coming soon</p>
-              <p class="founder-credentials">
-                <span class="founder-credential">25+ years cultural travel</span>
-                <span class="founder-credential">Cultural Guide</span>
-                <span class="founder-credential">Community Builder</span>
-              </p>
-            </div>
+          <div class="founder-photo reveal">
+            <img
+              src="/images/founder/ifeoma-adaora.jpg"
+              alt="Ifeoma Adaora, Founder and Cultural Guide of Asa-OZ"
+              loading="lazy"
+            />
+            <p class="founder-credentials">
+              <span class="founder-credential">25+ years cultural travel</span>
+              <span class="founder-credential">Cultural Guide</span>
+              <span class="founder-credential">Community Builder</span>
+            </p>
           </div>
           <p>
             “My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world,
@@ -2157,6 +2650,20 @@
           </div>
         </details>
 
+        <details class="reveal" id="faqPricing">
+          <summary>Why charge for the journey?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Our approach balances accessibility with commitment. We believe in building community first, and we design our programmes so that investment — whether free or paid — helps participants show up more fully. Paid programmes often signal value and encourage deeper engagement, while free community events ensure no one is excluded. The exact mix will evolve with your feedback.</p>
+          </div>
+        </details>
+
+        <div id="freeFirstNote" style="display:none; margin-top:1rem; padding:1rem 1.2rem; background:rgba(138,154,91,0.08); border:1px solid rgba(138,154,91,0.2); border-radius:14px; text-align:left;">
+          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--sage-deep);">Community first.</strong> Our initial circles and gatherings are free, because belonging should be accessible to everyone. Paid tiers come later, once the community is thriving.</p>
+        </div>
+        <div id="commitmentNote" style="display:none; margin-top:0.75rem; padding:1rem 1.2rem; background:rgba(111,90,63,0.06); border:1px solid rgba(111,90,63,0.18); border-radius:14px; text-align:left;">
+          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--espresso);">Investment signals intention.</strong> Research and experience show that when people invest in a programme, they tend to engage more deeply and take it more seriously. We design our paid offerings to honour that commitment.</p>
+        </div>
+
         <details class="reveal">
           <summary>Which countries or cultures will be explored?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
@@ -2213,23 +2720,180 @@
           </div>
         </details>
       </section>
+
+      <section class="pricing-section" aria-label="Membership and pricing">
+        <div class="pricing-wrap reveal">
+          <h2>Membership</h2>
+          <p class="pricing-lede">Join a community that values presence, conversation, and cultural connection.</p>
+          <div class="pricing-toggle" id="pricingToggle">
+            <button type="button" class="active" data-period="monthly">Monthly</button>
+            <button type="button" data-period="yearly">Yearly</button>
+          </div>
+          <div class="pricing-grid" id="pricingGrid">
+            <div class="pricing-card">
+              <h3>Circle</h3>
+              <div class="price" data-monthly="€19" data-yearly="€190">€19<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span></div>
+              <p class="price-note">Online gatherings and community meetups</p>
+              <ul>
+                <li>Monthly video calls</li>
+                <li>Community meetups in Ireland</li>
+                <li>Newsletter and updates</li>
+              </ul>
+              <button type="button" class="pricing-btn">Join the waitlist</button>
+            </div>
+            <div class="pricing-card featured">
+              <span class="badge">Most popular</span>
+              <h3>Journey</h3>
+              <div class="price" data-monthly="€39" data-yearly="€390">€39<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span></div>
+              <p class="price-note">Everything in Circle, plus cultural sessions and curated trips</p>
+              <ul>
+                <li>All Circle benefits</li>
+                <li>Cultural talks and storytelling</li>
+                <li>Priority trip booking</li>
+                <li>Guest speaker sessions</li>
+              </ul>
+              <button type="button" class="pricing-btn">Join the waitlist</button>
+            </div>
+            <div class="pricing-card">
+              <h3>Roots</h3>
+              <div class="price" data-monthly="€79" data-yearly="€790">€79<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span></div>
+              <p class="price-note">For those who want to go deeper</p>
+              <ul>
+                <li>All Journey benefits</li>
+                <li>Small-group cultural trips</li>
+                <li>One-to-one check-ins</li>
+                <li>Early access to new experiences</li>
+              </ul>
+              <button type="button" class="pricing-btn">Join the waitlist</button>
+            </div>
+          </div>
+          <p style="margin-top:1rem; font-size:0.82rem; color:var(--muted);">All prices are illustrative. Final pricing will be confirmed before launch.</p>
+        </div>
+      </section>
+
+      <section class="feedback-section" aria-label="Feedback">
+        <div class="feedback-wrap reveal">
+          <h2>Share your thoughts</h2>
+          <p class="feedback-lede">Have a suggestion, question, or piece of feedback? We read every message and use it to shape what comes next.</p>
+          <form id="feedbackForm" novalidate>
+            <div class="feedback-field">
+              <label for="fbCategory">Topic</label>
+              <select id="fbCategory" required>
+                <option value="">Select a topic...</option>
+                <option value="pricing">Pricing / Membership</option>
+                <option value="content">Website content</option>
+                <option value="experience">Journey / Experience</option>
+                <option value="ux">Navigation / UX</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="feedback-field">
+              <label for="fbText">Your feedback</label>
+              <textarea id="fbText" placeholder="Tell us what you think..." required></textarea>
+            </div>
+            <button type="submit" class="feedback-submit">Send feedback</button>
+            <p class="feedback-msg" id="feedbackMsg" role="status" aria-live="polite">Thank you. Your feedback has been saved.</p>
+          </form>
+        </div>
+      </section>
     </main>
 
     <footer>
-      <p class="who">
-        <b>Asa-OZ</b> — a movement for identity, belonging &amp; renewal.<br />
-        Sole Trader: Ifeoma t/a Asa-OZ &middot; Ireland<br />
-        RC No: Not applicable (sole trader)<br />
-        Contact: <a href="mailto:info@asa-oz.com">info@asa-oz.com</a> &middot; Phone: [to be added]<br />
-        <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
-      </p>
-      <div class="social-links">
-        <a href="#" target="_blank" rel="noopener">Instagram</a>
-        <a href="#" target="_blank" rel="noopener">Facebook</a>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <b>Asa-OZ</b>
+          <p class="footer-tagline">A movement for identity, belonging & renewal.</p>
+          <div class="social-icons" aria-label="Social media">
+            <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+            </a>
+            <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            </a>
+            <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+            </a>
+            <a href="https://linkedin.com/company/asa-oz" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact</h4>
+          <p>Sole Trader: Ifeoma t/a Asa-OZ · Ireland</p>
+          <p>RC No: Not applicable (sole trader)</p>
+          <p><a href="mailto:info@asa-oz.com">info@asa-oz.com</a></p>
+          <p>Phone: [to be added]</p>
+        </div>
+        <div class="footer-proof">
+          <h4>Explore</h4>
+          <a href="/about.html">About</a>
+          <a href="/faq.html">FAQ</a>
+          <a href="/contact.html">Contact</a>
+          <a href="/terms.html">Terms</a>
+        </div>
+        <div class="footer-proof">
+          <h4>Community</h4>
+          <a href="#signup">Join the waitlist</a>
+          <a href="#testimonials">Read testimonials</a>
+          <a href="/about.html">Community stories</a>
+        </div>
       </div>
-      <p class="copy">© <span id="year"></span> Asa-OZ. All rights reserved.</p>
+      <div class="footer-legal">
+        <p class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</p>
+        <p class="copy">© <span id="year"></span> Asa-OZ. All rights reserved.</p>
+      </div>
     </footer>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <div class="mobile-menu-inner">
+        <div class="mobile-menu-header">
+          <a href="/index.html" class="brand-link">
+            <span class="brand-logo-fallback">Asa-OZ</span>
+            <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
+          </a>
+          <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <nav class="mobile-menu-nav" aria-label="Mobile">
+          <a href="/index.html" class="active">Home</a>
+          <a href="/about.html">About</a>
+          <a href="/store.html">Store</a>
+          <a href="/faq.html">FAQ</a>
+          <a href="/contact.html">Contact</a>
+        </nav>
+        <div class="mobile-menu-social">
+          <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+          </a>
+          <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+          </a>
+          <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">&#8593;</button>
 
   <div class="cart-overlay" id="cartOverlay"></div>
   <aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
@@ -2517,10 +3181,10 @@
 
       // ---- Tools (minimal preview) ----
       var tools = [
-        { name: 'The Return Journal', price: '€24', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { name: 'Reflection Journal', price: '€24', desc: 'A guided journal for identity reflection and rediscovery.' },
         { name: 'Heritage Print', price: '€18', desc: 'A keepsake art print rooted in heritage and memory.' },
         { name: 'Identity Circle Session', price: '€12', desc: 'Online guided circles to share and be seen.' },
-        { name: 'Renewal Letter', price: 'Free', desc: 'A welcome letter and printable reflection guide.' }
+        { name: 'Welcome Letter', price: 'Free', desc: 'A welcome letter and printable reflection guide.' }
       ];
 
       function renderTools() {
@@ -2589,6 +3253,14 @@
         S: document.getElementById("cdS"),
         bar: document.getElementById("countdownBar")
       };
+      function humanize(ms) {
+        var days = Math.floor(ms / 86400000);
+        if (days < 1) return "less than a day";
+        if (days === 1) return "1 day";
+        if (days < 14) return days + " days";
+        if (days < 60) return Math.round(days / 7) + " weeks";
+        return Math.round(days / 30) + " months";
+      }
       function tick() {
         var diff = TARGET - Date.now();
         if (diff <= 0) {
@@ -2603,6 +3275,8 @@
         cd.H.textContent = pad(Math.floor((s % 86400) / 3600));
         cd.M.textContent = pad(Math.floor((s % 3600) / 60));
         cd.S.textContent = pad(s % 60);
+        var human = document.getElementById("cdHuman");
+        if (human) human.textContent = humanize(diff);
       }
       tick();
       var timer = setInterval(tick, 1000);
@@ -2636,12 +3310,12 @@
 
       // ---- Store / Cart ----
       var products = [
-        { id: 'journal', name: 'The Return Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { id: 'journal', name: 'Reflection Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
         { id: 'print', name: 'Heritage Print', type: 'physical', price: 18, img: 'https://picsum.photos/seed/asaoz-print/600/450', desc: 'A keepsake art print rooted in heritage and memory.' },
         { id: 'session', name: 'Identity Circle Session', type: 'virtual', price: 12, img: 'https://picsum.photos/seed/asaoz-circle/600/450', desc: 'Join an online guided circle to share and be seen.' },
         { id: 'story', name: 'Cultural Storytelling Access', type: 'virtual', price: 8, img: 'https://picsum.photos/seed/asaoz-story/600/450', desc: 'Digital collection of stories that remember you.' },
         { id: 'kit', name: 'Journey Kit', type: 'physical', price: 35, img: 'https://picsum.photos/seed/asaoz-kit/600/450', desc: 'Pre-trip materials to prepare mind and heart for travel.' },
-        { id: 'letter', name: 'Renewal Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
+        { id: 'letter', name: 'Welcome Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
       ];
 
       function renderStore() {
@@ -2773,12 +3447,33 @@
         var DAMPING = 0.92;
         var EPS = 0.0001;
 
-        var wallUrls = [
-          'https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=800&q=80',
-          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80',
-          'https://images.unsplash.com/photo-1522075469751-3a6694c2c3c1?w=500&q=80',
-          'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&q=80'
+        window.WALL_OF_MEMORIES = [
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.35%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.35.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.36.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.37%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.38.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-21%20at%2010.40.39.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.16.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.17.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.19.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.20.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.21%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.25.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.26.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.29%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.30%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.30%20%282%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.30.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.31.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.32%20%281%29.jpeg',
+          'images/wall-of-memories/WhatsApp%20Image%202026-07-25%20at%2016.31.32.jpeg'
         ];
+
+        function getWallImages() {
+          return window.WALL_OF_MEMORIES.slice();
+        }
 
         var THREE_CDN = 'https://unpkg.com/three@0.160.0/build/three.min.js';
         var THREE_LOADED = false;
@@ -2893,10 +3588,12 @@
           renderer = new THREE.WebGLRenderer({ antialias: true });
           renderer.setPixelRatio(dpr);
           renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.domElement.style.touchAction = 'none';
           canvasWrap.appendChild(renderer.domElement);
           var colStep = ARC_SPAN / (COLS - 1);
           var tileW = 2.0, tileH = 1.3;
           var entranceStart = performance.now();
+          var urls = getWallImages();
           for (var row = 0; row < ROWS; row++) {
             for (var col = 0; col < COLS; col++) {
               var angle = (col - (COLS - 1) / 2) * colStep;
@@ -2904,7 +3601,16 @@
               var z = -RADIUS * Math.cos(angle);
               var y = (row - (ROWS - 1) / 2) * 1.55;
               var geom = new THREE.PlaneGeometry(tileW, tileH);
-              var tex = textureLoader.load(wallUrls[col % wallUrls.length]);
+              var imgUrl = urls[(row * COLS + col) % urls.length];
+              var tex = textureLoader.load(imgUrl, function(t) {
+                var img = t.image;
+                if (!img || !img.width || !img.height) return;
+                var a = img.width / img.height;
+                var tw = tileW, th = tileH;
+                if (a > tileW / tileH) { th = tileW / a; }
+                else { tw = tileH * a; }
+                geom.scale(tw / tileW, th / tileH, 1);
+              });
               tex.minFilter = THREE.LinearFilter;
               tex.magFilter = THREE.LinearFilter;
               var mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, opacity: 0 });
@@ -2969,7 +3675,7 @@
         function setupControls() {
           var el = renderer.domElement;
           el.addEventListener('pointerdown', function(e) {
-            if (e.pointerType === 'mouse' && e.button === 0) {
+            if ((e.pointerType === 'mouse' && e.button === 0) || e.pointerType === 'touch' || e.pointerType === 'pen') {
               isDragging = true;
               prevPointer.x = e.clientX;
               prevPointer.y = e.clientY;
@@ -3045,18 +3751,6 @@
           trigger.addEventListener('click', function(e) { e.preventDefault(); openWall(); });
           trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWall(); } });
         }
-        var heroCollage = document.querySelector('.hero-collage');
-        if (heroCollage) {
-          var ltX = 0, ltY = 0;
-          heroCollage.addEventListener('dblclick', function(e) { e.preventDefault(); if (!isOpen) openWall(); else closeWall(); });
-          heroCollage.addEventListener('touchstart', function(e) { ltX = e.touches[0].clientX; ltY = e.touches[0].clientY; }, { passive: true });
-          heroCollage.addEventListener('touchend', function(e) {
-            var now = Date.now(), dt = now - lastTapTime, dx = 0, dy = 0;
-            if (e.changedTouches.length) { dx = Math.abs(e.changedTouches[0].clientX - ltX); dy = Math.abs(e.changedTouches[0].clientY - ltY); }
-            if (dt < 300 && dx < 30 && dy < 30) { if (!isOpen) openWall(); else closeWall(); }
-            lastTapTime = now;
-          });
-        }
         closeBtn.addEventListener('click', closeWall);
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isOpen) closeWall(); });
       })();
@@ -3068,6 +3762,7 @@
         var overlay = document.getElementById('bookingOverlay');
         var modal = overlay.querySelector('.booking-modal');
         var trigger = document.getElementById('bookingTrigger');
+        var headerTrigger = document.getElementById('headerBookingTrigger');
         var closeBtn = document.getElementById('bookingClose');
         var cancelBtn = document.getElementById('bookingCancel');
         var form = document.getElementById('bookingForm');
@@ -3128,9 +3823,15 @@
           }
         }
 
-        if (trigger) {
-          trigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
-          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
+        document.addEventListener('click', function(e) {
+          if (e.target && e.target.id === 'bookingTrigger') { e.preventDefault(); openBooking(); }
+        });
+        document.querySelectorAll('.pricing-btn').forEach(function(b) {
+          b.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+        });
+        if (headerTrigger) {
+          headerTrigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+          headerTrigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
         }
         if (closeBtn) closeBtn.addEventListener('click', closeBooking);
         if (cancelBtn) cancelBtn.addEventListener('click', function() { closeBooking(); resetForm(); });
@@ -3179,6 +3880,240 @@
 
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) { closeBooking(); resetForm(); } });
       })();
+
+      // ---- Mobile menu ----
+      (function() {
+        var menu = document.getElementById('mobileMenu');
+        var toggle = document.getElementById('menuToggle');
+        var close = document.getElementById('menuClose');
+        if (!menu || !toggle || !close) return;
+
+        function openMenu() {
+          menu.classList.add('is-open');
+          menu.setAttribute('aria-hidden', 'false');
+          toggle.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        }
+        function closeMenu() {
+          menu.classList.remove('is-open');
+          menu.setAttribute('aria-hidden', 'true');
+          toggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
+        toggle.addEventListener('click', function() {
+          if (menu.classList.contains('is-open')) { closeMenu(); } else { openMenu(); }
+        });
+        close.addEventListener('click', closeMenu);
+        menu.addEventListener('click', function(e) {
+          if (e.target === menu) closeMenu();
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && menu.classList.contains('is-open')) { closeMenu(); toggle.focus(); }
+        });
+        var mobileLinks = menu.querySelectorAll('.mobile-menu-nav a');
+        mobileLinks.forEach(function(link) {
+          link.addEventListener('click', closeMenu);
+        });
+      })();
+
+      // ---- Admin: content controls + feedback ----
+      (function() {
+        var SETTINGS_KEY = 'asa-oz-settings-v1';
+        var FEEDBACK_KEY = 'asa-oz-feedback-v1';
+
+        function getSettings() {
+          try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch(e) { return {}; }
+        }
+        function getFeedback() {
+          try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
+        }
+
+        var settings = getSettings();
+
+        var DEFAULT_MARQUEE_IMAGES = (window.WALL_OF_MEMORIES && window.WALL_OF_MEMORIES.length)
+          ? window.WALL_OF_MEMORIES.slice()
+          : ['https://images.unsplash.com/photo-1503431128871-cd250803fa41?w=480&h=360&fit=crop&q=80'];
+
+        function fillMarqueeGroup(group, srcs) {
+          group.innerHTML = '';
+          var repeat = Math.max(1, Math.ceil(16 / srcs.length));
+          for (var r = 0; r < repeat; r++) {
+            srcs.forEach(function(src) {
+              var img = document.createElement('img');
+              img.src = src;
+              img.alt = '';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              group.appendChild(img);
+            });
+          }
+        }
+
+        function buildMarquee() {
+          var list = (Array.isArray(settings.marqueeImages) && settings.marqueeImages.length)
+            ? settings.marqueeImages.slice()
+            : DEFAULT_MARQUEE_IMAGES.slice();
+          document.querySelectorAll('.marquee-row').forEach(function(row, ri) {
+            var srcs = (ri % 2 === 1) ? list.slice().reverse() : list;
+            row.querySelectorAll('.marquee-group').forEach(function(group) {
+              fillMarqueeGroup(group, srcs);
+            });
+          });
+        }
+
+        function applySettings() {
+          // Hide/show prices
+          var priceEls = document.querySelectorAll('.store-price, .product-price');
+          var showPrices = settings.showPrices !== false;
+          priceEls.forEach(function(el) {
+            el.style.display = showPrices ? '' : 'none';
+          });
+
+          // Booking CTA
+          var bookingTrigger = document.getElementById('bookingTrigger');
+          if (bookingTrigger) bookingTrigger.style.display = settings.showBooking === false ? 'none' : '';
+
+          // Header booking CTA
+          var headerBookingTrigger = document.getElementById('headerBookingTrigger');
+          if (headerBookingTrigger) headerBookingTrigger.style.display = settings.showHeaderBooking === false ? 'none' : '';
+
+          // Email signup
+          var signup = document.querySelector('.signup');
+          if (signup) signup.style.display = settings.showSignup === false ? 'none' : '';
+
+          // Supporting paragraph
+          var supporting = document.querySelector('.supporting');
+          if (supporting) supporting.style.display = settings.showSupporting === false ? 'none' : '';
+
+          // FAQ section
+          var faq = document.querySelector('.faq');
+          if (faq) faq.style.display = settings.showFaq === false ? 'none' : '';
+
+          // Store section
+          var store = document.querySelector('.store-section');
+          if (store) store.style.display = settings.showStore === false ? 'none' : '';
+
+          // Simple mode: hide extra sections for a shorter, calmer page
+          var simpleMode = settings.simpleMode === true;
+          var pillars = document.querySelector('.pillars');
+          if (pillars) pillars.style.display = simpleMode ? 'none' : '';
+          var expect = document.querySelector('.expect');
+          if (expect) expect.style.display = simpleMode ? 'none' : '';
+          var gallery = document.querySelector('.gallery');
+          if (gallery) gallery.style.display = simpleMode ? 'none' : '';
+
+          // Testimonials (hidden by default; enable from admin once real ones exist)
+          var testimonials = document.querySelector('.testimonial-ribbon');
+          if (testimonials) {
+            testimonials.style.display = settings.showTestimonials === true ? '' : 'none';
+            if (settings.showTestimonials === true) {
+              testimonials.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('in'); });
+            }
+          }
+
+          // "What this is NOT" note
+          var notThisNote = document.getElementById('notThisNote');
+          if (notThisNote) notThisNote.style.display = settings.showNotThis ? '' : 'none';
+
+          // Pricing public
+          var pricePublic = settings.pricePublic !== false;
+          var priceEls2 = document.querySelectorAll('.store-price, .product-price');
+          priceEls2.forEach(function(el) {
+            el.textContent = pricePublic ? el.getAttribute('data-price') : 'Pricing on request';
+          });
+
+          // Free first note
+          var freeNote = document.getElementById('freeFirstNote');
+          if (freeNote) freeNote.style.display = settings.priceFreeFirst ? '' : 'none';
+
+          // Commitment note
+          var commitNote = document.getElementById('commitmentNote');
+          if (commitNote) commitNote.style.display = settings.priceCommitment ? '' : 'none';
+
+          // Hero carousel rows (1-3)
+          var marqueeRows = Math.max(1, Math.min(3, parseInt(settings.marqueeRows, 10) || 3));
+          document.querySelectorAll('.marquee-row').forEach(function(row, i) {
+            row.style.display = i < marqueeRows ? '' : 'none';
+          });
+
+          // Hero carousel images
+          buildMarquee();
+        }
+
+        applySettings();
+
+        // Listen for settings changes from admin panel
+        window.addEventListener('storage', function(e) {
+          if (e.key === SETTINGS_KEY) {
+            settings = getSettings();
+            applySettings();
+          }
+        });
+
+        // Feedback form
+        var fbForm = document.getElementById('feedbackForm');
+        if (fbForm) {
+          fbForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var text = document.getElementById('fbText').value.trim();
+            var category = document.getElementById('fbCategory').value;
+            if (!text || !category) return;
+            var items = getFeedback();
+            items.push({
+              text: text,
+              category: category,
+              status: 'new',
+              note: '',
+              date: new Date().toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
+            });
+            try { localStorage.setItem(FEEDBACK_KEY, JSON.stringify(items)); } catch(err) {}
+            fbForm.reset();
+            var msg = document.getElementById('feedbackMsg');
+            msg.classList.add('show');
+            setTimeout(function() { msg.classList.remove('show'); }, 4000);
+          });
+        }
+
+        // Pricing section toggle
+        var pricingSection = document.querySelector('.pricing-section');
+        if (pricingSection) {
+          pricingSection.style.display = settings.showPricing === false ? 'none' : '';
+        }
+
+        // Monthly/yearly toggle
+        var pricingToggle = document.getElementById('pricingToggle');
+        if (pricingToggle) {
+          pricingToggle.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            var period = e.target.getAttribute('data-period');
+            pricingToggle.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+            e.target.classList.add('active');
+            var prices = pricingSection.querySelectorAll('.price');
+            prices.forEach(function(p) {
+              var text = p.getAttribute('data-' + period);
+              var suffix = period === 'monthly' ? '<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span>' : '<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/yr</span>';
+              p.innerHTML = text + suffix;
+            });
+          });
+        }
+      })();
+
+      // ---- Back to top ----
+      (function() {
+        var btn = document.getElementById('backToTop');
+        if (!btn) return;
+        var threshold = 600;
+        function update() {
+          if (window.scrollY > threshold) { btn.classList.add('visible'); }
+          else { btn.classList.remove('visible'); }
+        }
+        update();
+        window.addEventListener('scroll', update, { passive: true });
+        btn.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
   </script>
+  <button type="button" id="bookingTrigger" style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;" aria-hidden="true"></button>
 </body>
 </html>

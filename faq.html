@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asa-OZ — Store</title>
+  <title>FAQ — Asa-OZ</title>
   <meta name="theme-color" content="#2b2118" />
+  <meta name="description" content="Frequently asked questions about Asa-OZ — what it is, who it is for, how much it costs, and how to join." />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
 
@@ -924,6 +925,86 @@
     @media (max-width: 560px) {
       .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
     }
+    .cart-toggle { display: none; }
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cafe-ink);
+      margin-bottom: 0.9rem;
+    }
+    .page-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .faq-section details {
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      padding: 1.1rem 0;
+    }
+    .faq-section details:last-child { border-bottom: 1px solid rgba(111, 90, 63, 0.18); }
+    .faq-section summary {
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 1rem;
+      color: var(--espresso);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "+";
+      font-size: 1.25rem;
+      line-height: 1;
+      color: var(--cafe-ink);
+      transition: transform 0.3s var(--ease);
+    }
+    .faq-section details[open] summary::after { transform: rotate(45deg); }
+    .faq-section .answer { padding-top: 0.8rem; }
+    .faq-section .answer p {
+      margin: 0;
+      max-width: 72ch;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .page-cta {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .page-cta p { margin: 0; width: 100%; }
+    .page-btn {
+      display: inline-block;
+      border-radius: 100px;
+      background: var(--espresso);
+      color: var(--paper);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.4rem;
+      text-decoration: none;
+      transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+    }
+    .page-btn:hover { background: var(--cafe-ink); transform: translateY(-1px); }
+    .page-btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(111, 90, 63, 0.35);
+      color: var(--espresso);
+    }
+    .page-btn-ghost:hover { background: rgba(111, 90, 63, 0.06); color: var(--espresso); }
   </style>
 </head>
   <body>
@@ -945,8 +1026,8 @@
       <nav class="main-nav" aria-label="Main">
         <a href="/index.html">Home</a>
         <a href="/about.html">About</a>
-        <a href="/store.html" class="active">Store</a>
-        <a href="/faq.html">FAQ</a>
+        <a href="/store.html">Store</a>
+        <a href="/faq.html" class="active">FAQ</a>
         <a href="/contact.html">Contact</a>
       </nav>
       <div class="header-social" aria-label="Social media">
@@ -1000,21 +1081,102 @@
 
     <main>
       <section class="store-hero">
-        <h1 class="reveal">Tools for the journey</h1>
-        <p class="lede reveal">Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.</p>
+        <p class="eyebrow reveal">FAQ</p>
+        <h1 class="reveal">Questions, gently answered.</h1>
+        <p class="lede reveal">Everything you might want to know about Asa-OZ before you join.</p>
       </section>
 
-      <section class="store-section" aria-label="Shop">
-        <div class="store-filters reveal">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="physical">Physical</button>
-          <button class="filter-btn" data-filter="virtual">Virtual</button>
+      <section class="faq-section page-section" aria-label="Frequently asked questions">
+        <details class="reveal">
+          <summary>What is Asa-OZ?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Who is Asa-OZ for?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Adults 45+ who feel disconnected from their identity or heritage, are navigating a major life transition, long for meaningful community, want intentional travel experiences, or are seeking reflection and personal growth.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>What do I receive after joining?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Online events, group identity circles, cultural talks and storytelling sessions, hosted trips and curated journeys, and community membership.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>How long is the programme?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Programme length varies. Some experiences are one-off gatherings; others form part of an ongoing journey. Details will be shared as we finalise the calendar.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Is it online or in person?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Both. We begin with guided online sessions to build connection, then move into in-person community experiences and curated cultural journeys.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>How much does it cost?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Membership fees are still being finalised. Join the waitlist to be the first to know when pricing is confirmed.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Which countries or cultures will be explored?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are starting in Ireland, with plans to expand. Destinations will be announced as our community grows.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>How often are experiences organised?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>The calendar is still forming. We expect a mix of regular online sessions, monthly in-person circles, and periodic curated journeys. Exact cadence to be confirmed soon.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Is it UK/Ireland-based or international?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>We are Ireland-based, with ambitions to grow internationally over time.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>When do journeys take place?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Dates will be shared as journeys are confirmed. Join the waitlist and we will reach out with the first invitations.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Can I join from another country?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>Yes. Many of our online sessions are open internationally. In-person journeys may be Ireland-based initially, but international participation is welcome where possible.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>What happens after I register?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>You will receive a welcome message with next steps, including invitations to upcoming online sessions and community events.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>No. Asa-OZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
+          </div>
+        </details>
+        <details class="reveal">
+          <summary>Do you sell travel packages?<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p>No. Participants book their own travel. Asa-OZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
+          </div>
+        </details>
+
+        <div class="page-cta reveal">
+          <p>Still have a question? We read every message.</p>
+          <a href="/contact.html" class="page-btn">Contact us</a>
+          <a href="/index.html#signup" class="page-btn page-btn-ghost">Join the waitlist</a>
         </div>
-        <div class="store-grid" id="storeGrid"></div>
-        <section class="similar-section" aria-label="You may also like">
-          <h2 class="reveal">You may also like</h2>
-          <div class="similar-grid" id="similarGrid"></div>
-        </section>
       </section>
     </main>
 
@@ -1088,8 +1250,8 @@
         <nav class="mobile-menu-nav" aria-label="Mobile">
           <a href="/index.html">Home</a>
           <a href="/about.html">About</a>
-          <a href="/store.html" class="active">Store</a>
-          <a href="/faq.html">FAQ</a>
+          <a href="/store.html">Store</a>
+          <a href="/faq.html" class="active">FAQ</a>
           <a href="/contact.html">Contact</a>
         </nav>
         <div class="mobile-menu-social">

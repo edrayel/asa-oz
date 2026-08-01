@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asa-OZ — Admin</title>
+<style>
+  :root {
+    --espresso: #2b2118;
+    --tobacco: #6b4c35;
+    --cafe: #a88b6f;
+    --cafe-ink: #7a6652;
+    --sand: #d4c4ae;
+    --cream: #faf5ed;
+    --paper: #f6f1e8;
+    --sage: #8a9a5b;
+    --sage-deep: #5f6d3d;
+    --ink: #3e3226;
+    --muted: #8c7e6e;
+    --serif: 'Fraunces', 'Georgia', serif;
+    --sans: 'Jost', 'Helvetica Neue', sans-serif;
+    --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .admin-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  .admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(111,90,63,0.18);
+    margin-bottom: 2rem;
+  }
+  .admin-header h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.6rem;
+    color: var(--espresso);
+    letter-spacing: -0.01em;
+  }
+  .admin-header button {
+    border: 1px solid rgba(111,90,63,0.3);
+    background: transparent;
+    color: var(--ink);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+  }
+  .admin-header button:hover {
+    background: var(--espresso);
+    color: var(--paper);
+    border-color: var(--espresso);
+  }
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab {
+    border: 1px solid rgba(111,90,63,0.25);
+    background: transparent;
+    color: var(--cafe-ink);
+    padding: 0.55rem 1.1rem;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+  }
+  .tab.active {
+    background: var(--espresso);
+    color: var(--paper);
+    border-color: var(--espresso);
+  }
+  .tab:hover:not(.active) {
+    border-color: var(--espresso);
+    color: var(--espresso);
+  }
+  .panel {
+    display: none;
+    background: var(--paper);
+    border: 1px solid rgba(111,90,63,0.18);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 40px -24px rgba(43,33,24,0.25);
+  }
+  .panel.active { display: block; }
+  .panel h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.25rem;
+    color: var(--espresso);
+    margin-bottom: 1rem;
+  }
+  .feedback-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(111,90,63,0.12);
+  }
+  .feedback-item:last-child { border-bottom: none; }
+  .feedback-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .feedback-text {
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+  }
+  .feedback-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .feedback-actions select,
+  .feedback-actions input {
+    border: 1px solid rgba(111,90,63,0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: #fff;
+  }
+  .feedback-actions button {
+    border: none;
+    background: var(--sage);
+    color: var(--paper);
+    padding: 0.35rem 0.8rem;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s var(--ease);
+  }
+  .feedback-actions button:hover { background: var(--sage-deep); }
+  .feedback-note {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(111,90,63,0.12);
+    gap: 1rem;
+  }
+  .control-row:last-child { border-bottom: none; }
+  .control-label {
+    font-size: 0.92rem;
+    color: var(--ink);
+    flex: 1;
+  }
+  .control-label small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: rgba(111,90,63,0.25);
+    border-radius: 24px;
+    transition: 0.3s var(--ease);
+  }
+  .toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s var(--ease);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--sage); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+  .admin-select {
+    border: 1px solid rgba(111,90,63,0.28);
+    border-radius: 10px;
+    padding: 0.5rem 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: #fff;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .control-block {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(111,90,63,0.12);
+  }
+  .marquee-image-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .marquee-image-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .marquee-image-url {
+    flex: 1;
+    border: 1px solid rgba(111,90,63,0.25);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: #fff;
+    min-width: 0;
+  }
+  .marquee-image-remove {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(163,90,58,0.4);
+    background: transparent;
+    color: #a35a3a;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+  }
+  .marquee-image-remove:hover {
+    background: #a35a3a;
+    color: #fff;
+    border-color: #a35a3a;
+  }
+  .marquee-image-add {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .marquee-image-add input {
+    flex: 1;
+    border: 1px solid rgba(111,90,63,0.25);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: #fff;
+    min-width: 0;
+  }
+  .marquee-image-add button {
+    flex-shrink: 0;
+    border: none;
+    background: var(--espresso);
+    color: var(--paper);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+  }
+  .marquee-image-add button:hover { background: var(--sage-deep); }
+  .login-wrap {
+    max-width: 360px;
+    margin: 6rem auto;
+    text-align: center;
+  }
+  .login-wrap h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.6rem;
+    color: var(--espresso);
+    margin-bottom: 1.5rem;
+  }
+  .login-wrap input {
+    width: 100%;
+    border: 1px solid rgba(111,90,63,0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    outline: none;
+    transition: border-color 0.3s var(--ease);
+  }
+  .login-wrap input:focus { border-color: var(--sage); }
+  .login-wrap button {
+    width: 100%;
+    border: none;
+    background: var(--espresso);
+    color: var(--paper);
+    padding: 0.85rem;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.35s var(--ease);
+  }
+  .login-wrap button:hover { background: var(--sage-deep); }
+  .login-error {
+    color: #b54848;
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    display: none;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .badge-new { background: rgba(138,154,91,0.15); color: var(--sage-deep); }
+  .badge-reviewed { background: rgba(111,90,63,0.1); color: var(--cafe-ink); }
+  .badge-action { background: rgba(181,72,72,0.1); color: #b54848; }
+  @media (max-width: 560px) {
+    .admin-wrap { padding: 1rem; }
+    .control-row { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <div class="admin-wrap" id="adminApp">
+    <div class="login-wrap" id="loginScreen">
+      <h1>Asa-OZ Admin</h1>
+      <input type="password" id="adminPassword" placeholder="Enter password" autocomplete="current-password" />
+      <button id="adminLogin">Sign in</button>
+      <p class="login-error" id="loginError">Incorrect password.</p>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+      <div class="admin-header">
+        <h1>Asa-OZ Admin</h1>
+        <button id="adminLogout">Sign out</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="feedback">Feedback</button>
+        <button class="tab" data-tab="controls">Content Controls</button>
+        <button class="tab" data-tab="pricing">Pricing</button>
+        <button class="tab" data-tab="copy">Copy Review</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </div>
+
+      <div class="panel active" id="panel-feedback">
+        <h2>Feedback & Suggestions</h2>
+        <div id="feedbackList"></div>
+        <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid rgba(111,90,63,0.18);">
+          <h3 style="font-family:var(--serif); font-weight:400; font-size:1rem; color:var(--espresso); margin-bottom:0.75rem;">Add new feedback / note</h3>
+          <textarea id="newFeedbackText" placeholder="Paste or type feedback here..." style="width:100%; min-height:80px; border:1px solid rgba(111,90,63,0.25); border-radius:12px; padding:0.75rem 1rem; font-family:var(--sans); font-size:0.92rem; resize:vertical;"></textarea>
+          <div style="margin-top:0.6rem; display:flex; gap:0.5rem; align-items:center;">
+            <select id="newFeedbackCategory" style="border:1px solid rgba(111,90,63,0.25); border-radius:8px; padding:0.35rem 0.6rem; font-family:var(--sans); font-size:0.82rem;">
+              <option value="pricing">Pricing</option>
+              <option value="content">Content</option>
+              <option value="ux">UX / Navigation</option>
+              <option value="general">General</option>
+            </select>
+            <button id="addFeedbackBtn" style="border:none; background:var(--espresso); color:var(--paper); padding:0.4rem 1rem; border-radius:100px; font-family:var(--sans); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-controls">
+        <h2>Content Controls</h2>
+        <div class="control-row">
+          <div class="control-label">Show prices on store<small>Toggle product pricing visibility</small></div>
+          <label class="toggle"><input type="checkbox" id="showPrices"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show booking CTA<small>Display "Book a discovery call" button</small></div>
+          <label class="toggle"><input type="checkbox" id="showBooking" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show email signup<small>Display the hero email form</small></div>
+          <label class="toggle"><input type="checkbox" id="showSignup" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show supporting paragraph<small>Additional hero copy block</small></div>
+          <label class="toggle"><input type="checkbox" id="showSupporting" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show FAQ section<small>Expandable questions on homepage</small></div>
+          <label class="toggle"><input type="checkbox" id="showFaq" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show store section<small>Products / experiences grid</small></div>
+          <label class="toggle"><input type="checkbox" id="showStore" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show booking CTA in header<small>Display "Book a discovery call" in the top navigation</small></div>
+          <label class="toggle"><input type="checkbox" id="showHeaderBooking" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Simple mode<small>Hide extra sections (pillars, what-to-expect, gallery) for a shorter, calmer page</small></div>
+          <label class="toggle"><input type="checkbox" id="simpleMode"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show "What this is NOT" note<small>Clarifies that Asa-OZ is not spiritual practice, therapy, or energy work</small></div>
+          <label class="toggle"><input type="checkbox" id="showNotThis"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show testimonials<small>Display the testimonial ribbon on the homepage. Leave off until real member testimonials are collected</small></div>
+          <label class="toggle"><input type="checkbox" id="showTestimonials"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Hero carousel rows<small>Number of scrolling image rows shown under the hero text (1–3)</small></div>
+          <select id="marqueeRows" class="admin-select">
+            <option value="3">3 rows</option>
+            <option value="2">2 rows</option>
+            <option value="1">1 row</option>
+          </select>
+        </div>
+        <div class="control-block">
+          <div class="control-label">Hero carousel images<small>Image URLs displayed in the hero carousel. Add or remove images as needed. Leave the list empty to use the local photos in images/wall-of-memories.</small></div>
+          <div class="marquee-image-list" id="marqueeImageList"></div>
+          <div class="marquee-image-add">
+            <input type="url" id="newMarqueeImage" placeholder="images/wall-of-memories/... or an https:// URL" />
+            <button type="button" id="addMarqueeImageBtn">Add image</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-pricing">
+        <h2>Pricing & Membership</h2>
+        <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;">Use these toggles to experiment with pricing visibility and messaging without changing code.</p>
+        <div class="control-row">
+          <div class="control-label">Show prices publicly<small>If off, prices are hidden and "Pricing on request" is shown</small></div>
+          <label class="toggle"><input type="checkbox" id="pricePublic" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show "Free community first" note<small>Adds a note that community starts free before paid tiers</small></div>
+          <label class="toggle"><input type="checkbox" id="priceFreeFirst"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show "Paid programs = more commitment" note<small>Addresses the feedback that paid programs are taken more seriously</small></div>
+          <label class="toggle"><input type="checkbox" id="priceCommitment"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Show pricing section<small>Display the membership pricing table on the homepage</small></div>
+          <label class="toggle"><input type="checkbox" id="showPricing" checked><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-copy">
+        <h2>Copy Review — Messaging</h2>
+        <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1.2rem;">Feedback says the current copy reads as too "mystic" / new-age. Below are three variants for the hero and intro sections. Choose one, or mix and match.</p>
+
+        <h3 style="font-family:var(--serif); font-weight:400; font-size:1rem; color:var(--espresso); margin:1.2rem 0 0.5rem;">Hero headline + lede</h3>
+        <div class="copy-variant" data-variant="current">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Current (live)</div>
+          <p style="font-size:0.92rem; color:var(--ink); margin-bottom:0.3rem;"><strong>Headline:</strong> Return to Self.</p>
+          <p style="font-size:0.92rem; color:var(--ink);"><strong>Lede:</strong> Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
+        </div>
+        <div class="copy-variant" data-variant="grounded">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Variant A — Grounded & concrete</div>
+          <p style="font-size:0.92rem; color:var(--ink); margin-bottom:0.3rem;"><strong>Headline:</strong> Return to Self.</p>
+          <p style="font-size:0.92rem; color:var(--ink);"><strong>Lede:</strong> Asa-OZ is a community for adults 45+ who want to reconnect with their roots, meet like-minded people, and explore Ireland — and beyond — with purpose. We combine storytelling, shared meals, group conversations, and curated cultural journeys to help you feel at home again.</p>
+        </div>
+        <div class="copy-variant" data-variant="direct">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Variant B — Direct & explicit</div>
+          <p style="font-size:0.92rem; color:var(--ink); margin-bottom:0.3rem;"><strong>Headline:</strong> Return to Self.</p>
+          <p style="font-size:0.92rem; color:var(--ink);"><strong>Lede:</strong> Asa-OZ helps adults 45+ rebuild a sense of identity and belonging through community, conversation, and cultural travel. This is not therapy, spiritual practice, or energy work — it is an invitation to share stories, meet people, and explore places that matter to you.</p>
+        </div>
+
+        <h3 style="font-family:var(--serif); font-weight:400; font-size:1rem; color:var(--espresso); margin:1.2rem 0 0.5rem;">What-to-expect descriptions</h3>
+        <div class="copy-variant" data-variant="current">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Current (live)</div>
+          <ul style="font-size:0.92rem; color:var(--ink); padding-left:1.2rem; line-height:1.7;">
+            <li>Online events — regular sessions to connect, reflect, and grow together.</li>
+            <li>Group discussions &amp; identity circles — safe spaces to share, listen, and be seen.</li>
+            <li>Cultural talks &amp; storytelling — stories that remember you, and heritage that heals.</li>
+            <li>Hosted trips &amp; curated journeys — travel that restores identity and awakens joy.</li>
+            <li>Community membership — a space to belong — details and fees to be confirmed.</li>
+          </ul>
+        </div>
+        <div class="copy-variant" data-variant="grounded">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Variant A — Grounded & concrete</div>
+          <ul style="font-size:0.92rem; color:var(--ink); padding-left:1.2rem; line-height:1.7;">
+            <li><strong>Online gatherings</strong> — video calls, guest speakers, and group conversations from home.</li>
+            <li><strong>Community meetups</strong> — in-person gatherings in Ireland for shared meals, walks, and storytelling.</li>
+            <li><strong>Cultural sessions</strong> — guided visits, local hosts, and conversations about heritage and place.</li>
+            <li><strong>Curated trips</strong> — small-group travel experiences in Ireland and eventually beyond.</li>
+            <li><strong>Membership</strong> — ongoing access to the community, events, and trip announcements.</li>
+          </ul>
+        </div>
+        <div class="copy-variant" data-variant="direct">
+          <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.3rem;">Variant B — Direct & explicit</div>
+          <ul style="font-size:0.92rem; color:var(--ink); padding-left:1.2rem; line-height:1.7;">
+            <li><strong>Online events</strong> — video calls and group conversations for connection and reflection.</li>
+            <li><strong>Community meetups</strong> — in-person gatherings in Ireland: shared meals, walks, and group discussions.</li>
+            <li><strong>Cultural talks</strong> — storytelling and heritage sessions led by local hosts and guests.</li>
+            <li><strong>Curated journeys</strong> — small-group cultural trips that explore identity through place.</li>
+            <li><strong>Membership</strong> — details and fees to be confirmed. Join the waitlist for early access.</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:1.5rem; padding:1rem; background:rgba(111,90,63,0.06); border:1px solid rgba(111,90,63,0.15); border-radius:14px;">
+          <p style="font-size:0.85rem; color:var(--ink); margin:0;"><strong>Tip:</strong> When you have chosen a direction, let your developer know and they can apply it site-wide. You can also add your own notes in the Feedback tab above.</p>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-settings">
+        <h2>Settings</h2>
+        <div class="control-row">
+          <div class="control-label">Admin password<small>Change the password for this panel</small></div>
+          <div style="display:flex; gap:0.5rem;">
+            <input type="password" id="newPassword" placeholder="New password" style="border:1px solid rgba(111,90,63,0.25); border-radius:8px; padding:0.35rem 0.6rem; font-family:var(--sans); font-size:0.82rem; width:160px;" />
+            <button id="savePassword" style="border:none; background:var(--espresso); color:var(--paper); padding:0.35rem 0.8rem; border-radius:100px; font-family:var(--sans); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Save</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Export all data<small>Download feedback + settings as JSON</small></div>
+          <button id="exportData" style="border:1px solid rgba(111,90,63,0.3); background:transparent; color:var(--ink); padding:0.4rem 1rem; border-radius:100px; font-family:var(--sans); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Export</button>
+        </div>
+        <div class="control-row">
+          <div class="control-label">Clear all data<small>Remove all feedback and reset settings</small></div>
+          <button id="clearData" style="border:1px solid #b54848; color:#b54848; background:transparent; padding:0.4rem 1rem; border-radius:100px; font-family:var(--sans); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  var ADMIN_KEY = 'asa-oz-admin-v1';
+  var FEEDBACK_KEY = 'asa-oz-feedback-v1';
+  var SETTINGS_KEY = 'asa-oz-settings-v1';
+
+  function getSettings() {
+    try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch(e) { return {}; }
+  }
+  function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+  function getFeedback() {
+    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
+  }
+  function saveFeedback(f) { localStorage.setItem(FEEDBACK_KEY, JSON.stringify(f)); }
+  function getPassword() {
+    var p = localStorage.getItem(ADMIN_KEY);
+    return p ? JSON.parse(p).password : 'asa-oz-admin';
+  }
+  function savePassword(pw) {
+    localStorage.setItem(ADMIN_KEY, JSON.stringify({ password: pw || 'asa-oz-admin' }));
+  }
+  function isAuthed() {
+    return sessionStorage.getItem('asa-oz-authed') === '1';
+  }
+  function setAuthed(v) {
+    if (v) sessionStorage.setItem('asa-oz-authed', '1');
+    else sessionStorage.removeItem('asa-oz-authed');
+  }
+
+  var defaults = {
+    showPrices: true,
+    showBooking: true,
+    showSignup: true,
+    showSupporting: true,
+    showFaq: true,
+    showStore: true,
+    showNotThis: false,
+    showTestimonials: false,
+    simpleMode: false,
+    showPricing: true,
+    showHeaderBooking: true,
+    pricePublic: true,
+    priceFreeFirst: false,
+    priceCommitment: false,
+    marqueeRows: 3,
+    marqueeImages: []
+  };
+  var settings = Object.assign({}, defaults, getSettings());
+
+  function applySettings() {
+    Object.keys(settings).forEach(function(k) {
+      var el = document.getElementById(k);
+      if (el) el.checked = !!settings[k];
+    });
+    var rowsEl = document.getElementById('marqueeRows');
+    if (rowsEl) rowsEl.value = String(settings.marqueeRows || 3);
+    renderMarqueeImages();
+  }
+
+  function persistSettings() {
+    var s = {};
+    document.querySelectorAll('.panel input[type="checkbox"]').forEach(function(el) {
+      s[el.id] = el.checked;
+    });
+    var rowsEl = document.getElementById('marqueeRows');
+    if (rowsEl) s.marqueeRows = parseInt(rowsEl.value, 10) || 3;
+    s.marqueeImages = (Array.isArray(settings.marqueeImages) ? settings.marqueeImages : []).slice();
+    saveSettings(s);
+    settings = Object.assign({}, defaults, s);
+  }
+
+  function renderMarqueeImages() {
+    var list = document.getElementById('marqueeImageList');
+    if (!list) return;
+    var images = (Array.isArray(settings.marqueeImages) && settings.marqueeImages.length)
+      ? settings.marqueeImages.slice()
+      : [];
+    list.innerHTML = '';
+    images.forEach(function(src, i) {
+      var row = document.createElement('div');
+      row.className = 'marquee-image-item';
+      var input = document.createElement('input');
+      input.type = 'url';
+      input.className = 'marquee-image-url';
+      input.setAttribute('data-idx', i);
+      input.value = src;
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'marquee-image-remove';
+      rm.setAttribute('aria-label', 'Remove image');
+      rm.textContent = '\u00d7';
+      rm.addEventListener('click', function() {
+        settings.marqueeImages = images.filter(function(_, j) { return j !== i; });
+        persistSettings();
+        renderMarqueeImages();
+      });
+      row.appendChild(input);
+      row.appendChild(rm);
+      list.appendChild(row);
+    });
+    list.querySelectorAll('.marquee-image-url').forEach(function(inp) {
+      inp.addEventListener('change', function() {
+        var idx = parseInt(inp.getAttribute('data-idx'), 10);
+        settings.marqueeImages = settings.marqueeImages.slice();
+        settings.marqueeImages[idx] = inp.value.trim();
+        persistSettings();
+        renderMarqueeImages();
+      });
+    });
+  }
+
+  document.getElementById('addMarqueeImageBtn').addEventListener('click', function() {
+    var input = document.getElementById('newMarqueeImage');
+    var val = input.value.trim();
+    if (!val) return;
+    settings.marqueeImages = (Array.isArray(settings.marqueeImages) ? settings.marqueeImages : []).slice();
+    settings.marqueeImages.push(val);
+    persistSettings();
+    renderMarqueeImages();
+    input.value = '';
+  });
+
+  var loginScreen = document.getElementById('loginScreen');
+  var dashboard = document.getElementById('dashboard');
+
+  function showLogin() {
+    loginScreen.style.display = 'block';
+    dashboard.style.display = 'none';
+  }
+  function showDashboard() {
+    loginScreen.style.display = 'none';
+    dashboard.style.display = 'block';
+    renderFeedback();
+    applySettings();
+  }
+
+  document.getElementById('adminLogin').addEventListener('click', function() {
+    var pw = document.getElementById('adminPassword').value;
+    if (pw === getPassword()) {
+      setAuthed(true);
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      showDashboard();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  });
+  document.getElementById('adminPassword').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('adminLogin').click();
+  });
+  document.getElementById('adminLogout').addEventListener('click', function() {
+    setAuthed(false);
+    showLogin();
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.getAttribute('data-tab')).classList.add('active');
+    });
+  });
+
+  // Settings toggles
+  document.querySelectorAll('.panel input[type="checkbox"]').forEach(function(el) {
+    el.addEventListener('change', persistSettings);
+  });
+  var marqueeRowsEl = document.getElementById('marqueeRows');
+  if (marqueeRowsEl) marqueeRowsEl.addEventListener('change', persistSettings);
+
+  // Password change
+  document.getElementById('savePassword').addEventListener('click', function() {
+    var pw = document.getElementById('newPassword').value;
+    if (!pw || pw.length < 4) { alert('Password must be at least 4 characters.'); return; }
+    savePassword(pw);
+    document.getElementById('newPassword').value = '';
+    alert('Password saved.');
+  });
+
+  // Export
+  document.getElementById('exportData').addEventListener('click', function() {
+    var data = { feedback: getFeedback(), settings: settings, exportedAt: new Date().toISOString() };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'asa-oz-admin-export.json'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Clear data
+  document.getElementById('clearData').addEventListener('click', function() {
+    if (!confirm('Clear all feedback and reset settings? This cannot be undone.')) return;
+    localStorage.removeItem(FEEDBACK_KEY);
+    localStorage.removeItem(SETTINGS_KEY);
+    settings = Object.assign({}, defaults);
+  saveSettings(settings);
+  applySettings();
+  renderFeedback();
+});
+
+// Copy review selection
+document.querySelectorAll('.copy-variant').forEach(function(variant) {
+  variant.style.cursor = 'pointer';
+  variant.style.padding = '0.8rem';
+  variant.style.borderRadius = '12px';
+  variant.style.border = '2px solid transparent';
+  variant.style.marginBottom = '0.6rem';
+  variant.style.transition = 'border-color 0.2s, background 0.2s';
+  variant.addEventListener('mouseenter', function() {
+    variant.style.borderColor = 'rgba(111,90,63,0.3)';
+    variant.style.background = 'rgba(255,255,255,0.5)';
+  });
+  variant.addEventListener('mouseleave', function() {
+    variant.style.borderColor = 'transparent';
+    variant.style.background = 'transparent';
+  });
+  variant.addEventListener('click', function() {
+    var chosen = variant.getAttribute('data-variant');
+    var note = document.createElement('div');
+    note.style.cssText = 'margin-top:0.6rem; padding:0.6rem 0.8rem; background:rgba(138,154,91,0.1); border:1px solid rgba(138,154,91,0.25); border-radius:8px; font-size:0.82rem; color:var(--sage-deep);';
+    note.textContent = 'You selected "' + chosen + '" variant. Share this with your developer to apply it site-wide.';
+    var existing = variant.querySelector('.selection-note');
+    if (existing) existing.remove();
+    note.className = 'selection-note';
+    variant.appendChild(note);
+  });
+});
+
+// Feedback
+  function renderFeedback() {
+    var list = document.getElementById('feedbackList');
+    var items = getFeedback();
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state">No feedback yet. Add the first item below.</div>';
+      return;
+    }
+    list.innerHTML = items.slice().reverse().map(function(f, idx) {
+      var statusClass = f.status === 'new' ? 'badge-new' : (f.status === 'reviewed' ? 'badge-reviewed' : 'badge-action');
+      var realIdx = items.length - 1 - idx;
+      return '<div class="feedback-item" data-index="' + realIdx + '">' +
+        '<div class="feedback-meta"><span class="badge ' + statusClass + '">' + (f.status || 'new') + '</span> · ' + (f.category || 'general') + ' · ' + (f.date || '') + '</div>' +
+        '<div class="feedback-text">' + escapeHtml(f.text) + '</div>' +
+        '<div class="feedback-actions">' +
+          '<select class="status-select" data-index="' + realIdx + '"><option value="new"' + ((f.status||'new')==='new'?' selected':'') + '>New</option><option value="reviewed"' + ((f.status||'new')==='reviewed'?' selected':'') + '>Reviewed</option><option value="action"' + ((f.status||'new')==='action'?' selected':'') + '>Action</option></select>' +
+          '<input type="text" class="note-input" data-index="' + realIdx + '" placeholder="Add a note..." value="' + escapeHtml(f.note || '') + '" />' +
+          '<button class="save-note-btn" data-index="' + realIdx + '">Save</button>' +
+        '</div>' +
+        (f.note ? '<div class="feedback-note">Note: ' + escapeHtml(f.note) + '</div>' : '') +
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('.status-select').forEach(function(sel) {
+      sel.addEventListener('change', function() {
+        var idx = parseInt(sel.getAttribute('data-index'));
+        var items = getFeedback();
+        if (items[idx]) { items[idx].status = sel.value; saveFeedback(items); renderFeedback(); }
+      });
+    });
+    list.querySelectorAll('.save-note-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.getAttribute('data-index'));
+        var input = list.querySelector('.note-input[data-index="' + idx + '"]');
+        var items = getFeedback();
+        if (items[idx]) { items[idx].note = input.value; saveFeedback(items); renderFeedback(); }
+      });
+    });
+  }
+
+  function escapeHtml(t) {
+    return String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('addFeedbackBtn').addEventListener('click', function() {
+    var text = document.getElementById('newFeedbackText').value.trim();
+    if (!text) return;
+    var items = getFeedback();
+    items.push({
+      text: text,
+      category: document.getElementById('newFeedbackCategory').value,
+      status: 'new',
+      note: '',
+      date: new Date().toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
+    });
+    saveFeedback(items);
+    document.getElementById('newFeedbackText').value = '';
+    renderFeedback();
+  });
+
+  // Seed initial feedback if empty
+  function seedFeedback() {
+    var items = getFeedback();
+    if (items.length) return;
+    var seed = [
+      { text: 'Why are you charging for the tools for the journey?', category: 'pricing', status: 'new', note: '', date: '1 Aug 2026' },
+      { text: 'It depends on your strategy. In some cases, it\'s better to focus on building the community first and then introduce charges for certain services later. On the other hand, people sometimes don\'t take free programs as seriously as paid ones because they perceive them as having less value. Ultimately, it comes down to the approach and objectives you have for the program.', category: 'pricing', status: 'new', note: '', date: '1 Aug 2026' },
+      { text: 'It\'s part mystic, part astral traveling, part energy cultivation. & a bit confusing, talking about renewal letters, meditation sessions or identity circle sessions & return journal, etc. It\'s like a cleansing of, a spiritual miasma, a ritual energetic cleansing of bad aura. It\'s a bit confusing the objectives & target audience & ideal clientele', category: 'content', status: 'new', note: 'Copy reads as too new-age/spiritual. Need grounded language, clearer target audience, and explicit "what this is NOT" statement.', date: '1 Aug 2026' },
+      { text: 'Simple and not dramatic. A tired 45 years old does not have to click too many things to get to the meat of the matter', category: 'ux', status: 'new', note: 'Reduce complexity and drama. Too many clicks to understand the core offering. Needs a simpler, more direct path to the value proposition.', date: '1 Aug 2026' },
+      { text: 'Great information and navigation links. Registration fee not included yet — suggestion: yearly or monthly subscription options depending on what is affordable for prospective customers. Also requesting review link when site goes live.', category: 'pricing', status: 'new', note: 'Positive feedback on content/navigation. Wants pricing tiers (monthly/yearly). Also wants review link when live.', date: '1 Aug 2026' },
+      { text: 'The Store settings need to adjust. The price symbol doesn\'t show on Total it shows &euro', category: 'ux', status: 'new', note: 'Bug: cart total shows literal "&euro;" instead of € symbol. textContent does not parse HTML entities.', date: '1 Aug 2026' },
+      { text: 'There should also be a link that takes the viewer back to the top. Unless you want your visitors to spend time scrolling back up.', category: 'ux', status: 'new', note: 'Need a back-to-top button for better UX on long pages.', date: '1 Aug 2026' }
+    ];
+    saveFeedback(seed);
+  }
+
+  if (!isAuthed()) { showLogin(); }
+  else { showDashboard(); }
+  seedFeedback();
+})();
+</script>
+</body>
+</html>

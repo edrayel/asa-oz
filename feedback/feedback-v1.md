@@ -269,3 +269,97 @@ Sole Trader: Ifeoma t/a AsaOZ Address: Ireland Phone: \[to be added\] RC No: Not
 
 Liked for: warm tone, cultural depth, community feel, mature design, storytelling, identity-focused messaging, clean layouts.
 
+---
+
+## **18\. FEEDBACK — AUG 2026 (FRIEND OF CLIENT)**
+
+**Source:** Friend of client  
+**Date:** 1 Aug 2026  
+**Category:** Messaging / Positioning
+
+**Raw feedback:**
+> "It's part mystic, part astral traveling, part energy cultivation. & a bit confusing, talking about renewal letters, meditation sessions or identity circle sessions & return journal, etc. It's like a cleansing of, a spiritual miasma, a ritual energetic cleansing of bad aura. It's a bit confusing the objectives & target audience & ideal clientele"
+
+**Interpretation:**
+- Current copy reads as too "new age" / spiritual for the intended audience
+- Terms like "identity circles", "return journal", "renewal" are confusing without context
+- Unclear what is actually being offered (travel? therapy? spiritual work?)
+- Target audience and objectives need to be stated more plainly
+
+**Suggested direction:**
+- Ground the language in concrete, everyday experiences (shared meals, storytelling, walking tours, group conversations)
+- Clarify that this is NOT spiritual/energy work — it's cultural connection and personal reflection through community
+- Be explicit about who it's for (adults 45+ navigating life transitions)
+- Separate the "identity work" from any mystical connotations — frame it as conversation, story, and shared experience
+
+**Action:** Review all copy for mystic/energy language and replace with grounded, concrete descriptions. Add a clear "What this is NOT" statement if needed.
+
+---
+
+## **19\. FEEDBACK — AUG 2026 (UX / COMPLEXITY)**
+
+**Source:** Reviewer  
+**Date:** 1 Aug 2026  
+**Category:** UX / Navigation
+
+**Raw feedback:**
+> "Simple and not dramatic. A tired 45 years old does not have to click too many things to get to the meat of the matter"
+
+**Interpretation:**
+- The site feels overly complex and dramatic for the target audience
+- A tired 45+ visitor doesn't want to navigate through many sections/clicks to understand what Asa-OZ offers
+- The "meat of the matter" (core value proposition + how to join) should be immediately accessible
+- Too many visual/design elements may feel overwhelming rather than welcoming
+
+**Suggested direction:**
+- Reduce the number of sections below the fold
+- Make the hero section more self-contained (value prop + CTA without scrolling)
+- Simplify navigation to fewer, clearer options
+- Reduce dramatic visual effects (animations, overlays, complex layouts)
+- Consider a single-column, more linear flow
+- Put the most important information (what it is, who it's for, how to join) in the hero without requiring scroll
+
+**Action:** Streamline the page structure. Consider reducing from ~8 sections to 3-4 max. Make the hero the destination, not just an introduction.
+
+---
+
+## **20\. FEEDBACK — AUG 2026 (POSITIVE + PRICING)**
+
+**Source:** Reviewer  
+**Date:** 1 Aug 2026  
+**Category:** Pricing / General
+
+**Raw feedback:**
+> "Ify this is awesome, the site has great information and navigation links to information. Also I noticed that registration fee was not included yet and specified, looks like it's something that will be included soon. Yearly or monthly subscription choice would be a great registration fee option idea depending on what is affordable for prospective customers. Good job Ify👍. Send me your review link to give you a great review when site is completed and goes live."
+
+**Interpretation:**
+- Positive feedback on current content and navigation
+- Registration/membership fee not visible yet — needs to be added
+- Suggests monthly/yearly subscription tiers
+- Wants a review link when site goes live
+
+**Suggested direction:**
+- Add a pricing section or pricing table with monthly/yearly options
+- Make fees transparent once finalized
+- Consider a "review site" link in the footer or admin panel for post-launch reviews
+
+**Action:** When pricing is confirmed, add a pricing section with subscription options. Prepare a review link (Google Reviews, Trustpilot, etc.) for post-launch.
+
+---
+
+## **21\. FEEDBACK — AUG 2026 (UX — BACK TO TOP)**
+
+**Source:** Reviewer  
+**Date:** 1 Aug 2026  
+**Category:** UX / Navigation
+
+**Raw feedback:**
+> "There should also be a link that takes the viewer back to the top. Unless you want your visitors to spend time scrolling back up."
+
+**Interpretation:**
+- Long pages need a back-to-top button for convenience
+- Prevents users from having to manually scroll back up
+- Common UX pattern, especially on mobile
+
+**Action:** Add a back-to-top button that appears after scrolling down ~600px. Implemented in index.html with CSS and JavaScript.
+

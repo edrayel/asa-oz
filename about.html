@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asa-OZ — Store</title>
+  <title>About — Asa-OZ</title>
   <meta name="theme-color" content="#2b2118" />
+  <meta name="description" content="About Asa-OZ — a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through community, conversation, and meaningful travel." />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
 
@@ -924,6 +925,108 @@
     @media (max-width: 560px) {
       .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
     }
+    .cart-toggle { display: none; }
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cafe-ink);
+      margin-bottom: 0.9rem;
+    }
+    .page-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .page-block {
+      margin-bottom: 2.6rem;
+    }
+    .page-block h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      color: var(--espresso);
+      margin-bottom: 0.9rem;
+    }
+    .page-block p {
+      color: var(--ink);
+      line-height: 1.75;
+      max-width: 62ch;
+      margin: 0.5rem 0;
+    }
+    .page-block ul {
+      color: var(--ink);
+      line-height: 1.8;
+      padding-left: 1.2rem;
+      margin: 0.6rem 0;
+      max-width: 62ch;
+    }
+    .page-founder {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    .page-founder img {
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      object-position: top center;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px -16px rgba(43, 33, 24, 0.3);
+    }
+    .page-founder p { max-width: 58ch; }
+    .page-founder .name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--espresso);
+      margin-top: 1rem;
+    }
+    .page-founder .role {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .page-cta {
+      margin-top: 1rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .page-cta p { margin: 0; width: 100%; }
+    .page-btn {
+      display: inline-block;
+      border-radius: 100px;
+      background: var(--espresso);
+      color: var(--paper);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.4rem;
+      text-decoration: none;
+      transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+    }
+    .page-btn:hover { background: var(--cafe-ink); transform: translateY(-1px); }
+    .page-btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(111, 90, 63, 0.35);
+      color: var(--espresso);
+    }
+    .page-btn-ghost:hover { background: rgba(111, 90, 63, 0.06); color: var(--espresso); }
+    @media (max-width: 640px) {
+      .page-founder { grid-template-columns: 1fr; }
+      .page-founder img { max-width: 260px; }
+    }
   </style>
 </head>
   <body>
@@ -944,8 +1047,8 @@
       </div>
       <nav class="main-nav" aria-label="Main">
         <a href="/index.html">Home</a>
-        <a href="/about.html">About</a>
-        <a href="/store.html" class="active">Store</a>
+        <a href="/about.html" class="active">About</a>
+        <a href="/store.html">Store</a>
         <a href="/faq.html">FAQ</a>
         <a href="/contact.html">Contact</a>
       </nav>
@@ -1000,21 +1103,66 @@
 
     <main>
       <section class="store-hero">
-        <h1 class="reveal">Tools for the journey</h1>
-        <p class="lede reveal">Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.</p>
+        <p class="eyebrow reveal">About Asa-OZ</p>
+        <h1 class="reveal">A movement for identity, belonging &amp; renewal.</h1>
+        <p class="lede reveal">Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel.</p>
       </section>
 
-      <section class="store-section" aria-label="Shop">
-        <div class="store-filters reveal">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="physical">Physical</button>
-          <button class="filter-btn" data-filter="virtual">Virtual</button>
+      <section class="page-section" aria-label="About Asa-OZ">
+        <div class="page-block reveal">
+          <h2>Why Asa-OZ exists</h2>
+          <p>Many of us reach a point in life where we feel disconnected from ourselves. After years of building careers, raising families, and caring for others, the next chapter can feel unclear — and quiet loneliness can settle in.</p>
+          <p>Asa-OZ exists to meet that moment. It is a space where adults 45+ can reconnect with their identity, culture, and sense of belonging through community, conversation, storytelling, and meaningful travel.</p>
         </div>
-        <div class="store-grid" id="storeGrid"></div>
-        <section class="similar-section" aria-label="You may also like">
-          <h2 class="reveal">You may also like</h2>
-          <div class="similar-grid" id="similarGrid"></div>
-        </section>
+
+        <div class="page-block reveal">
+          <h2>What Asa-OZ is</h2>
+          <p>Asa-OZ brings people together around five things:</p>
+          <ul>
+            <li><strong>Identity</strong> — remembering who you are, beneath the years and the roles.</li>
+            <li><strong>Culture</strong> — grounding yourself in heritage, story, and meaning.</li>
+            <li><strong>Belonging</strong> — finding companionship and genuine connection again.</li>
+            <li><strong>Community</strong> — sharing life, presence, and warmth with others.</li>
+            <li><strong>Exploration</strong> — awakening joy and purpose through meaningful travel.</li>
+          </ul>
+          <p>This is not about escaping your life. It is about returning to yourself.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>What it feels like</h2>
+          <p>Concrete and everyday — shared meals, walking tours, group conversations, and storytelling. Real people, real places, real conversation. Community that feels like home.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Who it is for</h2>
+          <p>Adults aged 45 and above who are ready for something more than another holiday — whether you feel disconnected from your identity or heritage, are navigating a major life transition, long for meaningful community, want intentional travel, or are seeking reflection and personal growth.</p>
+          <p>You can join on your own — many do.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>The founder</h2>
+          <div class="page-founder">
+            <img src="/images/founder/ifeoma-adaora.jpg" alt="Ifeoma Adaora, Founder and Cultural Guide of Asa-OZ" loading="lazy" />
+            <div>
+              <p>My name is Ifeoma Adaora, and for more than 25 years I have traveled the world, discovering that travel can do much more than take us to new places. It can restore confidence, create meaningful connections, and help us rediscover parts of ourselves we thought were lost.</p>
+              <p>I created Asa-OZ for adults 45+ who are ready for something more than another holiday. Through thoughtfully curated journeys, shared experiences, and supportive community, I walk alongside you as you discover new places, build lasting friendships, and reconnect with the joy, confidence, and sense of belonging that may have faded over time.</p>
+              <p class="name">Ifeoma Adaora</p>
+              <p class="role">Founder &amp; Cultural Guide</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>What Asa-OZ is not</h2>
+          <p>Asa-OZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental health care. It is not spiritual practice, energy work, or meditation.</p>
+          <p>We do not sell travel packages — participants book their own travel, and Asa-OZ provides the cultural hosting, community, and guidance that make the journey meaningful.</p>
+        </div>
+
+        <div class="page-cta reveal">
+          <p>You are not starting over. You are starting deeper.</p>
+          <a href="/index.html#signup" class="page-btn">Join the waitlist</a>
+          <a href="/contact.html" class="page-btn page-btn-ghost">Contact us</a>
+        </div>
       </section>
     </main>
 
@@ -1087,8 +1235,8 @@
         </div>
         <nav class="mobile-menu-nav" aria-label="Mobile">
           <a href="/index.html">Home</a>
-          <a href="/about.html">About</a>
-          <a href="/store.html" class="active">Store</a>
+          <a href="/about.html" class="active">About</a>
+          <a href="/store.html">Store</a>
           <a href="/faq.html">FAQ</a>
           <a href="/contact.html">Contact</a>
         </nav>

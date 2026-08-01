@@ -163,6 +163,49 @@
       align-items: center;
       gap: 0.8rem;
     }
+      .header-booking {
+        border: 1px solid rgba(111, 90, 63, 0.32);
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(6px);
+        color: var(--espresso);
+        padding: 0.5rem 0.95rem;
+        border-radius: 100px;
+        font-family: var(--sans);
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s var(--ease);
+        white-space: nowrap;
+      }
+      .header-booking:hover {
+        background: var(--espresso);
+        color: #fff;
+        border-color: var(--espresso);
+      }
+      .header-social {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .header-social a {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 100px;
+        color: var(--tobacco);
+        transition: all 0.3s var(--ease);
+      }
+      .header-social a:hover {
+        color: var(--espresso);
+        background: rgba(111, 90, 63, 0.08);
+      }
+      .header-social svg {
+        width: 15px;
+        height: 15px;
+      }
       .main-nav {
         display: flex;
         align-items: center;
@@ -192,23 +235,8 @@
         transition: transform 0.4s var(--ease);
         border-radius: 2px;
       }
-      .main-nav a::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: calc(100% + 8px);
-        transform: translateY(-50%) scale(0);
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--cafe-ink);
-        transition: transform 0.35s var(--ease), background 0.35s var(--ease);
-      }
       .main-nav a:hover::before {
         transform: translateX(-50%) scaleX(1);
-      }
-      .main-nav a:hover::after {
-        transform: translateY(-50%) scale(1);
       }
       .main-nav a:hover {
         color: var(--espresso);
@@ -219,11 +247,6 @@
       .main-nav a.active::before {
         transform: translateX(-50%) scaleX(1);
         background: var(--sage-deep);
-      }
-      .main-nav a.active::after {
-        transform: translateY(-50%) scale(1);
-        background: var(--sage);
-        box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
       }
      .status-pill {
       display: inline-flex;
@@ -249,6 +272,212 @@
       0% { box-shadow: 0 0 0 0 rgba(138,154,91,0.55); }
       70% { box-shadow: 0 0 0 9px rgba(138,154,91,0); }
       100% { box-shadow: 0 0 0 0 rgba(138,154,91,0); }
+    }
+
+    /* ---------- Mobile menu ---------- */
+    .header-booking-text { display: inline; }
+    .header-booking-icon { display: none; }
+    .menu-toggle { display: none; }
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--paper);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease);
+    }
+    .mobile-menu.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-menu-inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mobile-menu-close {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 100px;
+      border: 1px solid rgba(111, 90, 63, 0.25);
+      background: transparent;
+      color: var(--espresso);
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+    .mobile-menu-close:hover {
+      background: rgba(111, 90, 63, 0.08);
+    }
+    .mobile-menu-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .mobile-menu-nav a {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 400;
+      color: var(--espresso);
+      text-decoration: none;
+      line-height: 1.2;
+      transition: color 0.3s var(--ease);
+    }
+    .mobile-menu-nav a:hover {
+      color: var(--cafe-ink);
+    }
+    .mobile-menu-nav a.active {
+      color: var(--sage-deep);
+    }
+    .mobile-menu-social {
+      display: flex;
+      gap: 0.75rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(111, 90, 63, 0.12);
+    }
+    .mobile-menu-social a {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 100px;
+      border: 1px solid rgba(111, 90, 63, 0.2);
+      color: var(--tobacco);
+      transition: all 0.3s var(--ease);
+    }
+    .mobile-menu-social a:hover {
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
+    }
+    .mobile-menu-social svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ---------- Booking Modal ---------- */
+    .booking-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(43,33,24,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s var(--ease);
+      display: flex; align-items: center; justify-content: center;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+    .booking-overlay.open { opacity: 1; pointer-events: auto; }
+    .booking-modal {
+      width: min(520px, 100%);
+      max-height: min(92vh, 720px);
+      background: var(--paper);
+      border: 1px solid rgba(111,90,63,0.18);
+      border-radius: 18px;
+      box-shadow: 0 28px 70px -32px rgba(43,33,24,0.55);
+      display: flex; flex-direction: column;
+      transform: translateY(18px);
+      transition: transform 0.5s var(--ease), opacity 0.4s var(--ease);
+      opacity: 0;
+    }
+    .booking-overlay.open .booking-modal { transform: none; opacity: 1; }
+    .booking-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(111,90,63,0.18);
+    }
+    .booking-header h3 {
+      font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--espresso);
+      margin: 0;
+    }
+    .booking-close {
+      width: 36px; height: 36px; border-radius: 100px; border: 1px solid rgba(111,90,63,0.25);
+      background: transparent; cursor: pointer; color: var(--espresso); font-size: 1.1rem;
+      display: grid; place-items: center; transition: background 0.3s var(--ease);
+    }
+    .booking-close:hover { background: rgba(111,90,63,0.08); }
+    .booking-body {
+      flex: 1; overflow-y: auto; padding: 1.4rem 1.6rem;
+      display: flex; flex-direction: column; gap: 1.1rem;
+    }
+    .booking-field {
+      display: flex; flex-direction: column; gap: 0.35rem;
+    }
+    .booking-field label {
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--cafe-ink);
+    }
+    .booking-field input,
+    .booking-field textarea {
+      border: 1px solid rgba(111,90,63,0.28);
+      border-radius: 12px; padding: 0.75rem 1rem;
+      font-family: var(--sans); font-size: 0.95rem; color: var(--ink);
+      background: rgba(255,255,255,0.55); outline: none;
+      transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+    }
+    .booking-field input:focus,
+    .booking-field textarea:focus {
+      border-color: var(--sage); background: #fff;
+      box-shadow: 0 8px 30px -18px rgba(95,109,61,0.45);
+    }
+    .booking-field input::placeholder,
+    .booking-field textarea::placeholder { color: var(--cafe-ink); opacity: 0.7; }
+    .booking-field textarea { resize: vertical; min-height: 90px; }
+    .booking-field .error-msg {
+      font-size: 0.78rem; color: #b54848; display: none;
+    }
+    .booking-field.is-invalid input,
+    .booking-field.is-invalid textarea { border-color: #b54848; }
+    .booking-field.is-invalid .error-msg { display: block; }
+    .booking-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .booking-footer {
+      padding: 1.2rem 1.6rem; border-top: 1px solid rgba(111,90,63,0.18);
+      display: flex; justify-content: flex-end; gap: 0.7rem;
+    }
+    .booking-btn {
+      border: none; border-radius: 100px; padding: 0.85rem 1.6rem;
+      font-family: var(--sans); font-weight: 500; font-size: 0.82rem;
+      letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease), opacity 0.35s var(--ease);
+    }
+    .booking-btn-primary {
+      background: var(--espresso); color: var(--paper);
+    }
+    .booking-btn-primary:hover { background: var(--sage-deep); transform: translateY(-1px); }
+    .booking-btn-secondary {
+      background: transparent; color: var(--ink);
+      border: 1px solid rgba(111,90,63,0.3);
+    }
+    .booking-btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+    .booking-confirmation {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: 1rem; padding: 2.5rem 1.6rem;
+    }
+    .booking-confirmation .confirm-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--sage); color: var(--paper);
+      display: grid; place-items: center; font-size: 1.6rem;
+    }
+    .booking-confirmation h4 {
+      font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--espresso); margin: 0;
+    }
+    .booking-confirmation p {
+      font-size: 0.9rem; color: var(--ink); max-width: 38ch; line-height: 1.6;
+    }
+    @media (max-width: 560px) {
+      .booking-row { grid-template-columns: 1fr; }
+      .booking-modal { max-height: 94vh; }
+      .booking-header, .booking-body, .booking-footer { padding-left: 1.2rem; padding-right: 1.2rem; }
+      .booking-footer { flex-direction: column; }
+      .booking-btn { width: 100%; text-align: center; }
     }
 
     /* ---------- Store ---------- */
@@ -578,47 +807,119 @@
     }
 
     /* ---------- Footer ---------- */
-    .refund-note {
-      font-size: 0.78rem;
-      color: var(--ink);
-      line-height: 1.5;
-    }
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.8rem;
-    }
-    .social-links a {
-      font-size: 0.82rem;
-      color: var(--ink);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-    .social-links a:hover { color: var(--espresso); }
     footer {
       position: relative;
       z-index: 2;
-      padding: clamp(2.5rem, 5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
+      margin-bottom: clamp(1rem, 4vh, 2.5rem);
+      padding: clamp(3rem, 6vh, 4.5rem) 0 clamp(2rem, 4vh, 3rem);
       border-top: 1px solid rgba(111, 90, 63, 0.18);
+      border-radius: clamp(20px, 4vw, 32px);
+      background: linear-gradient(180deg, var(--paper) 0%, var(--cream) 100%);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 4vw, 3rem);
+    }
+    .footer-brand b {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      color: var(--espresso);
+      font-weight: 500;
+    }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      line-height: 1.5;
+      max-width: 38ch;
+    }
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+    }
+    .social-icons a {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 100px;
+      border: 1px solid rgba(111, 90, 63, 0.2);
+      color: var(--tobacco);
+      transition: all 0.3s var(--ease);
+    }
+    .social-icons a:hover {
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
+      transform: translateY(-2px);
+    }
+    .social-icons svg {
+      width: 18px;
+      height: 18px;
+    }
+    .footer-contact h4,
+    .footer-proof h4 {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+    .footer-contact p {
+      font-size: 0.85rem;
+      color: var(--ink);
+      line-height: 1.8;
+    }
+    .footer-contact a {
+      color: var(--cafe-ink);
+      text-decoration: none;
+      transition: color 0.3s var(--ease);
+    }
+    .footer-contact a:hover {
+      color: var(--espresso);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .footer-proof a {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.2rem 0;
+      transition: color 0.3s var(--ease);
+    }
+    .footer-proof a:hover {
+      color: var(--espresso);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .footer-legal {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding: 1.5rem clamp(1.5rem, 4vw, 3rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.12);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.8rem;
     }
-    footer .who {
-      font-size: 0.9rem;
-      color: var(--ink);
-      max-width: 46ch;
-    }
-    footer .who b {
-      color: var(--espresso);
-      font-weight: 500;
+    .refund-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
     }
     footer .copy {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       letter-spacing: 0.1em;
-      color: var(--ink);
+      color: var(--muted);
     }
 
     /* ---------- Keyboard focus (a11y) ---------- */
@@ -635,8 +936,73 @@
     }
 
     @media (max-width: 560px) {
+      .status-pill { display: none; }
+      .main-nav { display: none; }
+      .header-social { display: none; }
+      .header-booking-text { display: none; }
+      .header-booking-icon { display: inline; }
+      .menu-toggle { display: grid; }
+      .header-actions { gap: 0.55rem; }
+      .cart-toggle { order: 1; }
+      .header-booking { order: 2; }
+      .menu-toggle { order: 3; }
+      .header-booking,
+      .menu-toggle,
       .cart-toggle { width: 36px; height: 36px; }
-      footer { flex-direction: column; align-items: flex-start; }
+      .header-booking,
+      .menu-toggle {
+        display: grid;
+        place-items: center;
+        padding: 0;
+        border-radius: 100px;
+        border: 1px solid rgba(111,90,63,0.25);
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(6px);
+        color: var(--espresso);
+        cursor: pointer;
+        transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+      }
+      .header-booking:hover,
+      .menu-toggle:hover { background: rgba(255,255,255,0.85); border-color: var(--cafe); }
+      .header-booking:focus-visible,
+      .menu-toggle:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+      footer .footer-grid { grid-template-columns: 1fr; }
+      footer .footer-legal { flex-direction: column; align-items: flex-start; }
+    }
+    .back-to-top {
+      position: fixed;
+      z-index: 30;
+      right: 1.2rem;
+      bottom: 1.4rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(111,90,63,0.3);
+      background: rgba(43,33,24,0.6);
+      backdrop-filter: blur(6px);
+      color: var(--paper);
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), background 0.3s var(--ease), border-color 0.3s var(--ease);
+    }
+    .back-to-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: none;
+    }
+    .back-to-top:hover {
+      background: rgba(43,33,24,0.85);
+      border-color: var(--sand);
+      transform: translateY(-2px);
+    }
+    @media (max-width: 560px) {
+      .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
     }
   </style>
 </head>
@@ -658,15 +1024,49 @@
       </div>
       <nav class="main-nav" aria-label="Main">
         <a href="/index.html">Home</a>
-        <a href="/index.html#how-it-works">Journey</a>
-        <a href="/index.html#ethos">About</a>
+        <a href="/about.html">About</a>
         <a href="/store.html" class="active">Store</a>
+        <a href="/faq.html">FAQ</a>
+        <a href="/contact.html">Contact</a>
       </nav>
+      <div class="header-social" aria-label="Social media">
+        <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+        </a>
+        <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+        </a>
+        <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+        </a>
+      </div>
       <div class="header-actions">
         <div class="status-pill">
           <span class="dot"></span>
           Arriving soon
         </div>
+        <button type="button" class="header-booking" id="headerBookingTrigger">
+          <span class="header-booking-text">Book a discovery call</span>
+          <svg class="header-booking-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -690,20 +1090,101 @@
     </main>
 
     <footer>
-      <p class="who">
-        <b>Asa-OZ</b> — a movement for identity, belonging &amp; renewal.<br />
-        Sole Trader: Ifeoma t/a Asa-OZ &middot; Ireland<br />
-        RC No: Not applicable (sole trader)<br />
-        Contact: <a href="mailto:info@asa-oz.com">info@asa-oz.com</a> &middot; Phone: [to be added]<br />
-        <span class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</span>
-      </p>
-      <div class="social-links">
-        <a href="#" target="_blank" rel="noopener">Instagram</a>
-        <a href="#" target="_blank" rel="noopener">Facebook</a>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <b>Asa-OZ</b>
+          <p class="footer-tagline">A movement for identity, belonging & renewal.</p>
+          <div class="social-icons" aria-label="Social media">
+            <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+            </a>
+            <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            </a>
+            <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+            </a>
+            <a href="https://linkedin.com/company/asa-oz" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact</h4>
+          <p>Sole Trader: Ifeoma t/a Asa-OZ · Ireland</p>
+          <p>RC No: Not applicable (sole trader)</p>
+          <p><a href="mailto:info@asa-oz.com">info@asa-oz.com</a></p>
+          <p>Phone: [to be added]</p>
+        </div>
+        <div class="footer-proof">
+          <h4>Explore</h4>
+          <a href="/about.html">About</a>
+          <a href="/faq.html">FAQ</a>
+          <a href="/contact.html">Contact</a>
+          <a href="/terms.html">Terms</a>
+        </div>
+        <div class="footer-proof">
+          <h4>Community</h4>
+          <a href="/index.html#signup">Join the waitlist</a>
+          <a href="/index.html#testimonials">Read testimonials</a>
+          <a href="/about.html">Community stories</a>
+        </div>
       </div>
-      <p class="copy">&copy; <span id="year"></span> Asa-OZ. All rights reserved.</p>
+      <div class="footer-legal">
+        <p class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</p>
+        <p class="copy">&copy; <span id="year"></span> Asa-OZ. All rights reserved.</p>
+      </div>
     </footer>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <div class="mobile-menu-inner">
+        <div class="mobile-menu-header">
+          <a href="/index.html" class="brand-link">
+            <span class="brand-logo-fallback">Asa-OZ</span>
+            <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
+          </a>
+          <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <nav class="mobile-menu-nav" aria-label="Mobile">
+          <a href="/index.html">Home</a>
+          <a href="/about.html">About</a>
+          <a href="/store.html" class="active">Store</a>
+          <a href="/faq.html">FAQ</a>
+          <a href="/contact.html">Contact</a>
+        </nav>
+        <div class="mobile-menu-social">
+          <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
+          </a>
+          <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+          </a>
+          <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">&#8593;</button>
 
   <div class="cart-overlay" id="cartOverlay"></div>
   <aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
@@ -720,17 +1201,69 @@
     </div>
   </aside>
 
+  <div class="booking-overlay" id="bookingOverlay" role="dialog" aria-modal="true" aria-label="Book a discovery call">
+    <div class="booking-modal">
+      <div class="booking-header">
+        <h3>Book a discovery call</h3>
+        <button class="booking-close" id="bookingClose" aria-label="Close booking form" type="button">&#10005;</button>
+      </div>
+      <div class="booking-body" id="bookingBody">
+        <form id="bookingForm" novalidate>
+          <div class="booking-field" id="fieldName">
+            <label for="bName">Full name</label>
+            <input type="text" id="bName" name="name" placeholder="Your full name" required />
+            <span class="error-msg">Please enter your name.</span>
+          </div>
+          <div class="booking-field" id="fieldEmail">
+            <label for="bEmail">Email</label>
+            <input type="email" id="bEmail" name="email" placeholder="you@example.com" autocomplete="email" required />
+            <span class="error-msg">Please enter a valid email.</span>
+          </div>
+          <div class="booking-field" id="fieldPhone">
+            <label for="bPhone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+            <input type="tel" id="bPhone" name="phone" placeholder="+353 ..." autocomplete="tel" />
+          </div>
+          <div class="booking-row">
+            <div class="booking-field" id="fieldDate">
+              <label for="bDate">Preferred date</label>
+              <input type="date" id="bDate" name="date" required />
+              <span class="error-msg">Please choose a date.</span>
+            </div>
+            <div class="booking-field" id="fieldTime">
+              <label for="bTime">Preferred time</label>
+              <input type="time" id="bTime" name="time" required />
+              <span class="error-msg">Please choose a time.</span>
+            </div>
+          </div>
+          <div class="booking-field" id="fieldMessage">
+            <label for="bMessage">What would you like to discuss?</label>
+            <textarea id="bMessage" name="message" placeholder="Tell us a little about what you are looking for..."></textarea>
+          </div>
+        </form>
+        <div class="booking-confirmation" id="bookingConfirm">
+          <div class="confirm-icon" aria-hidden="true">&#10003;</div>
+          <h4>You&rsquo;re in</h4>
+          <p>We&rsquo;ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">info@asa-oz.com</a>.</p>
+        </div>
+      </div>
+      <div class="booking-footer" id="bookingFooter">
+        <button type="button" class="booking-btn booking-btn-secondary" id="bookingCancel">Cancel</button>
+        <button type="submit" class="booking-btn booking-btn-primary" form="bookingForm">Request booking</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
       document.getElementById("year").textContent = new Date().getFullYear();
 
       var products = [
-        { id: 'journal', name: 'The Return Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
+        { id: 'journal', name: 'Reflection Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
         { id: 'print', name: 'Heritage Print', type: 'physical', price: 18, img: 'https://picsum.photos/seed/asaoz-print/600/450', desc: 'A keepsake art print rooted in heritage and memory.' },
         { id: 'session', name: 'Identity Circle Session', type: 'virtual', price: 12, img: 'https://picsum.photos/seed/asaoz-circle/600/450', desc: 'Join an online guided circle to share and be seen.' },
         { id: 'story', name: 'Cultural Storytelling Access', type: 'virtual', price: 8, img: 'https://picsum.photos/seed/asaoz-story/600/450', desc: 'Digital collection of stories that remember you.' },
         { id: 'kit', name: 'Journey Kit', type: 'physical', price: 35, img: 'https://picsum.photos/seed/asaoz-kit/600/450', desc: 'Pre-trip materials to prepare mind and heart for travel.' },
-        { id: 'letter', name: 'Renewal Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
+        { id: 'letter', name: 'Welcome Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
       ];
 
       function getQueryParam(name) {
@@ -831,7 +1364,7 @@
         var checkoutBtn = document.getElementById('cartCheckout');
         if (cart.length === 0) {
           itemsEl.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
-          totalEl.textContent = '&euro;0';
+          totalEl.textContent = '€0';
           checkoutBtn.disabled = true;
         } else {
           itemsEl.innerHTML = cart.map(function(item) {
@@ -851,7 +1384,7 @@
             '</div>';
           }).join('');
           var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
-          totalEl.textContent = '&euro;' + total;
+          totalEl.textContent = '€' + total;
           checkoutBtn.disabled = false;
           itemsEl.querySelectorAll('.cart-item-qty button').forEach(function(b) {
             b.addEventListener('click', function() { changeQty(b.getAttribute('data-id'), parseInt(b.getAttribute('data-delta'), 10)); });
@@ -870,13 +1403,189 @@
       document.getElementById('cartOverlay').addEventListener('click', closeCart);
 
       document.getElementById('cartCheckout').addEventListener('click', function() {
-        var lines = cart.map(function(i){ var p = getProduct(i.id); return (p ? p.name + ' x' + i.qty + ' = &euro;' + (p.price * i.qty) : ''); });
+        var lines = cart.map(function(i){ var p = getProduct(i.id); return (p ? p.name + ' x' + i.qty + ' = €' + (p.price * i.qty) : ''); });
         var total = cart.reduce(function(a,b){ var p = getProduct(b.id); return a + (p ? p.price * b.qty : 0); }, 0);
-        var body = lines.join('%0D%0A') + '%0D%0ATotal: &euro;' + total + '%0D%0A%0D%0APlease confirm availability and payment options.';
+        var body = lines.join('%0D%0A') + '%0D%0ATotal: €' + total + '%0D%0A%0D%0APlease confirm availability and payment options.';
         window.location.href = 'mailto:info@asa-oz.com?subject=Order%20Enquiry&body=' + body;
       });
 
       document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
+
+      // ---- Booking: Discovery Call ----
+      (function() {
+        if (!document.getElementById('bookingOverlay')) return;
+
+        var overlay = document.getElementById('bookingOverlay');
+        var modal = overlay.querySelector('.booking-modal');
+        var trigger = document.getElementById('bookingTrigger');
+        var headerTrigger = document.getElementById('headerBookingTrigger');
+        var closeBtn = document.getElementById('bookingClose');
+        var cancelBtn = document.getElementById('bookingCancel');
+        var form = document.getElementById('bookingForm');
+        var confirmEl = document.getElementById('bookingConfirm');
+        var bookingFooter = document.getElementById('bookingFooter');
+        var bookingBody = document.getElementById('bookingBody');
+
+        function openBooking() {
+          if (!overlay) return;
+          overlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeBooking() {
+          if (!overlay) return;
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function resetForm() {
+          form.reset();
+          Object.keys(form.elements).forEach(function(k) {
+            var el = form.elements[k];
+            var field = el.closest ? el.closest('.booking-field') : null;
+            if (field) field.classList.remove('is-invalid');
+          });
+          if (confirmEl) confirmEl.style.display = 'none';
+          if (form) form.style.display = 'block';
+          if (bookingFooter) bookingFooter.style.display = 'flex';
+        }
+
+        function validateField(field) {
+          var input = field.querySelector('input, textarea');
+          if (!input) return true;
+          if (input.hasAttribute('required') && !input.value.trim()) {
+            field.classList.add('is-invalid');
+            return false;
+          }
+          if (input.type === 'email' && input.value.trim()) {
+            var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(input.value.trim())) {
+              field.classList.add('is-invalid');
+              return false;
+            }
+          }
+          field.classList.remove('is-invalid');
+          return true;
+        }
+
+        function showConfirmation() {
+          if (form) form.style.display = 'none';
+          if (bookingFooter) bookingFooter.style.display = 'none';
+          if (confirmEl) {
+            confirmEl.style.display = 'flex';
+            setTimeout(closeBooking, 4000);
+          }
+        }
+
+        if (trigger) {
+          trigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+          trigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
+        }
+        if (headerTrigger) {
+          headerTrigger.addEventListener('click', function(e) { e.preventDefault(); openBooking(); });
+          headerTrigger.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBooking(); } });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeBooking);
+        if (cancelBtn) cancelBtn.addEventListener('click', function() { closeBooking(); resetForm(); });
+
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) { closeBooking(); resetForm(); }
+        });
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var fields = form.querySelectorAll('.booking-field');
+          var valid = true;
+          fields.forEach(function(f) { if (!validateField(f)) valid = false; });
+          if (!valid) return;
+
+          var data = {
+            name: (document.getElementById('bName').value || '').trim(),
+            email: (document.getElementById('bEmail').value || '').trim(),
+            phone: (document.getElementById('bPhone').value || '').trim(),
+            date: document.getElementById('bDate').value,
+            time: document.getElementById('bTime').value,
+            message: (document.getElementById('bMessage').value || '').trim()
+          };
+
+          var subject = encodeURIComponent('Discovery Call Request - ' + data.name);
+          var body = encodeURIComponent(
+            'Hi Asa-OZ team,%0D%0A%0D%0A' +
+            'I would like to book a discovery call.%0D%0A%0D%0A' +
+            'Name: ' + data.name + '%0D%0A' +
+            'Email: ' + data.email + '%0D%0A' +
+            'Phone: ' + (data.phone || 'N/A') + '%0D%0A' +
+            'Preferred date: ' + data.date + '%0D%0A' +
+            'Preferred time: ' + data.time + '%0D%0A' +
+            'Message: ' + (data.message || 'N/A') + '%0D%0A%0D%0A' +
+            'Looking forward to hearing from you.'
+          );
+          var mailto = 'mailto:info@asa-oz.com?subject=' + subject + '&body=' + body;
+          window.location.href = mailto;
+          showConfirmation();
+        });
+
+        form.addEventListener('input', function() {
+          var fields = form.querySelectorAll('.booking-field');
+          fields.forEach(function(f) { validateField(f); });
+        });
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) { closeBooking(); resetForm(); } });
+      })();
+
+      // ---- Mobile menu ----
+      (function() {
+        var menu = document.getElementById('mobileMenu');
+        var toggle = document.getElementById('menuToggle');
+        var close = document.getElementById('menuClose');
+        if (!menu || !toggle || !close) return;
+
+        function openMenu() {
+          menu.classList.add('is-open');
+          menu.setAttribute('aria-hidden', 'false');
+          toggle.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        }
+        function closeMenu() {
+          menu.classList.remove('is-open');
+          menu.setAttribute('aria-hidden', 'true');
+          toggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
+        toggle.addEventListener('click', function() {
+          if (menu.classList.contains('is-open')) { closeMenu(); } else { openMenu(); }
+        });
+        close.addEventListener('click', closeMenu);
+        menu.addEventListener('click', function(e) {
+          if (e.target === menu) closeMenu();
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && menu.classList.contains('is-open')) { closeMenu(); toggle.focus(); }
+        });
+        var mobileLinks = menu.querySelectorAll('.mobile-menu-nav a');
+        mobileLinks.forEach(function(link) {
+          link.addEventListener('click', closeMenu);
+        });
+      })();
+
+      // ---- Back to top ----
+      (function() {
+        var btn = document.getElementById('backToTop');
+        if (!btn) return;
+        var threshold = 600;
+        function update() {
+          if (window.scrollY > threshold) { btn.classList.add('visible'); }
+          else { btn.classList.remove('visible'); }
+        }
+        update();
+        window.addEventListener('scroll', update, { passive: true });
+        btn.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+
       updateCartUI();
       renderProduct();
       var currentProductId = (function() {

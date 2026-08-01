@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asa-OZ — Store</title>
+  <title>Terms — Asa-OZ</title>
   <meta name="theme-color" content="#2b2118" />
+  <meta name="description" content="Terms and conditions for Asa-OZ — company details, refunds, bookings, and what Asa-OZ does and does not offer." />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
 
@@ -924,6 +925,53 @@
     @media (max-width: 560px) {
       .back-to-top { right: 0.9rem; bottom: 1rem; width: 36px; height: 36px; }
     }
+    .cart-toggle { display: none; }
+    .page-section {
+      position: relative;
+      z-index: 2;
+      padding: clamp(2.5rem, 6vh, 4.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .page-block {
+      margin-bottom: 2.4rem;
+    }
+    .page-block h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      color: var(--espresso);
+      margin-bottom: 0.8rem;
+    }
+    .page-block h3 {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 1rem;
+      color: var(--espresso);
+      margin: 1rem 0 0.4rem;
+    }
+    .page-block p {
+      color: var(--ink);
+      line-height: 1.75;
+      max-width: 68ch;
+      margin: 0.5rem 0;
+    }
+    .page-block ul {
+      color: var(--ink);
+      line-height: 1.8;
+      padding-left: 1.2rem;
+      margin: 0.6rem 0;
+      max-width: 68ch;
+    }
+    .legal-note {
+      margin-top: 1rem;
+      padding: 1rem 1.2rem;
+      background: rgba(138, 154, 91, 0.08);
+      border: 1px solid rgba(138, 154, 91, 0.2);
+      border-radius: 14px;
+      font-size: 0.88rem;
+      color: var(--ink);
+      max-width: 68ch;
+    }
   </style>
 </head>
   <body>
@@ -945,7 +993,7 @@
       <nav class="main-nav" aria-label="Main">
         <a href="/index.html">Home</a>
         <a href="/about.html">About</a>
-        <a href="/store.html" class="active">Store</a>
+        <a href="/store.html">Store</a>
         <a href="/faq.html">FAQ</a>
         <a href="/contact.html">Contact</a>
       </nav>
@@ -1000,21 +1048,58 @@
 
     <main>
       <section class="store-hero">
-        <h1 class="reveal">Tools for the journey</h1>
-        <p class="lede reveal">Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.</p>
+        <p class="eyebrow reveal">Terms &amp; Conditions</p>
+        <h1 class="reveal">Terms &amp; Conditions</h1>
+        <p class="lede reveal">A few straightforward points about how Asa-OZ works.</p>
       </section>
 
-      <section class="store-section" aria-label="Shop">
-        <div class="store-filters reveal">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="physical">Physical</button>
-          <button class="filter-btn" data-filter="virtual">Virtual</button>
+      <section class="page-section" aria-label="Terms and conditions">
+        <div class="page-block reveal">
+          <h2>About this website</h2>
+          <p>This website is operated by Ifeoma, trading as Asa-OZ, a sole trader based in Ireland. RC No: Not applicable (sole trader). Contact email: <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);">info@asa-oz.com</a>.</p>
         </div>
-        <div class="store-grid" id="storeGrid"></div>
-        <section class="similar-section" aria-label="You may also like">
-          <h2 class="reveal">You may also like</h2>
-          <div class="similar-grid" id="similarGrid"></div>
-        </section>
+
+        <div class="page-block reveal">
+          <h2>What Asa-OZ offers</h2>
+          <p>Asa-OZ is a guided cultural and personal development experience for adults aged 45 and above. It brings people together through online sessions, community gatherings, and curated cultural journeys. It does not sell travel packages — participants arrange and book their own travel.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Important — what Asa-OZ is not</h2>
+          <p>Asa-OZ is not psychotherapy, counselling, a medical service, or spiritual or energy work. It is not a substitute for licensed mental health care. If you need professional support, please contact a qualified professional.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Payments &amp; refunds</h2>
+          <p>Refunds apply only to programme fees for identity circles or cultural events.</p>
+          <ul>
+            <li>Full refund available up to 48 hours before the event.</li>
+            <li>No refund within 48 hours of the event start.</li>
+          </ul>
+          <p>Membership pricing and fees are still being finalised and are subject to change. Prices shown on this site are illustrative until confirmed.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Bookings</h2>
+          <p>Bookings are confirmed by email. There is no instant online booking — enquiries are handled personally.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Privacy</h2>
+          <p>We collect only the information you choose to share with us (such as your email address) and use it to respond to you and to keep you informed. We do not sell personal data. This site sets only essential cookies until you choose otherwise.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Content &amp; photography</h2>
+          <p>Some images on this site are placeholders or stock photography used in the interim before photos from real experiences are available.</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>Changes to these terms</h2>
+          <p>These terms may be updated as Asa-OZ grows. The latest version will always be available on this page.</p>
+        </div>
+
+        <div class="legal-note reveal">If you have any questions about these terms, please contact <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);">info@asa-oz.com</a>.</div>
       </section>
     </main>
 
@@ -1088,7 +1173,7 @@
         <nav class="mobile-menu-nav" aria-label="Mobile">
           <a href="/index.html">Home</a>
           <a href="/about.html">About</a>
-          <a href="/store.html" class="active">Store</a>
+          <a href="/store.html">Store</a>
           <a href="/faq.html">FAQ</a>
           <a href="/contact.html">Contact</a>
         </nav>
