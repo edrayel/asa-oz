@@ -269,33 +269,8 @@
          transform: translateX(-50%) scaleX(1);
          background: var(--sage-deep);
        }
-      .status-pill {
-       display: inline-flex;
-       align-items: center;
-       gap: 0.55rem;
-       font-size: 0.72rem;
-       letter-spacing: 0.22em;
-       text-transform: uppercase;
-       color: var(--espresso);
-       border: 1px solid rgba(111, 90, 63, 0.32);
-       padding: 0.5rem 0.95rem;
-       border-radius: 100px;
-       background: rgba(255, 255, 255, 0.65);
-       backdrop-filter: blur(6px);
-     }
-    .status-pill .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--sage);
-      box-shadow: 0 0 0 0 rgba(138, 154, 91, 0.6);
-      animation: pulse 2.4s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(138,154,91,0.55); }
-      70% { box-shadow: 0 0 0 9px rgba(138,154,91,0); }
-      100% { box-shadow: 0 0 0 0 rgba(138,154,91,0); }
-    }
 
-    /* ---------- Mobile menu ---------- */
+      /* ---------- Mobile menu ---------- */
     .header-booking-text { display: inline; }
     .header-booking-icon { display: none; }
     .menu-toggle { display: none; }
@@ -1328,6 +1303,22 @@
       margin-bottom: 1.1rem;
     }
     .ethos .founder p:last-child { margin-bottom: 0; }
+    .ethos .founder .founder-more { margin: 1.2rem 0 0; }
+    .ethos .founder .founder-more a {
+      display: inline-block;
+      padding: 0.55rem 1.2rem;
+      border: 1px solid var(--sage-deep);
+      border-radius: 999px;
+      color: var(--sage-deep);
+      font-family: var(--serif);
+      font-size: 0.98rem;
+      letter-spacing: 0.02em;
+      transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .ethos .founder .founder-more a:hover {
+      background: var(--sage-deep);
+      color: var(--cream);
+    }
     .ethos .founder .name {
       font-family: var(--serif);
       font-size: 1.15rem;
@@ -1533,7 +1524,7 @@
 
     /* ---------- Print ---------- */
     @media print {
-      .ambience, .grain, .status-pill, .signup form, .signup .note, .signup .msg { display: none !important; }
+      .ambience, .grain, .signup form, .signup .note, .signup .msg { display: none !important; }
       body { background: #fff; color: #000; }
       * { animation: none !important; transition: none !important; }
     }
@@ -1653,6 +1644,25 @@
     .faq details .answer p { margin: 0 0 0.6rem; }
     .faq details .answer p:last-child { margin-bottom: 0; }
     .faq details .answer em { color: var(--sage-deep); font-style: italic; }
+    .faq .faq-more {
+      margin-top: 1.2rem;
+      font-size: 0.98rem;
+    }
+    .faq .faq-more a {
+      display: inline-block;
+      padding: 0.55rem 1.2rem;
+      border: 1px solid var(--sage-deep);
+      border-radius: 999px;
+      color: var(--sage-deep);
+      font-family: var(--serif);
+      font-size: 0.98rem;
+      letter-spacing: 0.02em;
+      transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .faq .faq-more a:hover {
+      background: var(--sage-deep);
+      color: var(--cream);
+    }
 
     /* ---------- Pricing ---------- */
     .pricing-section {
@@ -2059,8 +2069,8 @@
        .founder-credentials { bottom: 0.6rem; gap: 0.4rem; }
        .founder-credential { font-size: 0.62rem; padding: 0.28rem 0.6rem; }
      }
-     @media (max-width: 560px) {
-       .status-pill { display: none; }
+      @media (max-width: 560px) {
+
        .main-nav { display: none; }
        .header-social { display: none; }
        .header-booking-text { display: none; }
@@ -2570,30 +2580,11 @@
             we thought were lost.”
           </p>
           <p>
-            “Along the way, I met countless people whose lives had been shaped by responsibility.
-            They had spent years building careers, raising families, caring for loved ones, and
-            putting everyone else first. Yet many quietly admitted they felt disconnected from
-            themselves and unsure of what the next chapter of life should look like.”
-          </p>
-          <p>“I understood that feeling.”</p>
-          <p>“That's why I created Asa-OZ.”</p>
-          <p>
             “Asa-OZ is designed for adults aged 45 and above who are ready for something more than
-            another holiday. It is for those seeking meaningful experiences, genuine human
-            connection, cultural discovery, and the chance to embrace life with renewed purpose.”
-          </p>
-          <p>
-            “This is not about escaping your life. It is about returning to yourself.”
-          </p>
-          <p>
-            “Through thoughtfully curated journeys, shared experiences, and supportive community,
-            I will walk alongside you as you discover new places, build lasting friendships, and
-            reconnect with the joy, confidence, and sense of belonging that may have faded over
+            another holiday. Through thoughtfully curated journeys, shared experiences, and supportive
+            community, I will walk alongside you as you discover new places, build lasting friendships,
+            and reconnect with the joy, confidence, and sense of belonging that may have faded over
             time.”
-          </p>
-          <p>
-            “Because no matter where life has taken you, there is always room for new memories, new
-            friendships, and new beginnings.”
           </p>
           <p class="founder-signature">
             “You are not starting over. You are simply discovering a deeper, richer version of yourself.”
@@ -2602,6 +2593,7 @@
             <span class="name">Ifeoma Adaora</span><br />
             <span class="role">Founder &amp; Cultural Guide</span>
           </p>
+          <p class="founder-more"><a href="/about.html">More about Asa-OZ and the story behind it &rarr;</a></p>
         </div>
       </section>
 
@@ -2623,90 +2615,6 @@
         </details>
 
         <details class="reveal">
-          <summary>What do I receive after joining?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Online events, group identity circles, cultural talks and storytelling sessions, hosted trips and curated journeys, and community membership.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>How long is the programme?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Programme length varies. Some experiences are one-off gatherings; others form part of an ongoing journey. Details will be shared as we finalise the calendar.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Is it online or in person?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Both. We begin with guided online sessions to build connection, then move into in-person community experiences and curated cultural journeys.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>How much does it cost?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Membership fees are still being finalised. Join the waitlist to be the first to know when pricing is confirmed.</p>
-          </div>
-        </details>
-
-        <details class="reveal" id="faqPricing">
-          <summary>Why charge for the journey?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Our approach balances accessibility with commitment. We believe in building community first, and we design our programmes so that investment — whether free or paid — helps participants show up more fully. Paid programmes often signal value and encourage deeper engagement, while free community events ensure no one is excluded. The exact mix will evolve with your feedback.</p>
-          </div>
-        </details>
-
-        <div id="freeFirstNote" style="display:none; margin-top:1rem; padding:1rem 1.2rem; background:rgba(138,154,91,0.08); border:1px solid rgba(138,154,91,0.2); border-radius:14px; text-align:left;">
-          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--sage-deep);">Community first.</strong> Our initial circles and gatherings are free, because belonging should be accessible to everyone. Paid tiers come later, once the community is thriving.</p>
-        </div>
-        <div id="commitmentNote" style="display:none; margin-top:0.75rem; padding:1rem 1.2rem; background:rgba(111,90,63,0.06); border:1px solid rgba(111,90,63,0.18); border-radius:14px; text-align:left;">
-          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--espresso);">Investment signals intention.</strong> Research and experience show that when people invest in a programme, they tend to engage more deeply and take it more seriously. We design our paid offerings to honour that commitment.</p>
-        </div>
-
-        <details class="reveal">
-          <summary>Which countries or cultures will be explored?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>We are starting in Ireland, with plans to expand. Destinations will be announced as our community grows.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>How often are experiences organised?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>The calendar is still forming. We expect a mix of regular online sessions, monthly in-person circles, and periodic curated journeys. Exact cadence to be confirmed soon.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Is it UK/Ireland-based or international?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>We are Ireland-based, with ambitions to grow internationally over time.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>When do journeys take place?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Dates will be shared as journeys are confirmed. Join the waitlist and we will reach out with the first invitations.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>Can I join from another country?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>Yes. Many of our online sessions are open internationally. In-person journeys may be Ireland-based initially, but international participation is welcome where possible.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
-          <summary>What happens after I register?<span class="sign" aria-hidden="true"></span></summary>
-          <div class="answer">
-            <p>You will receive a welcome message with next steps, including invitations to upcoming online sessions and community events.</p>
-          </div>
-        </details>
-
-        <details class="reveal">
           <summary>Is this therapy?<span class="sign" aria-hidden="true"></span></summary>
           <div class="answer">
             <p>No. Asa-OZ is a guided cultural and personal development experience. It is not psychotherapy or a substitute for licensed mental-health care.</p>
@@ -2719,6 +2627,15 @@
             <p>No. Participants book their own travel. Asa-OZ provides cultural hosting and identity experiences — the grounding, the community, and the guidance that make the journey meaningful.</p>
           </div>
         </details>
+
+        <div id="freeFirstNote" style="display:none; margin-top:1rem; padding:1rem 1.2rem; background:rgba(138,154,91,0.08); border:1px solid rgba(138,154,91,0.2); border-radius:14px; text-align:left;">
+          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--sage-deep);">Community first.</strong> Our initial circles and gatherings are free, because belonging should be accessible to everyone. Paid tiers come later, once the community is thriving.</p>
+        </div>
+        <div id="commitmentNote" style="display:none; margin-top:0.75rem; padding:1rem 1.2rem; background:rgba(111,90,63,0.06); border:1px solid rgba(111,90,63,0.18); border-radius:14px; text-align:left;">
+          <p style="font-size:0.9rem; color:var(--ink); margin:0;"><strong style="color:var(--espresso);">Investment signals intention.</strong> Research and experience show that when people invest in a programme, they tend to engage more deeply and take it more seriously. We design our paid offerings to honour that commitment.</p>
+        </div>
+
+        <p class="faq-more reveal"><a href="/faq.html">Have more questions? See all of them on the FAQ page &rarr;</a></p>
       </section>
 
       <section class="pricing-section" aria-label="Membership and pricing">

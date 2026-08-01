@@ -249,32 +249,6 @@
         transform: translateX(-50%) scaleX(1);
         background: var(--sage-deep);
       }
-     .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--espresso);
-      border: 1px solid rgba(111, 90, 63, 0.32);
-      padding: 0.5rem 0.95rem;
-      border-radius: 100px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(6px);
-    }
-    .status-pill .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--sage);
-      box-shadow: 0 0 0 0 rgba(138, 154, 91, 0.6);
-      animation: pulse 2.4s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(138,154,91,0.55); }
-      70% { box-shadow: 0 0 0 9px rgba(138,154,91,0); }
-      100% { box-shadow: 0 0 0 0 rgba(138,154,91,0); }
-    }
-
     /* ---------- Mobile menu ---------- */
     .header-booking-text { display: inline; }
     .header-booking-icon { display: none; }
@@ -857,7 +831,6 @@
     }
 
     @media (max-width: 560px) {
-      .status-pill { display: none; }
       .main-nav { display: none; }
       .header-social { display: none; }
       .header-booking-text { display: none; }
@@ -1070,10 +1043,6 @@
         </a>
       </div>
       <div class="header-actions">
-        <div class="status-pill">
-          <span class="dot"></span>
-          Arriving soon
-        </div>
         <button type="button" class="header-booking" id="headerBookingTrigger">
           <span class="header-booking-text">Book a discovery call</span>
           <svg class="header-booking-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1145,7 +1114,13 @@
             <img src="/images/founder/ifeoma-adaora.jpg" alt="Ifeoma Adaora, Founder and Cultural Guide of Asa-OZ" loading="lazy" />
             <div>
               <p>My name is Ifeoma Adaora, and for more than 25 years I have traveled the world, discovering that travel can do much more than take us to new places. It can restore confidence, create meaningful connections, and help us rediscover parts of ourselves we thought were lost.</p>
-              <p>I created Asa-OZ for adults 45+ who are ready for something more than another holiday. Through thoughtfully curated journeys, shared experiences, and supportive community, I walk alongside you as you discover new places, build lasting friendships, and reconnect with the joy, confidence, and sense of belonging that may have faded over time.</p>
+              <p>Along the way, I met countless people whose lives had been shaped by responsibility. They had spent years building careers, raising families, caring for loved ones, and putting everyone else first. Yet many quietly admitted they felt disconnected from themselves and unsure of what the next chapter of life should look like.</p>
+              <p>I understood that feeling. That's why I created Asa-OZ.</p>
+              <p>Asa-OZ is designed for adults aged 45 and above who are ready for something more than another holiday. It is for those seeking meaningful experiences, genuine human connection, cultural discovery, and the chance to embrace life with renewed purpose.</p>
+              <p>This is not about escaping your life. It is about returning to yourself.</p>
+              <p>Through thoughtfully curated journeys, shared experiences, and supportive community, I will walk alongside you as you discover new places, build lasting friendships, and reconnect with the joy, confidence, and sense of belonging that may have faded over time.</p>
+              <p>Because no matter where life has taken you, there is always room for new memories, new friendships, and new beginnings.</p>
+              <p>You are not starting over. You are simply discovering a deeper, richer version of yourself.</p>
               <p class="name">Ifeoma Adaora</p>
               <p class="role">Founder &amp; Cultural Guide</p>
             </div>
