@@ -4037,10 +4037,10 @@
           });
         }
 
-        // Pricing section toggle
+        // Pricing section toggle — off by default (visible only when explicitly enabled)
         var pricingSection = document.querySelector('.pricing-section');
         if (pricingSection) {
-          pricingSection.style.display = settings.showPricing === false ? 'none' : '';
+          pricingSection.style.display = settings.showPricing === true ? '' : 'none';
         }
 
         // Monthly/yearly toggle
