@@ -1,7 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Shell(git:*)"
+      "Shell(git:*)",
+      "Shell()",
+      "Shell(google-chrome:*)",
+      "Shell(sleep:*)",
+      "Shell(curl -s http://127.0.0.1:9299/json/list)",
+      "Shell(node wall.cdp.js index.html 2400 2 >& 1)",
+      "Shell(ls:*)",
+      "Shell(node wall.cdp.js index.html 2600 2 >& 1)",
+      "Shell(node wall_spin.cdp.js 2 >& 1)",
+      "Shell(node wall_count.cdp.js 2 >& 1)",
+      "Shell(node validate.cdp.js 2 >& 1)",
+      "Shell(timeout 40 node validate2.cdp.js 2 >& 1)",
+      "Shell(pkill:*)",
+      "Shell(ps:*)",
+      "Shell(timeout 25 node founder2.cdp.js 2 >& 1)",
+      "Shell(grep:*)",
+      "Shell(awk:*)"
     ],
     "deny": [],
     "defaultMode": "default"

@@ -3333,9 +3333,11 @@
       (function() {
         if (!document.querySelector('.wall-overlay')) return;
 
-        var ARC_SPAN = 140 * Math.PI / 180;
+        // Full 360° ring. COLS matches the image count (see loadWallImages
+        // fallback) so the ring tiles seamlessly with no visible seam.
+        var ARC_SPAN = 2 * Math.PI;
         var ROWS = 3;
-        var COLS = 4;
+        var COLS = 21;
         var RADIUS = 4.5;
         var FOV = 60 * Math.PI / 180;
         var HALF_FOV = FOV / 2;
@@ -3495,7 +3497,7 @@
           renderer.setSize(window.innerWidth, window.innerHeight);
           renderer.domElement.style.touchAction = 'none';
           canvasWrap.appendChild(renderer.domElement);
-          var colStep = ARC_SPAN / (COLS - 1);
+          var colStep = ARC_SPAN / COLS;
           var tileW = 2.0, tileH = 1.3;
           var entranceStart = performance.now();
           // Refresh the image list from the directory so new uploads appear.
@@ -3505,7 +3507,7 @@
           }
           for (var row = 0; row < ROWS; row++) {
             for (var col = 0; col < COLS; col++) {
-              var angle = (col - (COLS - 1) / 2) * colStep;
+              var angle = col * colStep;
               var x = RADIUS * Math.sin(angle);
               var z = -RADIUS * Math.cos(angle);
               var y = (row - (ROWS - 1) / 2) * 1.55;
@@ -3576,7 +3578,7 @@
           // clamping, so the arc can keep scrolling forever. A slow constant
           // drift keeps it moving when idle; interaction takes over while
           // dragging or flinging.
-          var DRIFT = 0.0016; // gentle idle rotation (rad/frame)
+          var DRIFT = 0.0011; // gentle idle rotation (rad/frame)
           if (!isDragging && Math.abs(velocityTheta) < 0.0006) {
             theta += DRIFT;
           }
@@ -3630,8 +3632,8 @@
           });
           el.addEventListener('wheel', function(e) {
             e.preventDefault();
-            velocityTheta += e.deltaY * 0.00025;
-            velocityTheta = Math.max(-0.03, Math.min(0.03, velocityTheta));
+            velocityTheta += e.deltaY * 0.00015;
+            velocityTheta = Math.max(-0.02, Math.min(0.02, velocityTheta));
           }, { passive: false });
 
           function requestOrientation() {
