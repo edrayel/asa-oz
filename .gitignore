@@ -15,3 +15,6 @@ dist/
 
 # Logs
 *.log
+
+# MCP config (contains API keys — never commit)
+.mcp.json

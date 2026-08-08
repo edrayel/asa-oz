@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Notice — Asa-OZ</title>
+  <meta name="theme-color" content="#2b2118" />
+  <meta name="description" content="Privacy notice for Asa-OZ: how we collect, use, and protect your personal information." />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --espresso: #2b2118;
+      --tobacco: #6f5a3f;
+      --cafe: #a67b5b;
+      --cafe-ink: #8a6038;
+      --sand: #c4a882;
+      --cream: #f4ece0;
+      --paper: #faf5ec;
+      --sage: #8a9a5b;
+      --sage-deep: #5f6d3d;
+      --ink: #3a2f22;
+      --muted: #7d6e5b;
+
+      --serif: "Fraunces", Georgia, "Times New Roman", serif;
+      --sans: "Jost", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      font-weight: 400;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection { background: var(--sage); color: var(--paper); }
+
+    a { color: inherit; text-decoration: none; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--espresso);
+      color: var(--paper);
+      padding: 8px 16px;
+      z-index: 10000;
+      border-radius: 0 0 8px 0;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: top 0.2s var(--ease);
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ---------- Ambient organic backdrop ---------- */
+    .ambience {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background:
+        radial-gradient(120% 90% at 15% 0%, #fbf6ed 0%, #f2e8d8 45%, #eaddc7 100%);
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.68;
+      mix-blend-mode: multiply;
+    }
+    .blob.b1 {
+      width: 46vw; height: 46vw; min-width: 340px; min-height: 340px;
+      top: -12vw; right: -8vw;
+      background: radial-gradient(circle at 30% 30%, #e3c79e, #c79a68 55%, #b07f4f);
+    }
+    .blob.b2 {
+      width: 40vw; height: 40vw; min-width: 300px; min-height: 300px;
+      bottom: -14vw; left: -10vw;
+      background: radial-gradient(circle at 40% 40%, #bcc88c, #8fa05c 55%, #65763d);
+      opacity: 0.52;
+    }
+    .blob.b3 {
+      width: 26vw; height: 26vw; min-width: 200px; min-height: 200px;
+      top: 45%; left: 55%;
+      background: radial-gradient(circle at 50% 50%, #f0dcb4, #d8bd86 55%, #c4a169);
+      opacity: 0.46;
+    }
+
+    /* ---------- Layout shell ---------- */
+    .shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 clamp(1.4rem, 5vw, 4rem);
+    }
+
+    /* Header/footer/mobile-menu chrome lives in /shared.css */
+
+    /* ---------- Page content ---------- */
+    main { padding: clamp(3rem, 8vw, 6rem) 0; }
+    .page-hero {
+      max-width: 760px;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+    .page-hero h1 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      line-height: 1.15;
+      color: var(--espresso);
+      margin-bottom: 1rem;
+    }
+    .page-hero p {
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--muted);
+    }
+    .legal-content {
+      max-width: 760px;
+    }
+    .legal-content h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.35rem;
+      color: var(--espresso);
+      margin: 2.2rem 0 0.8rem;
+    }
+    .legal-content p,
+    .legal-content li {
+      font-size: 0.98rem;
+      color: var(--ink);
+      margin-bottom: 0.85rem;
+    }
+    .legal-content ul {
+      margin-left: 1.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .legal-content a {
+      color: var(--sage-deep);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .legal-content a:hover { color: var(--espresso); }
+  </style>
+
+  <!-- Shared header / footer / mobile menu chrome -->
+  <link rel="stylesheet" href="/shared.css" />
+</head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="ambience" aria-hidden="true">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+    </div>
+
+    <div class="shell">
+      <div data-header></div>
+
+      <main id="main-content">
+        <div class="page-hero">
+          <h1>Privacy Notice</h1>
+          <p>Last updated: 8 August 2026</p>
+        </div>
+
+        <article class="legal-content">
+          <p>This privacy notice explains how Asa-OZ collects, uses, and protects your personal information when you use our website.</p>
+
+          <h2>1. Who we are</h2>
+          <p>Asa-OZ is a cultural identity restoration movement for adults 45+. For privacy questions, please contact us at <a href="mailto:info@asa-oz.com">info@asa-oz.com</a>.</p>
+
+          <h2>2. What information we collect</h2>
+          <p>We collect only the information you choose to provide, such as:</p>
+          <ul>
+            <li>Your name and email address when you join the waitlist or contact us</li>
+            <li>Your message when you use the contact form</li>
+            <li>Booking preferences when you request a discovery call</li>
+          </ul>
+          <p>We do not collect payment information on this website. All enquiries are handled by email.</p>
+
+          <h2>3. How we use your information</h2>
+          <p>We use your information to:</p>
+          <ul>
+            <li>Respond to your enquiries</li>
+            <li>Add you to our waitlist and notify you when we launch</li>
+            <li>Arrange discovery calls and bookings</li>
+            <li>Improve our website and services</li>
+          </ul>
+
+          <h2>4. Cookies</h2>
+          <p>We use strictly necessary cookies to make the site work. With your consent, we may use analytics cookies to understand how visitors find us. You can accept or reject non-essential cookies using the cookie banner.</p>
+
+          <h2>5. Your rights</h2>
+          <p>You have the right to access, correct, or delete your personal information. To exercise these rights, email us at <a href="mailto:info@asa-oz.com">info@asa-oz.com</a>.</p>
+
+          <h2>6. Data security</h2>
+          <p>Because this site is hosted as static files, form submissions are sent via your email client. We recommend using a secure email service. We do not store your information on web servers.</p>
+
+          <h2>7. Changes to this notice</h2>
+          <p>We may update this notice from time to time. The latest version will always be available on this page.</p>
+        </article>
+      </main>
+
+      <div data-footer></div>
+      <div data-mobile-menu></div>
+    </div>
+
+    <script src="/shared.js"></script>
+  </body>
+</html>

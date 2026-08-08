@@ -51,6 +51,21 @@
 
     a { color: inherit; text-decoration: none; }
 
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--espresso);
+      color: var(--paper);
+      padding: 8px 16px;
+      z-index: 10000;
+      border-radius: 0 0 8px 0;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: top 0.2s var(--ease);
+    }
+    .skip-link:focus { top: 0; }
+
     /* ---------- Ambient organic backdrop ---------- */
     .ambience {
       position: fixed;
@@ -980,7 +995,8 @@
   </style>
 </head>
   <body>
-  <div class="ambience" aria-hidden="true">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="ambience" aria-hidden="true">
     <span class="blob b1"></span>
     <span class="blob b2"></span>
     <span class="blob b3"></span>
@@ -988,66 +1004,8 @@
   <div class="grain" aria-hidden="true"></div>
 
   <div class="shell">
-    <header>
-      <div class="brand">
-        <a href="/index.html" class="brand-link">
-          <span class="brand-logo-fallback">Asa-OZ</span>
-          <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
-        </a>
-      </div>
-      <nav class="main-nav" aria-label="Main">
-        <a href="/index.html">Home</a>
-        <a href="/about.html">About</a>
-        <a href="/store.html" class="active">Store</a>
-        <a href="/faq.html">FAQ</a>
-        <a href="/contact.html">Contact</a>
-      </nav>
-      <div class="header-social" aria-label="Social media">
-        <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-        </a>
-        <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        </a>
-        <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
-        </a>
-        <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
-        </a>
-        <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
-        </a>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="header-booking" id="headerBookingTrigger">
-          <span class="header-booking-text">Book a discovery call</span>
-          <svg class="header-booking-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-        </button>
-        <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-        <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-      </div>
-    </header>
-
-    <main>
+    <div data-header></div>
+<main id="main-content">
       <section class="store-hero">
         <a class="back-link reveal" href="/store.html">&larr; Back to the store</a>
         <div id="productDetail" class="product-detail reveal"></div>
@@ -1057,100 +1015,8 @@
         <div class="similar-grid" id="similarGrid"></div>
       </section>
     </main>
-
-    <footer>
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <b>Asa-OZ</b>
-          <p class="footer-tagline">A movement for identity, belonging & renewal.</p>
-          <div class="social-icons" aria-label="Social media">
-            <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-            <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            </a>
-            <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
-            </a>
-            <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
-            </a>
-            <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
-            </a>
-            <a href="https://linkedin.com/company/asa-oz" target="_blank" rel="noopener" aria-label="LinkedIn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            </a>
-          </div>
-        </div>
-        <div class="footer-contact">
-          <h4>Contact</h4>
-          <p>Sole Trader: Ifeoma t/a Asa-OZ · Ireland</p>
-          <p>RC No: Not applicable (sole trader)</p>
-          <p><a href="mailto:info@asa-oz.com">info@asa-oz.com</a></p>
-          <p>Phone: [to be added]</p>
-        </div>
-        <div class="footer-proof">
-          <h4>Explore</h4>
-          <a href="/about.html">About</a>
-          <a href="/faq.html">FAQ</a>
-          <a href="/contact.html">Contact</a>
-          <a href="/terms.html">Terms</a>
-        </div>
-        <div class="footer-proof">
-          <h4>Community</h4>
-          <a href="/index.html#signup">Join the waitlist</a>
-          <a href="/index.html#testimonials">Read testimonials</a>
-          <a href="/about.html">Community stories</a>
-        </div>
-      </div>
-      <div class="footer-legal">
-        <p class="refund-note">Refunds: full refund up to 48 hours before events; none within 48 hours of start.</p>
-        <p class="copy">&copy; <span id="year"></span> Asa-OZ. All rights reserved.</p>
-      </div>
-    </footer>
-
-    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-      <div class="mobile-menu-inner">
-        <div class="mobile-menu-header">
-          <a href="/index.html" class="brand-link">
-            <span class="brand-logo-fallback">Asa-OZ</span>
-            <img class="brand-logo-img" src="/images/logo.svg" alt="Asa-OZ" onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';" onerror="this.style.display='none'">
-          </a>
-          <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-        <nav class="mobile-menu-nav" aria-label="Mobile">
-          <a href="/index.html">Home</a>
-          <a href="/about.html">About</a>
-          <a href="/store.html" class="active">Store</a>
-          <a href="/faq.html">FAQ</a>
-          <a href="/contact.html">Contact</a>
-        </nav>
-        <div class="mobile-menu-social">
-          <a href="https://instagram.com/asa-oz" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </a>
-          <a href="https://facebook.com/asa-oz" target="_blank" rel="noopener" aria-label="Facebook">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </a>
-          <a href="https://x.com/asa-oz" target="_blank" rel="noopener" aria-label="X">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l11.733 -16h4.267l-11.733 16z"/></svg>
-          </a>
-          <a href="https://tiktok.com/@asa-oz" target="_blank" rel="noopener" aria-label="TikTok">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
-          </a>
-          <a href="https://youtube.com/@asa-oz" target="_blank" rel="noopener" aria-label="YouTube">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
-          </a>
-        </div>
-      </div>
-    </div>
+    <div data-footer></div>
+    <div data-mobile-menu></div>
   </div>
 
   <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">&#8593;</button>
@@ -1165,7 +1031,7 @@
       <p class="cart-empty">Your cart is empty.</p>
     </div>
     <div class="cart-footer">
-      <div class="cart-total"><span>Total</span><span id="cartTotal">&euro;0</span></div>
+      <div class="cart-total"><span>Total</span><span id="cartTotal">€0</span></div>
       <button class="cart-checkout" id="cartCheckout" disabled>Enquire to purchase</button>
     </div>
   </aside>
@@ -1222,18 +1088,13 @@
     </div>
   </div>
 
+  <script src="data.js"></script>
+  <script src="shared.js"></script>
   <script>
     (function () {
       document.getElementById("year").textContent = new Date().getFullYear();
 
-      var products = [
-        { id: 'journal', name: 'Reflection Journal', type: 'physical', price: 24, img: 'https://picsum.photos/seed/asaoz-journal/600/450', desc: 'A guided journal for identity reflection and rediscovery.' },
-        { id: 'print', name: 'Heritage Print', type: 'physical', price: 18, img: 'https://picsum.photos/seed/asaoz-print/600/450', desc: 'A keepsake art print rooted in heritage and memory.' },
-        { id: 'session', name: 'Identity Circle Session', type: 'virtual', price: 12, img: 'https://picsum.photos/seed/asaoz-circle/600/450', desc: 'Join an online guided circle to share and be seen.' },
-        { id: 'story', name: 'Cultural Storytelling Access', type: 'virtual', price: 8, img: 'https://picsum.photos/seed/asaoz-story/600/450', desc: 'Digital collection of stories that remember you.' },
-        { id: 'kit', name: 'Journey Kit', type: 'physical', price: 35, img: 'https://picsum.photos/seed/asaoz-kit/600/450', desc: 'Pre-trip materials to prepare mind and heart for travel.' },
-        { id: 'letter', name: 'Welcome Letter', type: 'virtual', price: 0, img: 'https://picsum.photos/seed/asaoz-letter/600/450', desc: 'A welcome letter and printable reflection guide.' }
-      ];
+      var products = window.ASA_PRODUCTS || [];
 
       function getQueryParam(name) {
         var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -1256,7 +1117,7 @@
             '<span class="product-badge ' + p.type + '">' + p.type + '</span>' +
             '<h1>' + p.name + '</h1>' +
             '<p class="product-desc">' + p.desc + '</p>' +
-            '<p class="product-price">' + (p.price === 0 ? 'Free' : '&euro;' + p.price) + '</p>' +
+            '<p class="product-price">' + (p.price === 0 ? 'Free' : '€' + p.price) + '</p>' +
             '<button class="product-add-btn" data-id="' + p.id + '">Add to cart</button>' +
           '</div>';
         container.querySelector('.product-add-btn').addEventListener('click', function() {
@@ -1285,7 +1146,7 @@
               '<span class="badge ' + p.type + '">' + p.type + '</span>' +
               '<h3>' + p.name + '</h3>' +
               '<p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">' + p.desc + '</p>' +
-              '<div class="price">' + (p.price === 0 ? 'Free' : '&euro;' + p.price) + '</div>' +
+              '<div class="price">' + (p.price === 0 ? 'Free' : '€' + p.price) + '</div>' +
               '<button class="add-btn" data-id="' + p.id + '">Add to cart</button>' +
             '</div>' +
           '</div>';
@@ -1342,7 +1203,7 @@
               '<div class="cart-item-img"><img src="' + p.img + '" alt="' + p.name + '" /></div>' +
               '<div class="cart-item-body">' +
                 '<h4>' + p.name + '</h4>' +
-                '<div class="meta">' + p.type + ' &middot; &euro;' + p.price + ' each</div>' +
+                '<div class="meta">' + p.type + ' &middot; €' + p.price + ' each</div>' +
                 '<div class="cart-item-qty">' +
                   '<button data-id="' + item.id + '" data-delta="-1" aria-label="Decrease">&#8722;</button>' +
                   '<span>' + item.qty + '</span>' +
@@ -1470,6 +1331,29 @@
           fields.forEach(function(f) { if (!validateField(f)) valid = false; });
           if (!valid) return;
 
+          var bDate = document.getElementById('bDate');
+          var bTime = document.getElementById('bTime');
+          var dateVal = bDate ? bDate.value : '';
+          var timeVal = bTime ? bTime.value : '';
+          if (dateVal) {
+            var now = new Date();
+            var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            var selectedDate = new Date(dateVal);
+            var dateField = bDate.closest ? bDate.closest('.booking-field') : null;
+            var timeField = bTime && bTime.closest ? bTime.closest('.booking-field') : null;
+            if (selectedDate < startOfToday) {
+              if (dateField) dateField.classList.add('is-invalid');
+              return;
+            }
+            if (timeVal) {
+              var selected = new Date(dateVal + 'T' + timeVal);
+              if (selected <= now) {
+                if (timeField) timeField.classList.add('is-invalid');
+                return;
+              }
+            }
+          }
+
           var data = {
             name: (document.getElementById('bName').value || '').trim(),
             email: (document.getElementById('bEmail').value || '').trim(),
@@ -1503,43 +1387,9 @@
 
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) { closeBooking(); resetForm(); } });
       })();
+      // ---- Mobile menu (handled by shared.js) ----
 
-      // ---- Mobile menu ----
-      (function() {
-        var menu = document.getElementById('mobileMenu');
-        var toggle = document.getElementById('menuToggle');
-        var close = document.getElementById('menuClose');
-        if (!menu || !toggle || !close) return;
-
-        function openMenu() {
-          menu.classList.add('is-open');
-          menu.setAttribute('aria-hidden', 'false');
-          toggle.setAttribute('aria-expanded', 'true');
-          document.body.style.overflow = 'hidden';
-        }
-        function closeMenu() {
-          menu.classList.remove('is-open');
-          menu.setAttribute('aria-hidden', 'true');
-          toggle.setAttribute('aria-expanded', 'false');
-          document.body.style.overflow = '';
-        }
-        toggle.addEventListener('click', function() {
-          if (menu.classList.contains('is-open')) { closeMenu(); } else { openMenu(); }
-        });
-        close.addEventListener('click', closeMenu);
-        menu.addEventListener('click', function(e) {
-          if (e.target === menu) closeMenu();
-        });
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && menu.classList.contains('is-open')) { closeMenu(); toggle.focus(); }
-        });
-        var mobileLinks = menu.querySelectorAll('.mobile-menu-nav a');
-        mobileLinks.forEach(function(link) {
-          link.addEventListener('click', closeMenu);
-        });
-      })();
-
-      // ---- Back to top ----
+// ---- Back to top ----
       (function() {
         var btn = document.getElementById('backToTop');
         if (!btn) return;

@@ -582,13 +582,32 @@
     try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch(e) { return []; }
   }
   function saveFeedback(f) { localStorage.setItem(FEEDBACK_KEY, JSON.stringify(f)); }
-  function getPassword() {
-    var p = localStorage.getItem(ADMIN_KEY);
-    return p ? JSON.parse(p).password : 'asa-oz-admin';
+
+  // Password is never stored in plain text. We keep only a SHA-256 hash in
+  // localStorage and track the authenticated session in sessionStorage.
+  var DEFAULT_PASSWORD = 'asa-oz-admin';
+  function hashPassword(pw) {
+    var encoder = new TextEncoder();
+    return crypto.subtle.digest('SHA-256', encoder.encode(pw)).then(function(buf) {
+      return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    });
   }
-  function savePassword(pw) {
-    localStorage.setItem(ADMIN_KEY, JSON.stringify({ password: pw || 'asa-oz-admin' }));
+  var defaultHashPromise = hashPassword(DEFAULT_PASSWORD);
+  function getStoredHash() {
+    try { var p = JSON.parse(localStorage.getItem(ADMIN_KEY)); return p && p.hash ? p.hash : null; } catch(e) { return null; }
   }
+  function savePasswordHash(h) { localStorage.setItem(ADMIN_KEY, JSON.stringify({ hash: h })); }
+
+  // One-time migration from legacy plaintext storage.
+  (function migrateLegacyPassword() {
+    try {
+      var p = JSON.parse(localStorage.getItem(ADMIN_KEY));
+      if (p && p.password) {
+        hashPassword(p.password).then(savePasswordHash);
+      }
+    } catch(e) {}
+  })();
+
   function isAuthed() {
     return sessionStorage.getItem('asa-oz-authed') === '1';
   }
@@ -706,14 +725,18 @@
 
   document.getElementById('adminLogin').addEventListener('click', function() {
     var pw = document.getElementById('adminPassword').value;
-    if (pw === getPassword()) {
-      setAuthed(true);
-      document.getElementById('loginError').style.display = 'none';
-      document.getElementById('adminPassword').value = '';
-      showDashboard();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
+    Promise.all([hashPassword(pw), defaultHashPromise]).then(function(results) {
+      var inputHash = results[0];
+      var expectedHash = getStoredHash() || results[1];
+      if (inputHash === expectedHash) {
+        setAuthed(true);
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('adminPassword').value = '';
+        showDashboard();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    });
   });
   document.getElementById('adminPassword').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') document.getElementById('adminLogin').click();
@@ -744,7 +767,7 @@
   document.getElementById('savePassword').addEventListener('click', function() {
     var pw = document.getElementById('newPassword').value;
     if (!pw || pw.length < 4) { alert('Password must be at least 4 characters.'); return; }
-    savePassword(pw);
+    hashPassword(pw).then(savePasswordHash);
     document.getElementById('newPassword').value = '';
     alert('Password saved.');
   });
