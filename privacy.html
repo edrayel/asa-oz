@@ -218,6 +218,67 @@
       <div data-mobile-menu></div>
     </div>
 
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
+      <div class="cart-header">
+        <h3>Your cart</h3>
+        <button class="cart-close" id="cartClose" aria-label="Close cart">&#10005;</button>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <p class="cart-empty">Your cart is empty.</p>
+      </div>
+      <div class="cart-footer">
+        <div class="cart-total"><span>Total</span><span id="cartTotal">€0</span></div>
+        <button class="cart-checkout" id="cartCheckout" disabled>Enquire to purchase</button>
+      </div>
+    </aside>
+
     <script src="/shared.js"></script>
+    <script>
+      (function () {
+        var cartKey = 'asa-oz-cart';
+        var cartOpen = false;
+        var cart = [];
+        try { var s = localStorage.getItem(cartKey); if (s) cart = JSON.parse(s); } catch (e) {}
+
+        function cartCount() { return cart.reduce(function (a, b) { return a + (b.qty || 0); }, 0); }
+        function updateCartUI() {
+          var count = cartCount();
+          var countEl = document.getElementById('cartCount');
+          if (countEl) {
+            countEl.textContent = count;
+            countEl.classList.toggle('show', count > 0);
+          }
+          var totalEl = document.getElementById('cartTotal');
+          if (totalEl) totalEl.textContent = '€0';
+          var checkout = document.getElementById('cartCheckout');
+          if (checkout) checkout.disabled = true;
+        }
+        function openCart() {
+          cartOpen = true;
+          document.getElementById('cartDrawer').classList.add('open');
+          document.getElementById('cartOverlay').classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+        function closeCart() {
+          cartOpen = false;
+          document.getElementById('cartDrawer').classList.remove('open');
+          document.getElementById('cartOverlay').classList.remove('open');
+          document.body.style.overflow = '';
+        }
+
+        var toggle = document.getElementById('cartToggle');
+        if (toggle) toggle.addEventListener('click', openCart);
+        var close = document.getElementById('cartClose');
+        if (close) close.addEventListener('click', closeCart);
+        var overlay = document.getElementById('cartOverlay');
+        if (overlay) overlay.addEventListener('click', closeCart);
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && cartOpen) closeCart();
+        });
+
+          updateCartUI();
+        })();
+      </script>
   </body>
 </html>
