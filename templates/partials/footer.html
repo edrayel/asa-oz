@@ -1,0 +1,34 @@
+{% from "partials/macros.html" import social_links %}
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <b>Asa-OZ</b>
+      <p class="footer-tagline">{{ settings.get('site_tagline', 'A movement for identity, belonging & renewal.') }}</p>
+      <div class="social-icons" aria-label="Social media">{{ social_links(18) }}</div>
+    </div>
+    <div class="footer-contact">
+      <h4>Contact</h4>
+      <p>{{ settings.get('site_legal', 'Sole Trader: Ifeoma t/a Asa-OZ · Ireland') }}</p>
+      <p>{{ settings.get('site_rc', 'RC No: Not applicable (sole trader)') }}</p>
+      <p><a href="mailto:{{ settings.get('site_email', 'info@asa-oz.com') }}">{{ settings.get('site_email', 'info@asa-oz.com') }}</a></p>
+      <p>Phone: {{ settings.get('site_phone', '[to be added]') }}</p>
+    </div>
+    <div class="footer-proof">
+      <h4>Explore</h4>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('faq') }}">FAQ</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ url_for('terms') }}">Terms</a>
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+    </div>
+    <div class="footer-proof">
+      <h4>Community</h4>
+      <a href="{{ url_for('index') }}#signup">Join the waitlist</a>
+      <a href="{{ url_for('index') }}#testimonials">Read testimonials</a>
+      <a href="{{ url_for('about') }}">Community stories</a>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <p class="copy">&copy; <span id="year"></span> Asa-OZ. All rights reserved.</p>
+  </div>
+</footer>

@@ -1,0 +1,23 @@
+{% from "partials/macros.html" import icon_svg as icon, social_links %}
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-header">
+      <a href="{{ url_for('index') }}" class="brand-link">
+        <span class="brand-logo-fallback">Asa-OZ</span>
+        <img class="brand-logo-img" src="{{ url_for('static', filename='images/logo.svg') }}" alt="Asa-OZ"
+          onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';"
+          onerror="this.style.display='none';">
+      </a>
+      <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">
+        {{ icon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>', 20) }}
+      </button>
+    </div>
+    <nav class="mobile-menu-nav" aria-label="Mobile">
+      {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('faq','FAQ'), ('contact','Contact')] %}
+      {% for endpoint, label in items %}
+        <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    <div class="mobile-menu-social">{{ social_links(20) }}</div>
+  </div>
+</div>

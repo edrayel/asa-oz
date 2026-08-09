@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Terms &amp; Conditions — Asa-OZ{% endblock %}
+{% block description %}Terms and conditions for the Asa-OZ website and services.{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/terms.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
+        <h1 class="reveal">{{ cms.hero.title }}</h1>
+        <p class="lede reveal">{{ cms.hero.lede }}</p>
+      </section>
+
+      <section class="page-section" aria-label="Terms and conditions">
+        {% for block in cms.blocks.sections %}
+        <div class="page-block reveal">
+          <h2>{{ block.heading }}</h2>
+          {% for line in block.body.split('\n') %}
+          {% if line.startswith('• ') %}<ul><li>{{ line[2:] }}</li></ul>{% else %}<p>{{ line }}</p>{% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="legal-note reveal">{{ cms.note.note }}</div>
+      </section>
+{% endblock %}

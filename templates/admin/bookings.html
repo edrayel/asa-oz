@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block title %}Bookings - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Bookings</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+  <div class="card">
+    {% if items %}
+    {% for b in items %}
+    <details class="admin-details">
+      <summary>
+        <span class="badge badge-{{ 'new' if b.status in ('new','') else b.status }}">{{ b.status or 'new' }}</span>
+        &middot; {{ b.name }} &middot; {{ b.date }} {{ b.time }} &middot; {{ b.email }}
+      </summary>
+      <div class="inner">
+        {% if b.phone %}<p><strong>Phone:</strong> {{ b.phone }}</p>{% endif %}
+        {% if b.message %}<p style="white-space:pre-wrap;"><strong>Message:</strong> {{ b.message }}</p>{% endif %}
+        <p><strong>Requested:</strong> {{ b.created_at }}</p>
+        <form method="POST" action="{{ url_for('admin_booking_status', booking_id=b.id) }}" class="multi-status">
+          <button class="btn" name="status" value="new">New</button>
+          <button class="btn" name="status" value="confirmed">Confirmed</button>
+          <button class="btn" name="status" value="completed">Completed</button>
+          <button class="btn btn-danger" name="status" value="cancelled">Cancelled</button>
+        </form>
+      </div>
+    </details>
+    {% endfor %}
+    {% else %}<p class="empty-state">No bookings yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

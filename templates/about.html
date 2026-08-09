@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}About — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
+        <h1 class="reveal">{{ cms.hero.title }}</h1>
+        <p class="lede reveal">{{ cms.hero.lede }}</p>
+      </section>
+
+      <section class="page-section" aria-label="About Asa-OZ">
+        <div class="page-block reveal">
+          <h2>{{ cms.why.heading }}</h2>
+          {% for p in cms.why.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </div>
+
+        <div class="page-block reveal">
+          <h2>{{ cms.what.heading }}</h2>
+          <p>{{ cms.what.intro }}</p>
+          <ul>
+            {% for value in cms.what.pillars %}
+            <li><strong>{{ value.name }}</strong> — {{ value.body }}</li>
+            {% endfor %}
+          </ul>
+          <p>{{ cms.what.closing }}</p>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>{{ cms.feels.heading }}</h2>
+          {% for p in cms.feels.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </div>
+
+        {% set proof_photos = marquee_images[:8] %}
+        <section class="proof-glass" aria-label="Proof from real Asa-OZ journeys">
+          <div class="proof-strip reveal" tabindex="0">
+            <!--
+              Video slot: to add a real film, replace the .proof-item-video figure
+              with a <video> element, e.g.:
+                <video controls playsinline preload="metadata" poster="{{ proof_photos[0] }}">
+                  <source src="{{ url_for('images', filename='journeys/first-cut.mp4') }}" type="video/mp4">
+                </video>
+              Keep the .proof-item-video class so it keeps its feature width.
+            -->
+            {% if proof_photos %}
+            <figure class="proof-item proof-item-video">
+              <div class="proof-media">
+                <img src="{{ proof_photos[0] }}" alt="A film from the Asa-OZ journey — coming soon" loading="lazy" decoding="async" />
+                <span class="proof-badge">Film</span>
+                <span class="proof-play" aria-hidden="true">&#9658;</span>
+              </div>
+            </figure>
+            {% endif %}
+            {% for url in proof_photos %}
+            <figure class="proof-item">
+              <div class="proof-media">
+                <img src="{{ url }}" alt="Real moment from the Asa-OZ community" loading="lazy" decoding="async" />
+              </div>
+            </figure>
+            {% endfor %}
+          </div>
+
+          <p class="proof-footnote reveal">{{ cms.feels.proof_footnote }}</p>
+        </section>
+
+        <div class="page-block page-block--top reveal">
+          <h2>{{ cms.who.heading }}</h2>
+          {% for p in cms.who.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </div>
+
+        <div class="page-block reveal">
+          <h2>{{ cms.founder.heading }}</h2>
+          <section class="founder">
+            <div class="founder-media">
+              <div class="founder-frame">
+                <!-- TODO: swap placeholder video ID for the founder's real YouTube video -->
+                <iframe class="founder-video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" title="Ifeoma Adaora — founder of Asa-OZ" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              </div>
+            </div>
+            <div class="founder-copy">
+              <blockquote class="founder-quote">{{ cms.founder.quote }}</blockquote>
+              <div class="founder-body">
+                {% for p in cms.founder.paragraphs %}<p>{{ p }}</p>{% endfor %}
+              </div>
+              <div class="founder-foot">
+                <p class="founder-name">{{ cms.founder.name }}</p>
+                <p class="founder-role">{{ cms.founder.role }}</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="page-block reveal">
+          <h2>{{ cms.not.heading }}</h2>
+          {% for p in cms.not.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </div>
+
+        <div class="page-cta reveal">
+          <p>{{ cms.cta.line }}</p>
+          <a href="{{ url_for('index') }}#signup" class="page-btn">{{ cms.cta.join_label }}</a>
+          <a href="{{ url_for('contact') }}" class="page-btn page-btn-ghost">{{ cms.cta.contact_label }}</a>
+        </div>
+      </section>
+{% endblock %}

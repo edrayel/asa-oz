@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Page not found — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">{% endblock %}
+{% block main %}
+      <section class="error-page" style="min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:4rem 1.5rem;">
+        <p class="eyebrow">404</p>
+        <h1>This page isn’t part of the journey — yet.</h1>
+        <p style="max-width:34rem; color:var(--muted); line-height:1.7;">The page you’re looking for may have moved, or never existed. Let’s get you back to somewhere you belong.</p>
+        <p style="margin-top:1.5rem;"><a href="{{ url_for('index') }}" class="pricing-btn" style="text-decoration:none; display:inline-block;">Return home</a></p>
+      </section>
+{% endblock %}

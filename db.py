@@ -1,0 +1,575 @@
+"""SQLite data layer for Asa-OZ.
+
+Thin helpers on top of stdlib sqlite3. The DB file lives at DATABASE (default
+instance/asaoz.sqlite3) and is auto-created + seeded on first import.
+"""
+import json
+import os
+import sqlite3
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.environ.get("DATABASE", os.path.join(BASE_DIR, "instance", "asaoz.sqlite3"))
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS products (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'physical',
+  price INTEGER NOT NULL DEFAULT 0,
+  img TEXT NOT NULL DEFAULT '',
+  desc TEXT NOT NULL DEFAULT '',
+  active INTEGER NOT NULL DEFAULT 1,
+  sort INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS feedback_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  category TEXT NOT NULL DEFAULT '',
+  text TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new',
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS waitlist (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS bookings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  date TEXT NOT NULL DEFAULT '',
+  time TEXT NOT NULL DEFAULT '',
+  message TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'new',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS contacts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS journey_subscribers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  journey_stage TEXT NOT NULL DEFAULT 'interest',
+  source TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_email TEXT NOT NULL DEFAULT '',
+  items TEXT NOT NULL DEFAULT '[]',
+  total INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'enquiry',
+  stripe_session_id TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS admins (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  username TEXT NOT NULL,
+  password_hash TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS files (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  path TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'image',
+  size INTEGER NOT NULL DEFAULT 0,
+  mime TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT 'upload',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS page_sections (
+  page TEXT NOT NULL,
+  section TEXT NOT NULL,
+  content TEXT NOT NULL DEFAULT '{}',
+  active INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (page, section)
+);
+"""
+
+DEFAULT_SETTINGS = {
+    "show_prices": "1",
+    "show_booking": "1",
+    "show_header_booking": "1",
+    "show_signup": "1",
+    "show_supporting": "1",
+    "show_faq_section": "1",
+    "show_store": "1",
+    "simple_mode": "0",
+    "show_not_this": "0",
+    "show_testimonials": "0",
+    "show_pricing": "1",
+    "price_public": "1",
+    "price_free_first": "0",
+    "price_commitment": "0",
+    "store_hero_title": "Tools for the journey",
+    "store_hero_lede": "Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.",
+    "store_similar_title": "You may also like",
+    "tools_heading": "Tools for the journey",
+    "site_tagline": "A movement for identity, belonging & renewal.",
+    "site_email": "info@asa-oz.com",
+    "site_phone": "[to be added]",
+    "site_legal": "Sole Trader: Ifeoma t/a Asa-OZ · Ireland",
+    "site_rc": "RC No: Not applicable (sole trader)",
+    "booking_label": "Book a discovery call",
+    "booking_submit": "Request booking",
+    "booking_cancel": "Cancel",
+    "booking_full_name": "Full name",
+    "booking_email": "Email",
+    "booking_phone": "Phone",
+    "booking_date": "Preferred date",
+    "booking_time": "Preferred time",
+    "booking_topic": "What would you like to discuss?",
+    "booking_placeholder_full": "Your full name",
+    "booking_placeholder_email": "you@example.com",
+    "booking_placeholder_phone": "+353 ...",
+    "booking_placeholder_topic": "Tell us a little about what you are looking for...",
+    "booking_err_name": "Please enter your name.",
+    "booking_err_email": "Please enter a valid email.",
+    "booking_err_date": "Please choose a date.",
+    "booking_err_time": "Please choose a time.",
+    "booking_confirm_title": "You’re in",
+    "booking_confirm_body": 'We’ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:{email}" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">{email}</a>.',
+    "booking_confirm_close": "Close",
+}
+
+DEFAULT_PRODUCTS = [
+    {"id": "journal", "name": "Reflection Journal", "type": "physical", "price": 24,
+     "img": "https://picsum.photos/seed/asaoz-journal/600/450",
+     "desc": "A guided journal for identity reflection and rediscovery."},
+    {"id": "print", "name": "Heritage Print", "type": "physical", "price": 18,
+     "img": "https://picsum.photos/seed/asaoz-print/600/450",
+     "desc": "A keepsake art print rooted in heritage and memory."},
+    {"id": "session", "name": "Identity Circle Session", "type": "virtual", "price": 12,
+     "img": "https://picsum.photos/seed/asaoz-circle/600/450",
+     "desc": "Join an online guided circle to share and be seen."},
+    {"id": "story", "name": "Cultural Storytelling Access", "type": "virtual", "price": 8,
+     "img": "https://picsum.photos/seed/asaoz-story/600/450",
+     "desc": "Digital collection of stories that remember you."},
+    {"id": "kit", "name": "Journey Kit", "type": "physical", "price": 35,
+     "img": "https://picsum.photos/seed/asaoz-kit/600/450",
+     "desc": "Pre-trip materials to prepare mind and heart for travel."},
+    {"id": "letter", "name": "Welcome Letter", "type": "virtual", "price": 0,
+     "img": "https://picsum.photos/seed/asaoz-letter/600/450",
+     "desc": "A welcome letter and printable reflection guide."},
+]
+
+
+def get_conn():
+    os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+
+def init_db():
+    conn = get_conn()
+    conn.executescript(SCHEMA)
+    conn.commit()
+
+    seed = conn.execute("SELECT COUNT(*) AS c FROM products").fetchone()["c"]
+    if seed == 0:
+        conn.executemany(
+            "INSERT INTO products (id, name, type, price, img, desc, sort) "
+            "VALUES (:id, :name, :type, :price, :img, :desc, :sort)",
+            [{**p, "sort": i} for i, p in enumerate(DEFAULT_PRODUCTS)],
+        )
+
+    for key, value in DEFAULT_SETTINGS.items():
+        conn.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, value))
+
+    if conn.execute("SELECT COUNT(*) AS c FROM admins").fetchone()["c"] == 0:
+        pw = os.environ.get("ADMIN_PASSWORD", "asa-oz-admin")
+        conn.execute(
+            "INSERT INTO admins (id, username, password_hash) VALUES (1, 'admin', ?)",
+            (generate_password_hash(pw),),
+        )
+    conn.commit()
+    conn.close()
+
+
+# ---------- Products ----------
+
+def list_products(active_only=False):
+    conn = get_conn()
+    where = "WHERE active = 1 " if active_only else ""
+    rows = conn.execute(
+        f"SELECT * FROM products {where}ORDER BY sort, name"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_product(product_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM products WHERE id = ?", (product_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def save_product(product):
+    conn = get_conn()
+    conn.execute(
+        """INSERT INTO products (id, name, type, price, img, desc, active, sort)
+           VALUES (:id, :name, :type, :price, :img, :desc, :active, :sort)
+           ON CONFLICT(id) DO UPDATE SET
+             name=:name, type=:type, price=:price, img=:img,
+             desc=:desc, active=:active, sort=:sort""",
+        product,
+    )
+    conn.commit()
+    conn.close()
+
+
+def delete_product(product_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM products WHERE id = ?", (product_id,))
+    conn.commit()
+    conn.close()
+
+
+def list_product_types(active_only=False):
+    """Distinct product type values, ordered for store filters."""
+    conn = get_conn()
+    if active_only:
+        rows = conn.execute(
+            "SELECT DISTINCT type FROM products WHERE active = 1 AND type != '' ORDER BY type"
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT DISTINCT type FROM products WHERE type != '' ORDER BY type"
+        ).fetchall()
+    conn.close()
+    return [r["type"] for r in rows]
+
+
+# ---------- Settings ----------
+
+def get_settings():
+    conn = get_conn()
+    rows = conn.execute("SELECT key, value FROM settings").fetchall()
+    conn.close()
+    return {r["key"]: r["value"] for r in rows}
+
+
+def set_setting(key, value):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO settings (key, value) VALUES (?, ?) "
+        "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+        (key, value),
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_settings(mapping):
+    conn = get_conn()
+    for key, value in mapping.items():
+        conn.execute(
+            "INSERT INTO settings (key, value) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (key, value),
+        )
+    conn.commit()
+    conn.close()
+
+
+def setting_bool(key, default="0"):
+    val = get_settings().get(key, default)
+    return str(val).lower() in {"1", "true", "yes", "on"}
+
+
+# ---------- Feedback ----------
+
+def add_feedback(category, text):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO feedback_items (category, text) VALUES (?, ?)", (category, text)
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_feedback():
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM feedback_items ORDER BY id DESC"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def update_feedback(feedback_id, status, note):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE feedback_items SET status = ?, note = ? WHERE id = ?",
+        (status, note, feedback_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def delete_feedback(feedback_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM feedback_items WHERE id = ?", (feedback_id,))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Waitlist ----------
+
+def add_waitlist(email, source=""):
+    conn = get_conn()
+    exists = conn.execute("SELECT 1 FROM waitlist WHERE email = ?", (email,)).fetchone()
+    if exists:
+        conn.close()
+        return False
+    conn.execute(
+        "INSERT INTO waitlist (email, source) VALUES (?, ?)", (email, source)
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def list_waitlist():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM waitlist ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- Bookings ----------
+
+def add_booking(data):
+    conn = get_conn()
+    conn.execute(
+        """INSERT INTO bookings (name, email, phone, date, time, message)
+           VALUES (:name, :email, :phone, :date, :time, :message)""",
+        data,
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_bookings():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM bookings ORDER BY date, time").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def set_booking_status(booking_id, status):
+    conn = get_conn()
+    conn.execute("UPDATE bookings SET status = ? WHERE id = ?", (status, booking_id))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Contacts ----------
+
+def add_contact(name, email, message):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)",
+        (name, email, message),
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_contacts():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM contacts ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- Journey Subscribers ----------
+
+def add_journey_subscriber(email, name="", journey_stage="interest", source=""):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO journey_subscribers (email, name, journey_stage, source) VALUES (?, ?, ?, ?)",
+        (email, name, journey_stage, source),
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def list_journey_subscribers():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM journey_subscribers ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def delete_journey_subscriber(subscriber_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM journey_subscribers WHERE id = ?", (subscriber_id,))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Orders ----------
+
+def add_order(items, total, customer_email="", status="enquiry", stripe_session_id=""):
+    conn = get_conn()
+    cur = conn.execute(
+        """INSERT INTO orders (items, total, customer_email, status, stripe_session_id)
+           VALUES (?, ?, ?, ?, ?)""",
+        (json.dumps(items), total, customer_email, status, stripe_session_id),
+    )
+    conn.commit()
+    conn.close()
+    return cur.lastrowid
+
+
+def set_order_status(order_id, status):
+    conn = get_conn()
+    conn.execute("UPDATE orders SET status = ? WHERE id = ?", (status, order_id))
+    conn.commit()
+    conn.close()
+
+
+def get_order(order_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def list_orders():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM orders ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- Files ----------
+
+def add_file(path, name="", kind="image", size=0, mime="", source="upload"):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO files (path, name, kind, size, mime, source) VALUES (?, ?, ?, ?, ?, ?)",
+        (path, name, kind, size, mime, source),
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_files():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM files ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_file(file_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM files WHERE id = ?", (file_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_file_by_path(path):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM files WHERE path = ?", (path,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def delete_file(file_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM files WHERE id = ?", (file_id,))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Pages (CMS) ----------
+
+def get_page_sections(page):
+    """Return {section_key: {content: dict, active: bool}} for a page."""
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT section, content, active FROM page_sections WHERE page = ?", (page,)
+    ).fetchall()
+    conn.close()
+    return {
+        r["section"]: {"content": json.loads(r["content"] or "{}"), "active": bool(r["active"])}
+        for r in rows
+    }
+
+
+def save_page_section(page, section, content, active=True):
+    conn = get_conn()
+    conn.execute(
+        """INSERT INTO page_sections (page, section, content, active, updated_at)
+           VALUES (?, ?, ?, ?, datetime('now'))
+           ON CONFLICT(page, section) DO UPDATE SET
+             content=excluded.content, active=excluded.active, updated_at=datetime('now')""",
+        (page, section, json.dumps(content), int(active)),
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_page_section_keys():
+    conn = get_conn()
+    rows = conn.execute("SELECT page, section FROM page_sections ORDER BY page, section").fetchall()
+    conn.close()
+    return [(r["page"], r["section"]) for r in rows]
+
+
+# ---------- Admin ----------
+
+def verify_admin(username, password):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM admins WHERE id = 1 AND username = ?", (username,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return False
+    return check_password_hash(row["password_hash"], password)
+
+
+def set_admin_password(username, password):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO admins (id, username, password_hash) VALUES (1, ?, ?) "
+        "ON CONFLICT(id) DO UPDATE SET username=excluded.username, password_hash=excluded.password_hash",
+        (username, generate_password_hash(password)),
+    )
+    conn.commit()
+    conn.close()
+
+
+init_db()

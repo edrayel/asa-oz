@@ -1,0 +1,46 @@
+{% from "partials/macros.html" import icon_svg as icon %}
+{% extends "base.html" %}
+{% block title %}Store — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <h1 class="reveal">{{ store_copy.hero_title }}</h1>
+        <p class="lede reveal">{{ store_copy.hero_lede }}</p>
+      </section>
+
+      <section class="store-section" aria-label="Shop">
+        <div class="store-filters reveal">
+          <button class="filter-btn{% if type_filter == 'all' %} active{% endif %}" data-filter="all">All</button>
+          {% for t in store_types %}
+          <button class="filter-btn{% if type_filter == t %} active{% endif %}" data-filter="{{ t }}">{{ t | capitalize }}</button>
+          {% endfor %}
+        </div>
+        <div class="store-grid" id="storeGrid">
+          {% include "partials/store_grid.html" %}
+        </div>
+        <section class="similar-section" aria-label="{{ store_copy.similar_title }}">
+          <h2 class="reveal">{{ store_copy.similar_title }}</h2>
+          <div class="similar-grid" id="similarGrid">
+            {% for p in products[:6] %}
+            <div class="store-card reveal">
+              <img class="media" src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" decoding="async" />
+              <div class="body">
+                <span class="badge {{ p.type }}">{{ p.type | capitalize }}</span>
+                <h3>{{ p.name }}</h3>
+                <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
+                <div class="price">{% if p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
+                <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML">
+                  <input type="hidden" name="id" value="{{ p.id }}" />
+                  <button type="submit" class="add-btn">Add to cart</button>
+                </form>
+                <a class="view-link" href="{{ url_for('product', product_id=p.id) }}">View details</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+      </section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/store.js') }}"></script>
+{% endblock %}

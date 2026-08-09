@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Asa-OZ — Return to Yourself{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">{% endblock %}
+
+{% block pre_shell %}
+<div class="countdown-bar" id="countdownBar" role="status" aria-label="Time until launch">
+  <span class="cd-label">{{ cms.countdown.prefix }} <span id="cdHuman">%%</span> {{ cms.countdown.mid }} <b id="cdDate">{{ cms.countdown.date }}</b></span>
+  <span class="cd-units" id="cdUnits" aria-hidden="true">
+    <span class="cd-unit"><span class="n" id="cdD">--</span><span class="u">Days</span></span>
+    <span class="cd-unit"><span class="n" id="cdH">--</span><span class="u">Hrs</span></span>
+    <span class="cd-unit"><span class="n" id="cdM">--</span><span class="u">Min</span></span>
+    <span class="cd-unit"><span class="n" id="cdS">--</span><span class="u">Sec</span></span>
+  </span>
+</div>
+{% endblock %}
+
+{% block main %}
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
+          <h1 class="reveal">{{ cms.hero.title }}</h1>
+          <p class="lede reveal">{{ cms.hero.lede }}</p>
+          <p class="supporting reveal"{% if settings.get('show_supporting', '1') == '0' %} style="display:none;"{% endif %}>{{ cms.hero.supporting }}</p>
+          <div id="notThisNote"{% if settings.get('show_not_this', '0') == '1' %} style="display:block;"{% else %} style="display:none;"{% endif %}>
+            <p style="font-size:0.88rem; color:var(--ink); margin:0; line-height:1.6;"><strong style="color:var(--espresso);">{{ cms.hero.not_this_title }}</strong> {{ cms.hero.not_this_body }}</p>
+          </div>
+
+          {% if cms.signup.active and not settings.get('show_signup', '1') == '0' %}
+          <div class="signup reveal" id="signup">
+            <form id="journeyform" action="{{ url_for('journey_subscribe') }}" method="POST" novalidate
+                  hx-post="{{ url_for('journey_subscribe') }}" hx-target="#formMsg" hx-swap="innerHTML">
+              <input type="hidden" name="source" value="asa-oz-coming-soon" />
+              <input type="hidden" name="journey_stage" value="interest" />
+              <div class="journey-fields">
+                <div class="field-row">
+                  <input id="name" type="text" name="name" placeholder="{{ cms.signup.name_placeholder }}" aria-label="Name" autocomplete="name" />
+                  <input id="email" type="email" name="email" placeholder="{{ cms.signup.email_placeholder }}" aria-label="Email address" autocomplete="email" required />
+                </div>
+                <button type="submit">{{ cms.signup.button }}</button>
+              </div>
+            </form>
+            <p class="note">{{ cms.signup.note }}</p>
+            <p class="msg" id="formMsg" role="status" aria-live="polite"></p>
+          </div>
+        {% endif %}
+        </div>
+
+        {% set marquee_count = marquee_images | length %}
+        {% set repeat_count = 1 if marquee_count == 0 else ((16 + marquee_count - 1) // marquee_count) %}
+        {% set repeat_count = repeat_count if repeat_count > 0 else 1 %}
+        {% set marquee_rows = (cms.marquee.rows | int) if cms.marquee.rows and cms.marquee.rows | int in [0,1,2,3] else 3 %}
+
+        <!-- One .hero-marquee containing three sibling .marquee-row divs, so the
+             CSS nth-child rules own the per-row direction (--row-dur 58/72/64s,
+             --row-h, marqueeLeft on row 2 incl. the mobile media-query override).
+             Odd rows (2nd) are reverse-ordered for the mirrored scroll. -->
+        <div class="hero-marquee" aria-hidden="true">
+          {% for row_idx in range(marquee_rows) %}
+          <div class="marquee-row">
+            <div class="marquee-track">
+              {% for group_idx in range(2) %}
+              <div class="marquee-group">
+                {% if row_idx % 2 == 1 %}
+                  {% for rep in range(repeat_count) %}
+                    {% for url in marquee_images | reverse %}
+                      <img src="{{ url }}" alt="Community moment from the Asa-OZ wall" loading="lazy" decoding="async" />
+                    {% endfor %}
+                  {% endfor %}
+                {% else %}
+                  {% for rep in range(repeat_count) %}
+                    {% for url in marquee_images %}
+                      <img src="{{ url }}" alt="Community moment from the Asa-OZ wall" loading="lazy" decoding="async" />
+                    {% endfor %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="wall-cta">
+          <button class="wall-trigger" type="button" aria-label="{{ cms.gallery.wall_button }}">{{ cms.gallery.wall_button }}</button>
+        </div>
+      </section>
+
+      <section class="how-it-works" aria-label="How Asa-OZ works">
+        <h2 class="reveal">{{ cms.how.title }}</h2>
+        <div class="steps">
+          {% for step in cms.how.steps %}
+          <div class="step reveal"><span class="num">0{{ loop.index }}</span><h3>{{ step.title }}</h3><p>{{ step.body }}</p></div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if settings.get('simple_mode', '0') == '0' %}<section class="pillars" aria-label="What Asa-OZ offers">
+        {% for pillar in cms.pillars.entries %}
+        <div class="pillar reveal"><span class="num">0{{ loop.index }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.body }}</p></div>
+        {% endfor %}
+      </section>{% endif %}
+
+      {% if settings.get('simple_mode', '0') == '0' %}<section class="expect" aria-label="What to expect">
+        <h2 class="reveal">{{ cms.expect.title }}</h2>
+        <div class="expect-grid">
+          {% for item in cms.expect.entries %}
+          <div class="expect-item reveal"><span class="num">0{{ loop.index }}</span><h3>{{ item.title }}</h3><p>{{ item.body }}</p></div>
+          {% endfor %}
+        </div>
+      </section>{% endif %}
+
+      <section class="tools" aria-label="Tools for the journey"{% if settings.get('show_store', '1') == '0' %} style="display:none;"{% endif %}>
+        <h2 class="reveal">{{ cms.storeteaser.heading }}</h2>
+        <div class="tools-grid" id="toolsGrid">
+        {% for tool in products[:4] %}
+          <div class="tool-item reveal">
+            <span class="tool-num">0{{ loop.index }}</span>
+            <h3>{{ tool.name }}</h3>
+            <p>{{ tool.desc }}</p>
+            <div class="tool-price">{% if tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
+          </div>
+        {% endfor %}
+        </div>
+        <p class="tools-cta reveal"><a href="{{ url_for('store') }}">{{ cms.tools_products.visit_store_label }}</a></p>
+      </section>
+
+      {% if settings.get('simple_mode', '0') == '0' %}<section class="gallery" aria-label="Moments from Asa-OZ">
+        <h2 class="reveal">{{ cms.gallery.title }}</h2>
+        <div class="gallery-stage reveal" id="galleryStage">
+          <div class="gallery-track" id="galleryTrack"></div>
+        </div>
+        <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous">&#8592;</button>
+        <button class="gallery-nav next" id="galleryNext" aria-label="Next">&#8594;</button>
+        <p class="gallery-caption reveal" id="galleryCaption"></p>
+      </section>{% endif %}
+
+      {% if settings.get('show_testimonials', '0') == '1' and cms.testimonials.active %}<section class="testimonial-ribbon" id="testimonials" aria-label="Testimonials">
+        <div class="testimonial-photo reveal" id="testimonialPhoto" aria-hidden="true">
+          <img src="{{ cms.testimonials.photo }}" alt="" loading="lazy" />
+        </div>
+        <blockquote class="reveal" id="testimonialQuote">
+          <p>{{ cms.testimonials.quote }}</p>
+        </blockquote>
+        <p class="author reveal" id="testimonialAuthor">{{ cms.testimonials.author }}<span>{{ cms.testimonials.role }}</span></p>
+        <div class="ribbon-rule reveal"></div>
+      </section>{% endif %}
+
+      <section class="who-for" aria-label="Who Asa-OZ is for">
+        <h2 class="reveal">{{ cms.who.title }}</h2>
+        <p class="who-for-intro reveal">{{ cms.who.intro }}</p>
+        <ul class="who-for-list">
+          {% for item in cms.who.points %}
+          <li class="reveal">{{ item }}</li>
+          {% endfor %}
+        </ul>
+        <p class="who-for-tagline reveal">{{ cms.who.tagline }}</p>
+      </section>
+
+      <section class="ethos" id="ethos">
+        <div class="reveal">
+          <blockquote>{{ cms.ethos.quote }} <span>{{ cms.ethos.quote_highlight }}</span></blockquote>
+          <p class="from">{{ cms.ethos.from }}</p>
+          <div class="not-list">
+            {% for item in cms.ethos.not %}
+            <span>{% if item.struck %}<s>{{ item.text }}</s>{% else %}{{ item.text }}{% endif %}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="founder reveal">
+          <div class="founder-photo reveal">
+            <div class="founder-carousel" id="founderCarousel">
+              <div class="founder-slides" id="founderSlides">
+                {% for src in founder_photos %}
+                <img src="{{ url_for('images', filename=src) }}" alt="Ifeoma Adaora of Asa-OZ" loading="lazy" />
+                {% endfor %}
+              </div>
+              <button class="founder-carousel-arrow prev" id="founderPrev" type="button" aria-label="Previous photo">&#8592;</button>
+              <button class="founder-carousel-arrow next" id="founderNext" type="button" aria-label="Next photo">&#8594;</button>
+              <div class="founder-carousel-dots" id="founderDots" role="tablist" aria-label="Founder photos"></div>
+            </div>
+            <p class="founder-credentials">
+              {% for cred in cms.founder.credentials %}<span class="founder-credential">{{ cred }}</span>{% endfor %}
+            </p>
+          </div>
+          <p>{{ cms.founder.quote1 }}</p>
+          <p>{{ cms.founder.quote2 }}</p>
+          <p class="founder-signature">&ldquo;{{ cms.founder.signature }}&rdquo;</p>
+          <p><span class="name">{{ cms.founder.name }}</span><br /><span class="role">{{ cms.founder.role }}</span></p>
+          <p class="founder-more"><a href="{{ url_for('about') }}">{{ cms.founder.more }} &rarr;</a></p>
+        </div>
+      </section>
+
+      {% if settings.get('show_faq_section', '1') != '0' %}<section class="faq" aria-label="Frequently asked questions">
+        <h2 class="reveal">{{ cms.faq.prompt_title }}</h2>
+        {% include "partials/faq_short.html" %}
+        <p class="faq-more reveal"><a href="{{ url_for('faq') }}">{{ cms.faq.more }} &rarr;</a></p>
+      </section>{% endif %}
+
+      {% if settings.get('show_pricing', '1') != '0' %}<section class="pricing-section" aria-label="Membership and pricing">
+        <div class="pricing-wrap reveal">
+          <h2>{{ cms.pricing.title }}</h2>
+          <p class="pricing-lede">{{ cms.pricing.lede }}</p>
+          <div class="pricing-toggle" id="pricingToggle">
+            <button type="button" class="active" data-period="monthly">{{ cms.pricing.monthly_label }}</button>
+            <button type="button" data-period="yearly">{{ cms.pricing.yearly_label }}</button>
+          </div>
+          <div class="pricing-grid" id="pricingGrid">
+            {% for card in cms.pricing.cards %}
+            <div class="pricing-card{% if card.badge %} featured{% endif %}">
+              {% if card.badge %}<span class="badge">{{ card.badge }}</span>{% endif %}
+              <h3>{{ card.name }}</h3>
+              <div class="price" data-monthly="{{ card.price_m }}" data-yearly="{{ card.price_y }}">{{ card.price_m }}<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span></div>
+              <p class="price-note">{{ card.note }}</p>
+              <ul>{% for feat in card.features %}<li>{{ feat }}</li>{% endfor %}</ul>
+              <button type="button" class="pricing-btn">{{ cms.pricing.cta_label }}</button>
+            </div>
+            {% endfor %}
+          </div>
+          <p style="margin-top:1rem; font-size:0.82rem; color:var(--muted);">{{ cms.pricing.disclaimer_note }}</p>
+        </div>
+      </section>{% endif %}
+
+      <section class="feedback-section" aria-label="Feedback">
+        <div class="feedback-wrap reveal">
+          <h2>{{ cms.feedback.title }}</h2>
+          <p class="feedback-lede">{{ cms.feedback.lede }}</p>
+          <form id="feedbackForm" action="{{ url_for('feedback') }}" method="POST" novalidate>
+            <div class="feedback-field">
+              <label for="fbCategory">{{ cms.feedback.topic_label }}</label>
+              <select id="fbCategory" name="category">
+                <option value="">{{ cms.feedback.topic_placeholder }}</option>
+                {% for cat in cms.feedback.categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="feedback-field">
+              <label for="fbText">{{ cms.feedback.feedback_label }}</label>
+              <textarea id="fbText" name="text" rows="4" placeholder="{{ cms.feedback.feedback_placeholder }}" required></textarea>
+            </div>
+            <button type="submit" class="feedback-submit">{{ cms.feedback.submit }}</button>
+            <p class="feedback-msg" id="feedbackMsg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+{% endblock %}
+
+{% block overlays %}
+  <div class="wall-overlay" id="wallOverlay" role="dialog" aria-modal="true" aria-label="Wall of memories">
+    <div class="wall-brand" aria-hidden="true">Asa-OZ</div>
+    <div class="wall-canvas-wrap" id="wallCanvasWrap"></div>
+    <div class="wall-loading" id="wallLoading" aria-hidden="true"></div>
+    <button class="wall-close" id="wallClose" aria-label="Close wall" type="button">&#10005;</button>
+    <div class="wall-hints" id="wallHints" aria-hidden="true"></div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>window.WALL_OF_MEMORIES = {{ marquee_images | tojson }};</script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

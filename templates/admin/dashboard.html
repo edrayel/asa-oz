@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard — Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1>Asa-OZ Admin</h1>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{{ url_for('index') }}" target="_blank">View site</a>
+      <a class="btn btn-ghost" href="{{ url_for('admin_export') }}">Export JSON</a>
+      <form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form>
+    </div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  <div class="stat-grid">
+    <div class="stat"><div class="n">{{ stats.feedback }}</div><div class="l">Feedback</div></div>
+    <div class="stat"><div class="n">{{ stats.waitlist }}</div><div class="l">Waitlist</div></div>
+    <div class="stat"><div class="n">{{ stats.journey }}</div><div class="l">Journey</div></div>
+    <div class="stat"><div class="n">{{ stats.bookings }}</div><div class="l">Bookings</div></div>
+    <div class="stat"><div class="n">{{ stats.contacts }}</div><div class="l">Contacts</div></div>
+    <div class="stat"><div class="n">{{ stats.orders }}</div><div class="l">Orders</div></div>
+    <div class="stat"><div class="n">{{ stats.products }}</div><div class="l">Products</div></div>
+    <div class="stat"><div class="n">{{ stats.files }}</div><div class="l">Files</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Latest waitlist signups</h2>
+    {% if stats.recent_waitlist %}
+    <table><thead><tr><th>Email</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for w in stats.recent_waitlist %}
+      <tr><td>{{ w.email }}</td><td>{{ w.source }}</td><td>{{ w.created_at }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<p class="empty-state">No waitlist signups yet.</p>{% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Newest feedback</h2>
+    {% if stats.recent_feedback %}
+    <table><thead><tr><th>Status</th><th>Category</th><th>Text</th></tr></thead>
+    <tbody>
+      {% for f in stats.recent_feedback %}
+      <tr><td><span class="badge badge-{{ f.status }}">{{ f.status }}</span></td><td>{{ f.category }}</td><td class="wrap">{{ f.text }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

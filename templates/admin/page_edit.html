@@ -1,0 +1,190 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ page_schema.label }} - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>{{ page_schema.label }}</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_pages') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  {% if page_schema.hint %}
+  <p class="sub" style="margin-bottom:1.2rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">{{ page_schema.hint }}</p>
+  {% endif %}
+
+  {% for section in page_schema.sections %}
+  {% set sec_key = section.key %}
+  {% set stored_sec = stored.get(sec_key) %}
+  {% set active = stored_sec['active'] if stored_sec else True %}
+  <div class="card cms-card" data-section="{{ sec_key }}">
+    <details class="cms-details"{% if loop.first %} open{% endif %}>
+      <summary>
+        <span class="cms-summary">
+          <span class="cms-title">{{ section.label }}</span>
+          <span class="cms-state">{% if active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</span>
+        </span>
+      </summary>
+      <div class="cms-body">
+        <form method="POST" action="{{ url_for('admin_page', page=page_key) }}">
+          <input type="hidden" name="section_key" value="{{ sec_key }}" />
+
+          {% for f in section.fields %}
+          {% set fkey = f.key %}
+          {% set value = stored_sec['content'].get(fkey) if stored_sec and stored_sec['content'] else None %}
+
+          {% if f.type == 'text' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <input name="field_{{ fkey }}" value="{{ value if value is not none else f.get('default', '') }}" />
+          </div>
+
+          {% elif f.type == 'textarea' or f.type == 'longtext' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <textarea name="field_{{ fkey }}" rows="{{ 4 if f.type == 'longtext' else 3 }}">{{ value if value is not none else f.get('default', '') }}</textarea>
+          </div>
+
+          {% elif f.type == 'checkbox' %}
+          <div class="control-row">
+            <div class="control-label">{{ f.label }}</div>
+            <input type="checkbox" name="{{ fkey }}" value="1" {% if (value if value is not none else f.get('default', False)) %}checked{% endif %} />
+          </div>
+
+          {% elif f.type == 'image' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <input name="field_{{ fkey }}" data-cms-image="{{ fkey }}" value="{{ value if value is not none else '' }}" placeholder="https://… or images/…" />
+            <div class="media-picker">
+              <select data-cms-media-picker="{{ fkey }}">
+                <option value="">Choose from media library…</option>
+                {% for m in media %}<option value="{{ m.url }}"{% if value == m.url %} selected{% endif %}>{{ m.name }}</option>{% endfor %}
+              </select>
+              <div class="media-preview" data-cms-preview="{{ fkey }}">{% if value %}<img src="{{ value }}" alt="Preview" loading="lazy" />{% endif %}</div>
+            </div>
+          </div>
+
+          {% elif f.type == 'listlines' %}
+          <div class="form-row">
+            <label>{{ f.label }} <small style="font-weight:400;text-transform:none;letter-spacing:0;">(one item per line)</small></label>
+            <textarea name="field_{{ fkey }}" rows="4">{{ (value if value is not none else f.get('default', [])) | join('\n') }}</textarea>
+          </div>
+
+          {% elif f.type == 'list' %}
+          {% set items = value if value is not none else f.get('default', []) %}
+          {% if items | length == 0 %}{% set items = [{}] %}{% endif %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <div class="cms-list" data-list="{{ fkey }}">
+              {% for item in items %}
+              {% set item_idx = loop.index0 %}
+              <div class="cms-list-item">
+                <div class="cms-list-grid">
+                  {% for sub_key, sub in f.item.items() %}
+                  <div class="form-row">
+                    <label>{{ sub.label }}</label>
+                    {% if sub.type == 'textarea' %}
+                    <textarea name="item_{{ fkey }}_{{ item_idx }}_{{ sub_key }}" rows="3">{{ item.get(sub_key, sub.get('default', '')) }}</textarea>
+                    {% elif sub.type == 'listlines' %}
+                    <textarea name="item_{{ fkey }}_{{ item_idx }}_{{ sub_key }}" rows="3">{{ item.get(sub_key, sub.get('default', [])) | join('\n') }}</textarea>
+                    {% elif sub.type == 'checkbox' %}
+                    <input type="checkbox" name="item_{{ fkey }}_{{ item_idx }}_{{ sub_key }}" value="1" {% if item.get(sub_key, sub.get('default', False)) %}checked{% endif %} />
+                    {% elif sub.type == 'image' %}
+                    <input name="item_{{ fkey }}_{{ item_idx }}_{{ sub_key }}" data-cms-image value="{{ item.get(sub_key, sub.get('default', '')) }}" placeholder="https://… or images/…" />
+                    <div class="media-picker">
+                      <select data-cms-media-picker>
+                        <option value="">Choose from media library…</option>
+                        {% for m in media %}<option value="{{ m.url }}"{% if item.get(sub_key, sub.get('default', '')) == m.url %} selected{% endif %}>{{ m.name }}</option>{% endfor %}
+                      </select>
+                      <div class="media-preview" data-cms-preview>{% if item.get(sub_key, sub.get('default', '')) %}<img src="{{ item.get(sub_key, sub.get('default', '')) }}" alt="Preview" loading="lazy" />{% endif %}</div>
+                    </div>
+                    {% else %}
+                    <input name="item_{{ fkey }}_{{ item_idx }}_{{ sub_key }}" value="{{ item.get(sub_key, sub.get('default', '')) }}" />
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class="btn btn-ghost cms-remove">Remove</button>
+              </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="btn btn-ghost cms-add" data-list="{{ fkey }}">+ Add {{ f.label | lower }}</button>
+          </div>
+          {% endif %}
+          {% endfor %}
+
+          <div class="cms-actions">
+            <label class="control-label" style="margin-right:auto;"><input type="checkbox" name="active" value="1" {% if active %}checked{% endif %} /> Section visible on the page</label>
+            <button class="btn" type="submit">Save {{ section.label }}</button>
+          </div>
+        </form>
+      </div>
+    </details>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+(function () {
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  // Media pickers: select -> fill the sibling input + preview in the same
+  // form-row. Delegated so it also works for rows added by the repeater.
+  document.addEventListener('change', function (e) {
+    var sel = e.target.closest ? e.target.closest('[data-cms-media-picker]') : null;
+    if (!sel) return;
+    var row = sel.closest('.form-row');
+    if (!row) return;
+    var input = row.querySelector('[data-cms-image]');
+    var preview = row.querySelector('[data-cms-preview]');
+    if (input) input.value = sel.value;
+    if (preview) preview.innerHTML = sel.value ? '<img src="' + esc(sel.value) + '" alt="Preview" loading="lazy" />' : '';
+  });
+
+  // Repeaters: add an empty item row using the first row as a template.
+  document.querySelectorAll('.cms-add').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var list = btn.closest('.form-row').querySelector('.cms-list');
+      var first = list.querySelector('.cms-list-item');
+      var clone = first ? first.cloneNode(true) : null;
+      if (!clone) return;
+      clone.querySelectorAll('input, textarea').forEach(function (el) {
+        el.value = el.type === 'checkbox' ? '' : '';
+        var name = el.getAttribute('name');
+        if (name) {
+          var parts = name.split('_');
+          var idx = parseInt(parts[2], 10) + 1;
+          parts[2] = String(idx);
+          el.setAttribute('name', parts.join('_'));
+        }
+      });
+      clone.querySelectorAll('[data-cms-preview]').forEach(function (p) { p.innerHTML = ''; });
+      var addBtn = list.querySelector('.cms-add') || btn;
+      var removeBtn = clone.querySelector('.cms-remove');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function () { clone.remove(); });
+      }
+      list.appendChild(clone);
+    });
+  });
+
+  document.querySelectorAll('.cms-list').forEach(function (list) {
+    list.addEventListener('click', function (e) {
+      if (e.target.classList.contains('cms-remove')) {
+        e.target.closest('.cms-list-item').remove();
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

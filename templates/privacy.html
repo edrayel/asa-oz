@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Privacy Notice — Asa-OZ{% endblock %}
+{% block description %}Asa-OZ privacy notice — what we collect, how we use it, and your rights.{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css') }}">{% endblock %}
+{% block main %}
+      <div class="page-hero">
+        <h1>{{ cms.hero.title }}</h1>
+        <p>Last updated: {{ today }}</p>
+      </div>
+
+      <article class="legal-content">
+        <p>{{ cms.body.intro }}</p>
+
+        {% for sec in cms.body.sections %}
+        <h2>{{ sec.heading }}</h2>
+        {% for line in sec.body.split('\n') %}
+        {% if line.startswith('• ') %}<ul><li>{{ line[2:] }}</li></ul>{% else %}<p>{{ line }}</p>{% endif %}
+        {% endfor %}
+        {% endfor %}
+      </article>
+{% endblock %}

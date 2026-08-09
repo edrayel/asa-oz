@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}Journey Subscribers - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Journey Subscribers</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+  <div class="card">
+    <h2>{{ items|length }} subscribers</h2>
+    {% if items %}
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Journey Stage</th><th>Source</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for j in items %}
+        <tr>
+          <td>{{ j.name }}</td>
+          <td>{{ j.email }}</td>
+          <td>{{ j.journey_stage }}</td>
+          <td>{{ j.source }}</td>
+          <td>{{ j.created_at }}</td>
+          <td><form method="POST" action="{{ url_for('admin_journey_delete', subscriber_id=j.id) }}" onsubmit="return confirm('Delete this subscriber?')"><button class="btn btn-danger btn-sm">Delete</button></form></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty-state">No journey subscribers yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

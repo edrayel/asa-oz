@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Feedback - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Feedback</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+  <div class="card">
+    {% if items %}
+    {% for f in items %}
+    <details class="admin-details">
+      <summary>
+        <span class="badge badge-{{ f.status }}">{{ f.status or 'new' }}</span> &middot; {{ f.category or 'general' }} &middot; {{ f.created_at }}
+      </summary>
+      <div class="inner">
+        <p style="white-space:pre-wrap;">{{ f.text }}</p>
+        {% if f.note %}<p style="color:var(--muted,#8c7d6d);font-size:0.85rem;"><em>Note: {{ f.note }}</em></p>{% endif %}
+        <form method="POST" action="{{ url_for('admin_feedback_update', feedback_id=f.id) }}" style="display:flex;gap:0.5rem;align-items:center;">
+          <select name="status" style="border:1px solid rgba(111,90,63,0.28);border-radius:8px;padding:0.35rem 0.6rem;font-family:var(--sans);font-size:0.82rem;">
+            <option value="new" {% if f.status == 'new' %}selected{% endif %}>New</option>
+            <option value="reviewed" {% if f.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+            <option value="action" {% if f.status == 'action' %}selected{% endif %}>Action</option>
+          </select>
+          <input name="note" placeholder="Add a note…" value="{{ f.note or '' }}" style="flex:1;border:1px solid rgba(111,90,63,0.28);border-radius:8px;padding:0.35rem 0.6rem;font-family:var(--sans);font-size:0.82rem;" />
+          <button class="btn" type="submit">Save</button>
+          <button class="btn btn-danger" type="submit" formaction="{{ url_for('admin_feedback_delete', feedback_id=f.id) }}" onclick="return confirm('Delete this feedback?')">Delete</button>
+        </form>
+      </div>
+    </details>
+    {% endfor %}
+    {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Cart">
+  <div class="cart-header">
+    <h3>Your cart</h3>
+    <button class="cart-close" id="cartClose" aria-label="Close cart">&#10005;</button>
+  </div>
+  <div id="cartBody" hx-get="{{ url_for('cart_drawer_view') }}" hx-trigger="load" hx-swap="innerHTML">
+    {% include "partials/cart_drawer.html" %}
+  </div>
+</aside>

@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block title %}Sign in — Asa-OZ Admin{% endblock %}
+{% block body %}
+  <div class="admin-wrap">
+    <div class="login-card">
+      <h1>Asa-OZ Admin</h1>
+      {% if error %}<p class="login-error">{{ error }}</p>{% endif %}
+      <form method="POST" action="{{ url_for('admin_login') }}">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required />
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required />
+        <button type="submit">Sign in</button>
+      </form>
+      <p class="login-foot"><a href="{{ url_for('index') }}">&larr; Back to site</a></p>
+    </div>
+  </div>
+{% endblock %}

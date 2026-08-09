@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Asa-OZ — Return to Yourself{% endblock %}</title>
+  <meta name="description" content="{% block description %}Asa-OZ is a cultural identity restoration movement for adults 45+ — belonging, culture, community, and meaningful travel. You don’t have to begin again alone.{% endblock %}" />
+  <meta name="theme-color" content="#2b2118" />
+  {% block og_meta %}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Asa-OZ — Return to Yourself" />
+  <meta property="og:description" content="{{ settings.get('site_tagline', 'A movement for identity, belonging & renewal.') }} Coming soon." />
+  <meta property="og:site_name" content="Asa-OZ" />
+  <meta property="og:url" content="https://asa-oz.com" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Asa-OZ — Return to Yourself" />
+  <meta name="twitter:description" content="{{ settings.get('site_tagline', 'A movement for identity, belonging & renewal.') }} Coming soon." />
+  {% endblock %}
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+  {% block styles %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/htmx.min.js') }}" defer></script>
+  <script>window.ASA_SETTINGS = {{ settings | tojson }};</script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  {% block ambience %}
+  <div class="ambience" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+  {% endblock %}
+
+  {% block pre_shell %}{% endblock %}
+
+  {% block shell %}
+  <div class="shell">
+    {% include "partials/header.html" %}
+    <main id="main-content">
+      {% block main %}{% endblock %}
+    </main>
+    {% include "partials/footer.html" %}
+    {% include "partials/mobile_menu.html" %}
+  </div>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">&#8593;</button>
+
+  {% include "partials/cart_overlay.html" %}
+  {% include "partials/booking_overlay.html" %}
+  <aside class="cookie-bar" id="cookieBar" role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="ckText">
+    <span class="ck-icon" aria-hidden="true">⚪</span>
+    <div class="ck-body">
+      <p id="ckText">
+        We use strictly necessary cookies to run this site. With your consent, we'd also like to use analytics cookies to understand how visitors find us. <a href="{{ url_for('privacy') }}" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">See our privacy notice</a>.
+      </p>
+      <div class="ck-actions">
+        <button type="button" class="ck-reject" id="ckReject">Reject non-essential</button>
+        <button type="button" class="ck-accept" id="ckAccept">Accept all</button>
+      </div>
+    </div>
+  </aside>
+  {% block overlays %}{% endblock %}
+  {% endblock %}
+
+  <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/autogrow.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% for p in products %}
+{% if type_filter == 'all' or p.type == type_filter %}
+<div class="store-card reveal" data-type="{{ p.type }}">
+  {% if p.img %}
+  <img class="media" src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" decoding="async" />
+  {% else %}
+  <div class="media media-placeholder" aria-label="{{ p.name }}"></div>
+  {% endif %}
+  <div class="body">
+    <span class="badge {{ p.type }}">{{ p.type | capitalize }}</span>
+    <h3>{{ p.name }}</h3>
+    <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
+    <div class="price">{% if settings.get('show_prices', '1') == '0' %}Pricing on request{% elif settings.get('price_public', '1') == '0' %}Pricing on request{% elif p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
+    <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
+      <input type="hidden" name="id" value="{{ p.id }}" />
+      <button type="submit" class="add-btn">Add to cart</button>
+    </form>
+    <a class="view-link" href="{{ url_for('product', product_id=p.id) }}">View details</a>
+  </div>
+</div>
+{% endif %}
+{% endfor %}

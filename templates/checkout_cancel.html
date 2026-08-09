@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Checkout cancelled — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <div style="max-width:34rem; margin:0 auto; text-align:center; padding:3rem 1.5rem;">
+          <p class="eyebrow reveal">Checkout cancelled</p>
+          <h1 class="reveal">No problem — the journey doesn’t end here.</h1>
+          <p class="reveal" style="color:var(--muted); line-height:1.7;">Your cart is still waiting for you. You can return to it any time.</p>
+          <p style="margin-top:1.5rem;"><a class="pricing-btn" style="text-decoration:none; display:inline-block;" href="{{ url_for('store') }}">Back to the store</a></p>
+        </div>
+      </section>
+{% endblock %}

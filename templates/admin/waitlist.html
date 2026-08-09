@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% block title %}Waitlist - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Waitlist</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+  <div class="card">
+    <h2>{{ items|length }} signups</h2>
+    {% if items %}
+    <table>
+      <thead><tr><th>Email</th><th>Source</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for w in items %}
+        <tr><td>{{ w.email }}</td><td>{{ w.source }}</td><td>{{ w.created_at }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty-state">No waitlist signups yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

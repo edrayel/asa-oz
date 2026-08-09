@@ -18,3 +18,21 @@ dist/
 
 # MCP config (contains API keys — never commit)
 .mcp.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Flask instance (local db, secrets)
+instance/
+
+# Uploaded media (bytes; DB stores paths only)
+instance/uploads/
+
+# Test artifacts
+.playwright-mcp/
+admin-dashboard.png
+
+# Verification screenshots
+*.png

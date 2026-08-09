@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+{% block title %}Files - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Files</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <h2>Upload files</h2>
+    <p class="sub">Files are stored outside the database (see <code>UPLOAD_DIR</code>); the DB keeps only the paths and the public URLs below are ready to paste into products or the hero carousel.</p>
+    <form method="POST" action="{{ url_for('admin_files_upload') }}" enctype="multipart/form-data">
+      <div class="form-row">
+        <label>Choose files</label>
+        <input type="file" name="files" multiple />
+        <small style="color:var(--muted,#8c7d6d)">Allowed: jpg, png, webp, gif, avif, pdf, doc/docx, txt, md, csv, audio, video, zip &mdash; up to {{ max_mb }} MB each.</small>
+      </div>
+      <button class="btn" type="submit">Upload</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Manage files <span class="count">({{ files | length }})</span></h2>
+    {% if files %}
+    <div class="file-grid">
+      {% for f in files %}
+      <div class="file-tile">
+        <div class="file-thumb">
+          {% if f.kind == 'image' %}
+          <img src="{{ f.url }}" alt="{{ f.name }}" loading="lazy" />
+          {% else %}
+          <div class="file-ico">{{ f.path.rsplit('.', 1)[-1] | upper }}</div>
+          {% endif %}
+        </div>
+        <div class="file-meta">
+          <div class="file-name" title="{{ f.name }}">{{ f.name }}</div>
+          <div class="file-dim">{{ f.kind }} &middot; {{ f.size_label }}</div>
+          <details class="file-url-details">
+            <summary>URL</summary>
+            <input class="file-url" readonly value="{{ f.url }}" onfocus="this.select()" />
+            <button type="button" class="btn btn-ghost copy-btn" data-url="{{ f.url }}">Copy</button>
+          </details>
+        </div>
+        <form method="POST" action="{{ url_for('admin_file_delete', file_id=f.id) }}">
+          <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this file?')">Delete</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">No files uploaded yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = btn.closest('.file-url-details').querySelector('.file-url');
+      input.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1400);
+    });
+  });
+})();
+</script>
+{% endblock %}

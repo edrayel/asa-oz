@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}FAQ — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
+        <h1 class="reveal">{{ cms.hero.title }}</h1>
+        <p class="lede reveal">{{ cms.hero.lede }}</p>
+      </section>
+
+      <section class="faq-section page-section" aria-label="Frequently asked questions">
+        {% for item in cms.entries.faqs %}
+        <details class="reveal">
+          <summary>{{ item.q }}<span class="sign" aria-hidden="true"></span></summary>
+          <div class="answer"><p>{{ item.a }}</p></div>
+        </details>
+        {% endfor %}
+
+        <div class="page-cta reveal">
+          <p>{{ cms.cta.line }}</p>
+          <a href="{{ url_for('contact') }}" class="page-btn">{{ cms.cta.contact_label }}</a>
+          <a href="{{ url_for('index') }}#signup" class="page-btn page-btn-ghost">{{ cms.cta.join_label }}</a>
+        </div>
+      </section>
+{% endblock %}

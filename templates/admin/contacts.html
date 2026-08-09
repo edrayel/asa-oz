@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block title %}Contacts - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Contacts</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+  <div class="card">
+    {% if items %}
+    {% for c in items %}
+    <details class="admin-details">
+      <summary>{{ c.name }} &middot; {{ c.email }} &middot; {{ c.created_at }}</summary>
+      <div class="inner"><p style="white-space:pre-wrap;">{{ c.message }}</p></div>
+    </details>
+    {% endfor %}
+    {% else %}<p class="empty-state">No contact messages yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

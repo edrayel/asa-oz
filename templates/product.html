@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <a class="back-link reveal" href="{{ url_for('store') }}">&larr; Back to the store</a>
+        <div id="productDetail" class="product-detail reveal">
+          <div class="product-media">{% if product.img %}<img src="{{ product.img }}" alt="{{ product.name }}" loading="eager" />{% endif %}</div>
+          <div class="product-info">
+            <span class="product-badge {{ product.type }}">{{ product.type | capitalize }}</span>
+            <h1>{{ product.name }}</h1>
+            <p class="product-desc">{{ product.desc }}</p>
+            <p class="product-price"{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %} data-price="{% if product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}"{% endif %}>{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %}Pricing on request{% elif product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}</p>
+            <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
+              <input type="hidden" name="id" value="{{ product.id }}" />
+              <button type="submit" class="product-add-btn">Add to cart</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section class="similar-section" aria-label="{{ store_copy.similar_title }}">
+        <h2 class="reveal">{{ store_copy.similar_title }}</h2>
+        <div class="similar-grid" id="similarGrid">
+          {% for p in similar %}
+          <div class="store-card reveal">
+            {% if p.img %}<img class="media" src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" decoding="async" />{% endif %}
+            <div class="body">
+              <span class="badge {{ p.type }}">{{ p.type | capitalize }}</span>
+              <h3>{{ p.name }}</h3>
+              <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
+              <div class="price">{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %}Pricing on request{% elif p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
+              <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
+                <input type="hidden" name="id" value="{{ p.id }}" />
+                <button type="submit" class="add-btn">Add to cart</button>
+              </form>
+              <a class="view-link" href="{{ url_for('product', product_id=p.id) }}">View details</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+{% endblock %}

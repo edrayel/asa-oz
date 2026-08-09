@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block title %}Pages - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Pages</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+    Every section on these pages is editable here — no code changes required. Edits apply to the live site immediately.
+  </p>
+
+  <div class="page-grid">
+    {% for key, page in pages.items() %}
+    <a class="page-tile" href="{{ url_for('admin_page', page=key) }}">
+      <div class="page-tile-head">
+        <span class="page-label">{{ page.label }}</span>
+        <span class="page-count">{{ page.sections | length }} sections</span>
+      </div>
+      <div class="page-section-list">
+        {% for s in page.sections %}
+        <span class="page-section-pill">{{ s.label }}</span>
+        {% endfor %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
+  .page-tile{display:block;background:#fff;border:1px solid rgba(111,90,63,0.2);border-radius:14px;padding:1.1rem 1.2rem;text-decoration:none;color:inherit;transition:box-shadow .15s ease,transform .15s ease}
+  .page-tile:hover{box-shadow:0 8px 24px rgba(90,60,20,.12);transform:translateY(-1px)}
+  .page-tile-head{display:flex;justify-content:space-between;align-items:baseline;gap:0.6rem;margin-bottom:0.7rem}
+  .page-label{font-family:var(--serif);font-size:1.15rem;color:var(--espresso)}
+  .page-count{font-size:0.72rem;color:var(--muted,#8c7d6d);text-transform:uppercase;letter-spacing:.06em}
+  .page-section-list{display:flex;flex-wrap:wrap;gap:0.35rem}
+  .page-section-pill{font-size:0.72rem;background:rgba(140,106,64,.1);color:#6a4a2a;padding:0.25rem 0.6rem;border-radius:999px}
+</style>
+{% endblock %}

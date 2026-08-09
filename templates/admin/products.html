@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+{% block title %}Products - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Products</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <datalist id="productTypesList">
+    {% for t in product_types %}<option value="{{ t }}"></option>{% endfor %}
+  </datalist>
+
+  <div class="card">
+    <h2>Add product</h2>
+    <form method="POST" action="{{ url_for('admin_products_new') }}">
+      <div class="two-col">
+        <div class="form-row"><label>Name</label><input name="name" required /></div>
+        <div class="form-row"><label>Type</label>
+          <input name="type" list="productTypesList" placeholder="e.g. physical, virtual, guide…" value="physical" /></div>
+        <div class="form-row"><label>Price (EUR)</label><input type="number" name="price" value="0" min="0" step="1" /></div>
+        <div class="form-row"><label>Image URL</label>
+          <input name="img" placeholder="https://… or images/…" data-media="img" />
+          <div class="media-picker">
+            <select data-media-picker="img">
+              <option value="">Pick an uploaded image…</option>{% for f in media %}<option value="{{ f.url }}">{{ f.name }}</option>{% endfor %}
+            </select>
+            <div class="media-preview" data-media-preview></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row"><label>Description</label><textarea name="desc" rows="3"></textarea></div>
+      <div class="form-row"><label>Id (optional, URL slug)</label><input name="id" placeholder="auto-generated if left empty" /></div>
+      <div class="form-row"><label class="control-label" style="text-transform:none;letter-spacing:0;"><input type="checkbox" name="active" checked /> Active (visible on store)</label></div>
+      <button class="btn" type="submit">Add product</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Existing products</h2>
+    {% for p in products %}
+    <details class="admin-details">
+      <summary>
+        {{ p.name }} &middot; <span class="badge">{{ p.type | capitalize }}</span>
+        {% if p.active %} <span class="badge badge-reviewed">active</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}
+        &middot; {% if p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}
+      </summary>
+      <div class="inner">
+        <form method="POST" action="{{ url_for('admin_product_update', product_id=p.id) }}">
+          <div class="two-col">
+            <div class="form-row"><label>Name</label><input name="name" value="{{ p.name }}" /></div>
+            <div class="form-row"><label>Price</label><input type="number" name="price" value="{{ p.price }}" min="0" step="1" /></div>
+            <div class="form-row"><label>Type</label>
+              <input name="type" list="productTypesList" value="{{ p.type }}" /></div>
+            <div class="form-row"><label>Image URL</label>
+              <input name="img" value="{{ p.img }}" data-media="img" />
+              <div class="media-picker">
+                <select data-media-picker="img">
+                  <option value="">Change image…</option>
+                  {% for f in media %}<option value="{{ f.url }}"{% if f.url == p.img %} selected{% endif %}>{{ f.name }}</option>{% endfor %}
+                </select>
+                <div class="media-preview" data-media-preview>
+                  {% if p.img %}<img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" />{% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row"><label>Description</label><textarea name="desc" rows="3">{{ p.desc }}</textarea></div>
+          <div class="form-row"><label>Sort</label><input type="number" name="sort" value="{{ p.get('sort', 0) }}" /></div>
+          <div class="form-row" style="Status:"><label style="text-transform:none;letter-spacing:0;"><input type="checkbox" name="active" {% if p.active %}checked{% endif %} /> Active</label></div>
+          <button class="btn" type="submit">Save</button>
+          <button class="btn btn-danger" type="submit" formaction="{{ url_for('admin_product_delete', product_id=p.id) }}" onclick="return confirm('Delete this product?')">Delete</button>
+        </form>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+(function () {
+  function wire(scope) {
+    scope.querySelectorAll('[data-media-picker]').forEach(function (sel) {
+      var input = sel.closest('form').querySelector('[name="' + sel.getAttribute('data-media-picker') + '"]');
+      var preview = sel.closest('.media-picker').querySelector('[data-media-preview]');
+      sel.addEventListener('change', function () {
+        if (input && sel.value) input.value = sel.value;
+        if (preview) {
+          preview.innerHTML = sel.value ? '<img src="' + sel.value + '" alt="Preview" loading="lazy" />' : '';
+        }
+      });
+    });
+  }
+  wire(document);
+})();
+</script>
+{% endblock %}

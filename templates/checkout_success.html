@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Order confirmed — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <div style="max-width:34rem; margin:0 auto; text-align:center; padding:3rem 1rem;">
+          <p class="eyebrow reveal">Thank you</p>
+          <h1 class="reveal">Your order has been received.</h1>
+          <p class="reveal" style="color:var(--muted); line-height:1.7;">We&rsquo;ll be in touch by email with the next steps. If you have questions, contact <a href="mailto:info@asa-oz.com" style="color:var(--sage-deep);">info@asa-oz.com</a>.</p>
+          <div class="reveal" style="margin-top:1.5rem;">
+            {% for item in order %}
+            <div style="display:flex; justify-content:space-between; gap:1rem; padding:0.7rem 0; border-bottom:1px solid rgba(111,90,63,0.15); font-size:0.95rem;">
+              <span>{{ item.qty }} × {{ item.name }}</span>
+              <span>{% if item.price == 0 %}Free{% else %}€{{ item.price }}{% endif %}</span>
+            </div>
+            {% endfor %}
+            <div style="display:flex; justify-content:space-between; padding:0.9rem 0; font-weight:600;">
+              <span>Total</span><span>€{{ total }}</span>
+            </div>
+          </div>
+          <p style="margin-top:2rem;"><a class="pricing-btn" style="text-decoration:none; display:inline-block;" href="{{ url_for('store') }}">Back to the store</a></p>
+        </div>
+      </section>
+{% endblock %}

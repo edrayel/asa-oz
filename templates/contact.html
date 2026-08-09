@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Contact — Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
+        <h1 class="reveal">{{ cms.hero.title }}</h1>
+        <p class="lede reveal">{{ cms.hero.lede }}</p>
+      </section>
+
+      <section class="page-section" aria-label="Contact">
+        <div class="contact-grid">
+          <div class="contact-card reveal">
+            <h3>{{ cms.info.heading }}</h3>
+            <p><strong>{{ cms.info.email_label }}</strong> <a href="mailto:{{ cms.info.email }}">{{ cms.info.email }}</a></p>
+            <p><strong>{{ cms.info.call_label }}</strong></p>
+            <p><strong>{{ cms.info.location_label }}</strong> {{ cms.info.location }}</p>
+            <p>{{ cms.info.legal_line }}</p>
+          </div>
+          <form id="contactForm" class="contact-form reveal" action="{{ url_for('contact_msg') }}" method="POST" novalidate>
+            <div class="field">
+              <label for="cName">{{ cms.form.name_label }}</label>
+              <input type="text" id="cName" name="name" autocomplete="name" required placeholder="{{ cms.form.name_placeholder }}" />
+            </div>
+            <div class="field">
+              <label for="cEmail">{{ cms.form.email_label }}</label>
+              <input type="email" id="cEmail" name="email" autocomplete="email" required placeholder="{{ cms.form.email_placeholder }}" />
+            </div>
+            <div class="field">
+              <label for="cMessage">{{ cms.form.message_label }}</label>
+              <textarea id="cMessage" name="message" rows="4" required placeholder="{{ cms.form.message_placeholder }}"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">{{ cms.form.submit }}</button>
+            <p class="form-msg" id="contactMsg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+{% endblock %}
