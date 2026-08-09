@@ -8,3 +8,9 @@
 
 - When replicating a tool/config setup, wants the agent to follow the pattern already established in their other repos — e.g., pointing at `/home/edrayel/dev/projectkreate` as the reference for how the Command Code MCP was set up, so conventions stay consistent across projects. Confidence: 0.7
 
+- Treats "commit" and "push" as separate, explicitly-scoped steps — when the user says only "commit all changes" (after being offered "commit and push"), the agent should commit, verify a clean working tree, and stop there without pushing; pushing happens only when explicitly requested. Confidence: 0.6
+
+- Handles authenticated git operations non-interactively by passing the PAT directly in the push URL (`https://user:PAT@github.com/...`) for that single operation, without writing the token to git config, credentials files, or the repo — the established remote/credential-helper auth may be broken or stale, so one-off PAT-in-URL pushes (with the token read from an out-of-repo key file, e.g. `~/.config/opencode/keys/...`) are an accepted workflow. Confidence: 0.7
+
+- Prefers extracting shared/identical code (e.g., the per-page cart JS) into the shared component (shared.js/shared.css) to avoid duplicating the same logic across files, and checks whether logic is truly identical across files before deciding to extract. Confidence: 0.6
+

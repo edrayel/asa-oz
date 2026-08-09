@@ -3,15 +3,15 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <b>Asa-OZ</b>
-      <p class="footer-tagline">{{ settings.get('site_tagline', 'A movement for identity, belonging & renewal.') }}</p>
+      <p class="footer-tagline">{{ cms_site.tagline }}</p>
       <div class="social-icons" aria-label="Social media">{{ social_links(18) }}</div>
     </div>
     <div class="footer-contact">
       <h4>Contact</h4>
-      <p>{{ settings.get('site_legal', 'Sole Trader: Ifeoma t/a Asa-OZ · Ireland') }}</p>
-      <p>{{ settings.get('site_rc', 'RC No: Not applicable (sole trader)') }}</p>
-      <p><a href="mailto:{{ settings.get('site_email', 'info@asa-oz.com') }}">{{ settings.get('site_email', 'info@asa-oz.com') }}</a></p>
-      <p>Phone: {{ settings.get('site_phone', '[to be added]') }}</p>
+      <p>{{ cms_site.legal }}</p>
+      <p>{{ cms_site.rc }}</p>
+      <p><a href="mailto:{{ cms_site.email }}">{{ cms_site.email }}</a></p>
+      <p>Phone: {{ cms_site.phone }}</p>
     </div>
     <div class="footer-proof">
       <h4>Explore</h4>

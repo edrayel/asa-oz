@@ -1,8 +1,8 @@
 <div class="booking-confirmation" id="bookingConfirm" style="display:flex;">
   <div class="confirm-icon" aria-hidden="true">&#10003;</div>
-  <h4>{{ settings.get('booking_confirm_title', "You’re in") }}</h4>
-  <p>{{ settings.get('booking_confirm_body', "We’ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email {email}.").format(email=settings.get('site_email', 'info@asa-oz.com')) | safe }}</p>
+  <h4>{{ cms_booking.confirm_title }}</h4>
+  <p>{{ cms_booking.confirm_body.format(email=cms_site.email) | safe }}</p>
 </div>
 <div class="booking-footer" id="bookingFooter" style="justify-content:center;">
-  <button type="button" class="booking-btn booking-btn-primary" onclick="document.getElementById('bookingOverlay').classList.remove('open');document.body.style.overflow='';">{{ settings.get('booking_confirm_close', 'Close') }}</button>
+  <button type="button" class="booking-btn booking-btn-primary" onclick="document.getElementById('bookingOverlay').classList.remove('open');document.body.style.overflow='';">{{ cms_booking.confirm_close }}</button>
 </div>

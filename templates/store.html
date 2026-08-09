@@ -4,8 +4,8 @@
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">{% endblock %}
 {% block main %}
       <section class="store-hero">
-        <h1 class="reveal">{{ store_copy.hero_title }}</h1>
-        <p class="lede reveal">{{ store_copy.hero_lede }}</p>
+        <h1 class="reveal">{{ cms_store.hero_title }}</h1>
+        <p class="lede reveal">{{ cms_store.hero_lede }}</p>
       </section>
 
       <section class="store-section" aria-label="Shop">
@@ -18,8 +18,8 @@
         <div class="store-grid" id="storeGrid">
           {% include "partials/store_grid.html" %}
         </div>
-        <section class="similar-section" aria-label="{{ store_copy.similar_title }}">
-          <h2 class="reveal">{{ store_copy.similar_title }}</h2>
+        <section class="similar-section" aria-label="{{ cms_store.similar_title }}">
+          <h2 class="reveal">{{ cms_store.similar_title }}</h2>
           <div class="similar-grid" id="similarGrid">
             {% for p in products[:6] %}
             <div class="store-card reveal">

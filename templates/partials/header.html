@@ -17,7 +17,7 @@
   <div class="header-social" aria-label="Social media">{{ social_links(16) }}</div>
   <div class="header-actions">
     <button type="button" class="header-booking" id="headerBookingTrigger">
-      <span class="header-booking-text">{{ settings.get('booking_label', 'Book a discovery call') }}</span>
+      <span class="header-booking-text">{{ cms_booking.label }}</span>
       <span class="header-booking-icon">{{ icon('<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>', 18) }}</span>
     </button>
     <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">

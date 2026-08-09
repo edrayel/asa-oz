@@ -650,6 +650,70 @@ PAGES = {
             },
         ],
     },
+    "sitewide": {
+        "label": "Site-wide",
+        "hint": "Contact details and footer/legal copy shown across every page.",
+        "sections": [
+            {
+                "key": "site",
+                "label": "Site-wide copy",
+                "fields": [
+                    _lt("tagline", "Footer tagline", default="A movement for identity, belonging & renewal."),
+                    _lt("email", "Contact email", default="info@asa-oz.com"),
+                    _lt("phone", "Contact phone", default="[to be added]"),
+                    _lt("legal", "Legal line (footer)", default="Sole Trader: Ifeoma t/a Asa-OZ · Ireland"),
+                    _lt("rc", "Registration number line (footer)", default="RC No: Not applicable (sole trader)"),
+                ],
+            },
+        ],
+    },
+    "store": {
+        "label": "Store",
+        "hint": "Headings and intro copy for the store and product pages.",
+        "sections": [
+            {
+                "key": "store",
+                "label": "Store copy",
+                "fields": [
+                    _lt("hero_title", "Store hero title", default="Tools for the journey"),
+                    _ta("hero_lede", "Store hero lede", default="Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves."),
+                    _lt("similar_title", "“You may also like” title", default="You may also like"),
+                ],
+            },
+        ],
+    },
+    "booking": {
+        "label": "Booking",
+        "hint": "Labels, placeholders, validation messages and confirmation copy for the discovery-call booking form.",
+        "sections": [
+            {
+                "key": "booking",
+                "label": "Booking call form",
+                "fields": [
+                    _lt("label", "Header button label", default="Book a discovery call"),
+                    _lt("submit", "Submit button", default="Request booking"),
+                    _lt("cancel", "Cancel button", default="Cancel"),
+                    _lt("full_name", "Full name label", default="Full name"),
+                    _lt("email", "Email label", default="Email"),
+                    _lt("phone", "Phone label", default="Phone"),
+                    _lt("date", "Preferred date label", default="Preferred date"),
+                    _lt("time", "Preferred time label", default="Preferred time"),
+                    _lt("topic", "Topic label", default="What would you like to discuss?"),
+                    _lt("placeholder_full", "Full name placeholder", default="Your full name"),
+                    _lt("placeholder_email", "Email placeholder", default="you@example.com"),
+                    _lt("placeholder_phone", "Phone placeholder", default="+353 ..."),
+                    _lt("placeholder_topic", "Topic placeholder", default="Tell us a little about what you are looking for..."),
+                    _lt("err_name", "Name error message", default="Please enter your name."),
+                    _lt("err_email", "Email error message", default="Please enter a valid email."),
+                    _lt("err_date", "Date error message", default="Please choose a date."),
+                    _lt("err_time", "Time error message", default="Please choose a time."),
+                    _lt("confirm_title", "Confirmation title", default="You’re in"),
+                    _ta("confirm_body", "Confirmation body (use {email} for the contact address)", default='We’ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:{email}" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">{email}</a>.'),
+                    _lt("confirm_close", "Confirmation close button", default="Close"),
+                ],
+            },
+        ],
+    },
 }
 
 # --------------------------------------------------------------------------

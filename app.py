@@ -215,6 +215,14 @@ def _store_upload(file_storage):
     return rel, kind, size, mime
 
 
+def _flat_cms(page_name):
+    """Resolve a CMS page and flatten its sections into one dict of field values."""
+    out = {}
+    for section in cms.resolve(page_name, db.get_page_sections(page_name)).values():
+        out.update({k: v for k, v in section.items() if k != "active"})
+    return out
+
+
 @app.context_processor
 def inject_globals():
     return {
@@ -229,15 +237,9 @@ def inject_globals():
         "store_types": db.list_product_types(active_only=True),
         "cms": _current_cms(),
         "cms_pages": cms.PAGES,
-        "store_copy": {
-            "hero_title": _settings_snapshot().get("store_hero_title", "Tools for the journey"),
-            "hero_lede": _settings_snapshot().get(
-                "store_hero_lede",
-                "Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.",
-            ),
-            "similar_title": _settings_snapshot().get("store_similar_title", "You may also like"),
-            "tools_heading": _settings_snapshot().get("tools_heading", "Tools for the journey"),
-        },
+        "cms_site": _flat_cms("sitewide"),
+        "cms_store": _flat_cms("store"),
+        "cms_booking": _flat_cms("booking"),
     }
 
 
@@ -839,24 +841,14 @@ def _form_indexes(form, prefix):
 @admin_required
 def admin_settings():
     if request.method == "POST":
-        text_keys = ("store_hero_title", "store_hero_lede", "store_similar_title", "tools_heading",
-                     "site_tagline", "site_email", "site_phone", "site_legal", "site_rc",
-                     "booking_label", "booking_submit", "booking_cancel",
-                     "booking_full_name", "booking_email", "booking_phone",
-                     "booking_date", "booking_time", "booking_topic",
-                     "booking_placeholder_full", "booking_placeholder_email",
-                     "booking_placeholder_phone", "booking_placeholder_topic",
-                     "booking_err_name", "booking_err_email", "booking_err_date", "booking_err_time",
-                     "booking_confirm_title", "booking_confirm_body", "booking_confirm_close")
         boolean_keys = [k for k, _ in db.DEFAULT_SETTINGS.items()
-                        if k not in ("price_public", "price_free_first", "price_commitment") + text_keys]
+                        if k not in ("price_public", "price_free_first", "price_commitment")]
         mapping = {k: ("1" if k in request.form else "0") for k in boolean_keys}
         mapping["price_public"] = request.form.get("price_public", "0")
         mapping["price_free_first"] = request.form.get("price_free_first", "0")
         mapping["price_commitment"] = request.form.get("price_commitment", "0")
-        for k in text_keys:
-            mapping[k] = request.form.get(k, db.DEFAULT_SETTINGS.get(k, ""))
         db.set_settings(mapping)
+        db.prune_settings(db.DEFAULT_SETTINGS.keys())
         flash("Settings saved.")
         return redirect(url_for("admin_settings"))
     s = db.get_settings()

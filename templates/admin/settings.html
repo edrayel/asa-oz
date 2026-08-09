@@ -6,30 +6,48 @@
     <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <p class="sub" style="margin-bottom:1.2rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+    Behaviour and visibility settings only — copy and content live under <a href="{{ url_for('admin_pages') }}">Pages</a>.
+  </p>
+
   <form method="POST" action="{{ url_for('admin_settings') }}">
     <div class="card">
-      <h2>Homepage visibility</h2>
+      <h2>Homepage</h2>
       {% set toggles = [
-        ('show_prices','Show prices on store'),
-        ('show_booking','Show booking CTA'),
-        ('show_header_booking','Show booking CTA in header'),
-        ('show_signup','Show hero email signup'),
-        ('show_supporting','Show supporting hero copy'),
-        ('show_faq_section','Show FAQ section'),
-        ('show_store','Show store section'),
-        ('show_testimonials','Show testimonials'),
-        ('show_pricing','Show pricing table'),
-        ('show_not_this','Show "what this is not" note'),
-        ('simple_mode','Simple mode'),
+        ('show_signup','Hero email signup form','Show the email signup under the hero headline'),
+        ('show_supporting','Supporting hero copy','Show the second hero paragraph'),
+        ('show_faq_section','FAQ section','Show the short FAQ section'),
+        ('show_store','Store / tools section','Show the “Tools for the journey” product section'),
+        ('show_testimonials','Testimonials','Show the testimonials section'),
+        ('show_pricing','Membership pricing','Show the pricing table'),
+        ('show_not_this','“What this is not” note','Show the disclaimer note in the hero'),
+        ('simple_mode','Simple mode','Hides the pillars, expectations and gallery sections'),
       ] %}
-      {% for key, label in toggles %}
+      {% for key, label, hint in toggles %}
       <div class="control-row">
-        <div class="control-label">{{ label }}</div>
+        <div class="control-label">{{ label }}<small>{{ hint }}</small></div>
         <input type="checkbox" name="{{ key }}" value="1" {% if settings.get(key, '0') == '1' %}checked{% endif %} />
       </div>
       {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Store &amp; pricing</h2>
       <div class="control-row">
-        <div class="control-label">Show prices on store<small>Values: member-only, free-first, etc.</small></div>
+        <div class="control-label">Show prices<small>Show prices on store listings and product pages</small></div>
+        <input type="checkbox" name="show_prices" value="1" {% if settings.get('show_prices', '1') == '1' %}checked{% endif %} />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Price display<small>Values: member-only, free-first, etc.</small></div>
         <select name="price_public" style="border:1px solid rgba(111,90,63,0.25);border-radius:8px;padding:0.35rem 0.6rem;">
           <option value="1" {% if settings.get('price_public','1') == '1' %}selected{% endif %}>Public</option>
           <option value="0" {% if settings.get('price_public','0') == '0' %}selected{% endif %}>Hidden</option>
@@ -43,47 +61,6 @@
         <div class="control-label">Commitment pricing<small>Show commitment note</small></div>
         <input type="checkbox" name="price_commitment" value="1" {% if settings.get('price_commitment','0') == '1' %}checked{% endif %} />
       </div>
-    </div>
-
-    <div class="card">
-      <h2>Store copy</h2>
-      <div class="form-row"><label>Store hero title</label><input name="store_hero_title" value="{{ settings.get('store_hero_title', '') }}" /></div>
-      <div class="form-row"><label>Store hero lede</label><textarea name="store_hero_lede" rows="3">{{ settings.get('store_hero_lede', '') }}</textarea></div>
-      <div class="form-row"><label>"You may also like" title</label><input name="store_similar_title" value="{{ settings.get('store_similar_title', '') }}" /></div>
-      <div class="form-row"><label>Homepage tools heading</label><input name="tools_heading" value="{{ settings.get('tools_heading', '') }}" /></div>
-    </div>
-
-    <div class="card">
-      <h2>Site-wide copy</h2>
-      <div class="form-row"><label>Footer tagline</label><input name="site_tagline" value="{{ settings.get('site_tagline', '') }}" /></div>
-      <div class="form-row"><label>Contact email</label><input name="site_email" value="{{ settings.get('site_email', '') }}" /></div>
-      <div class="form-row"><label>Contact phone</label><input name="site_phone" value="{{ settings.get('site_phone', '') }}" /></div>
-      <div class="form-row"><label>Legal line (footer)</label><input name="site_legal" value="{{ settings.get('site_legal', '') }}" /></div>
-      <div class="form-row"><label>Registration number line (footer)</label><input name="site_rc" value="{{ settings.get('site_rc', '') }}" /></div>
-    </div>
-
-    <div class="card">
-      <h2>Booking call form</h2>
-      <div class="form-row"><label>Header button label</label><input name="booking_label" value="{{ settings.get('booking_label', '') }}" /></div>
-      <div class="form-row"><label>Submit button</label><input name="booking_submit" value="{{ settings.get('booking_submit', '') }}" /></div>
-      <div class="form-row"><label>Cancel button</label><input name="booking_cancel" value="{{ settings.get('booking_cancel', '') }}" /></div>
-      <div class="form-row"><label>Full name label</label><input name="booking_full_name" value="{{ settings.get('booking_full_name', '') }}" /></div>
-      <div class="form-row"><label>Email label</label><input name="booking_email" value="{{ settings.get('booking_email', '') }}" /></div>
-      <div class="form-row"><label>Phone label</label><input name="booking_phone" value="{{ settings.get('booking_phone', '') }}" /></div>
-      <div class="form-row"><label>Preferred date label</label><input name="booking_date" value="{{ settings.get('booking_date', '') }}" /></div>
-      <div class="form-row"><label>Preferred time label</label><input name="booking_time" value="{{ settings.get('booking_time', '') }}" /></div>
-      <div class="form-row"><label>Topic label</label><input name="booking_topic" value="{{ settings.get('booking_topic', '') }}" /></div>
-      <div class="form-row"><label>Full name placeholder</label><input name="booking_placeholder_full" value="{{ settings.get('booking_placeholder_full', '') }}" /></div>
-      <div class="form-row"><label>Email placeholder</label><input name="booking_placeholder_email" value="{{ settings.get('booking_placeholder_email', '') }}" /></div>
-      <div class="form-row"><label>Phone placeholder</label><input name="booking_placeholder_phone" value="{{ settings.get('booking_placeholder_phone', '') }}" /></div>
-      <div class="form-row"><label>Topic placeholder</label><input name="booking_placeholder_topic" value="{{ settings.get('booking_placeholder_topic', '') }}" /></div>
-      <div class="form-row"><label>Name error message</label><input name="booking_err_name" value="{{ settings.get('booking_err_name', '') }}" /></div>
-      <div class="form-row"><label>Email error message</label><input name="booking_err_email" value="{{ settings.get('booking_err_email', '') }}" /></div>
-      <div class="form-row"><label>Date error message</label><input name="booking_err_date" value="{{ settings.get('booking_err_date', '') }}" /></div>
-      <div class="form-row"><label>Time error message</label><input name="booking_err_time" value="{{ settings.get('booking_err_time', '') }}" /></div>
-      <div class="form-row"><label>Confirmation title</label><input name="booking_confirm_title" value="{{ settings.get('booking_confirm_title', '') }}" /></div>
-      <div class="form-row"><label>Confirmation body <small>Use {email} for the contact address</small></label><textarea name="booking_confirm_body" rows="3">{{ settings.get('booking_confirm_body', '') }}</textarea></div>
-      <div class="form-row"><label>Confirmation close button</label><input name="booking_confirm_close" value="{{ settings.get('booking_confirm_close', '') }}" /></div>
     </div>
 
     <div class="card">

@@ -113,8 +113,6 @@ CREATE TABLE IF NOT EXISTS page_sections (
 
 DEFAULT_SETTINGS = {
     "show_prices": "1",
-    "show_booking": "1",
-    "show_header_booking": "1",
     "show_signup": "1",
     "show_supporting": "1",
     "show_faq_section": "1",
@@ -126,35 +124,6 @@ DEFAULT_SETTINGS = {
     "price_public": "1",
     "price_free_first": "0",
     "price_commitment": "0",
-    "store_hero_title": "Tools for the journey",
-    "store_hero_lede": "Thoughtfully made things to support your return — journals, guides, circles, and keepsakes. Every item carries the same intention as the experiences themselves.",
-    "store_similar_title": "You may also like",
-    "tools_heading": "Tools for the journey",
-    "site_tagline": "A movement for identity, belonging & renewal.",
-    "site_email": "info@asa-oz.com",
-    "site_phone": "[to be added]",
-    "site_legal": "Sole Trader: Ifeoma t/a Asa-OZ · Ireland",
-    "site_rc": "RC No: Not applicable (sole trader)",
-    "booking_label": "Book a discovery call",
-    "booking_submit": "Request booking",
-    "booking_cancel": "Cancel",
-    "booking_full_name": "Full name",
-    "booking_email": "Email",
-    "booking_phone": "Phone",
-    "booking_date": "Preferred date",
-    "booking_time": "Preferred time",
-    "booking_topic": "What would you like to discuss?",
-    "booking_placeholder_full": "Your full name",
-    "booking_placeholder_email": "you@example.com",
-    "booking_placeholder_phone": "+353 ...",
-    "booking_placeholder_topic": "Tell us a little about what you are looking for...",
-    "booking_err_name": "Please enter your name.",
-    "booking_err_email": "Please enter a valid email.",
-    "booking_err_date": "Please choose a date.",
-    "booking_err_time": "Please choose a time.",
-    "booking_confirm_title": "You’re in",
-    "booking_confirm_body": 'We’ll be in touch within 24 hours to confirm your discovery call. If you need to reach us sooner, please email <a href="mailto:{email}" style="color:var(--sage-deep);text-decoration:underline;text-underline-offset:2px;">{email}</a>.',
-    "booking_confirm_close": "Close",
 }
 
 DEFAULT_PRODUCTS = [
@@ -296,6 +265,22 @@ def set_settings(mapping):
             "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
             (key, value),
         )
+    conn.commit()
+    conn.close()
+
+
+def prune_settings(valid_keys):
+    """Delete stored settings keys that are no longer valid (e.g. moved to CMS)."""
+    valid_keys = list(valid_keys)
+    conn = get_conn()
+    if valid_keys:
+        placeholders = ",".join("?" for _ in valid_keys)
+        conn.execute(
+            "DELETE FROM settings WHERE key NOT IN (%s)" % placeholders,
+            valid_keys,
+        )
+    else:
+        conn.execute("DELETE FROM settings")
     conn.commit()
     conn.close()
 

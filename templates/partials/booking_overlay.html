@@ -1,44 +1,44 @@
 <div class="booking-overlay" id="bookingOverlay" role="dialog" aria-modal="true" aria-label="Book a discovery call">
   <div class="booking-modal">
     <div class="booking-header">
-      <h3>{{ settings.get('booking_label', 'Book a discovery call') }}</h3>
+      <h3>{{ cms_booking.label }}</h3>
       <button class="booking-close" id="bookingClose" aria-label="Close booking form" type="button">&#10005;</button>
     </div>
     <div class="booking-body" id="bookingBody">
       <form id="bookingForm" action="{{ url_for('booking') }}" method="POST" novalidate>
         <div class="booking-field" id="fieldName">
-          <label for="bName">{{ settings.get('booking_full_name', 'Full name') }}</label>
-          <input type="text" id="bName" name="name" placeholder="{{ settings.get('booking_placeholder_full', 'Your full name') }}" required />
-          <span class="error-msg">{{ settings.get('booking_err_name', 'Please enter your name.') }}</span>
+          <label for="bName">{{ cms_booking.full_name }}</label>
+          <input type="text" id="bName" name="name" placeholder="{{ cms_booking.placeholder_full }}" required />
+          <span class="error-msg">{{ cms_booking.err_name }}</span>
         </div>
         <div class="booking-field" id="fieldEmail">
-          <label for="bEmail">{{ settings.get('booking_email', 'Email') }}</label>
-          <input type="email" id="bEmail" name="email" placeholder="{{ settings.get('booking_placeholder_email', 'you@example.com') }}" autocomplete="email" required />
-          <span class="error-msg">{{ settings.get('booking_err_email', 'Please enter a valid email.') }}</span>
+          <label for="bEmail">{{ cms_booking.email }}</label>
+          <input type="email" id="bEmail" name="email" placeholder="{{ cms_booking.placeholder_email }}" autocomplete="email" required />
+          <span class="error-msg">{{ cms_booking.err_email }}</span>
         </div>
         <div class="booking-field" id="fieldPhone">
-          <label for="bPhone">{{ settings.get('booking_phone', 'Phone') }} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-          <input type="tel" id="bPhone" name="phone" placeholder="{{ settings.get('booking_placeholder_phone', '+353 ...') }}" autocomplete="tel" />
+          <label for="bPhone">{{ cms_booking.phone }} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input type="tel" id="bPhone" name="phone" placeholder="{{ cms_booking.placeholder_phone }}" autocomplete="tel" />
         </div>
         <div class="booking-row">
           <div class="booking-field" id="fieldDate">
-            <label for="bDate">{{ settings.get('booking_date', 'Preferred date') }}</label>
+            <label for="bDate">{{ cms_booking.date }}</label>
             <input type="date" id="bDate" name="date" required />
-            <span class="error-msg">{{ settings.get('booking_err_date', 'Please choose a date.') }}</span>
+            <span class="error-msg">{{ cms_booking.err_date }}</span>
           </div>
           <div class="booking-field" id="fieldTime">
-            <label for="bTime">{{ settings.get('booking_time', 'Preferred time') }}</label>
+            <label for="bTime">{{ cms_booking.time }}</label>
             <input type="time" id="bTime" name="time" required />
-            <span class="error-msg">{{ settings.get('booking_err_time', 'Please choose a time.') }}</span>
+            <span class="error-msg">{{ cms_booking.err_time }}</span>
           </div>
         </div>
         <div class="booking-field" id="fieldMessage">
-          <label for="bMessage">{{ settings.get('booking_topic', 'What would you like to discuss?') }}</label>
-          <textarea id="bMessage" name="message" rows="4" placeholder="{{ settings.get('booking_placeholder_topic', 'Tell us a little about what you are looking for...') }}"></textarea>
+          <label for="bMessage">{{ cms_booking.topic }}</label>
+          <textarea id="bMessage" name="message" rows="4" placeholder="{{ cms_booking.placeholder_topic }}"></textarea>
         </div>
         <div class="booking-footer" id="bookingFooter">
-          <button type="button" class="booking-btn booking-btn-secondary" id="bookingCancel">{{ settings.get('booking_cancel', 'Cancel') }}</button>
-          <button type="submit" class="booking-btn booking-btn-primary">{{ settings.get('booking_submit', 'Request booking') }}</button>
+          <button type="button" class="booking-btn booking-btn-secondary" id="bookingCancel">{{ cms_booking.cancel }}</button>
+          <button type="submit" class="booking-btn booking-btn-primary">{{ cms_booking.submit }}</button>
         </div>
       </form>
     </div>

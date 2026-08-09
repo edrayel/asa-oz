@@ -36,3 +36,5 @@ admin-dashboard.png
 
 # Verification screenshots
 *.png
+# Playwright snapshot dumps
+*.yml
