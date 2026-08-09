@@ -57,6 +57,7 @@ td.wrap{max-width:340px;word-break:break-word}
 .cms-title{font-family:var(--serif);font-size:1.05rem;color:var(--espresso)}
 .cms-state{margin-left:auto}
 .cms-body{border-top:1px solid rgba(111,90,63,0.12);margin-top:0.7rem;padding-top:1rem}
+.cms-hint{font-size:0.82rem;line-height:1.45;color:var(--muted,#8c7d6d);margin:0 0 0.9rem}
 .cms-list{display:flex;flex-direction:column;gap:0.8rem}
 .cms-list-item{border:1px solid rgba(111,90,63,0.2);border-radius:12px;padding:0.8rem;background:#fbf8f3}
 .cms-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem}

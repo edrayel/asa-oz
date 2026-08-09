@@ -3,3 +3,6 @@ Flask-Session==0.8.0
 stripe==15.4.0
 python-dotenv==1.2.2
 gunicorn==23.0.0
+google-api-python-client==2.198.0
+google-auth==2.56.3
+requests==2.34.2

@@ -49,22 +49,6 @@ PAGES = {
                 ],
             },
             {
-                "key": "marquee",
-                "label": "Hero carousel (marquee)",
-                "fields": [
-                    _lt("rows", "Rows (1-3)", default="3"),
-                    {
-                        "key": "images",
-                        "label": "Images",
-                        "type": "list",
-                        "item": {
-                            "image": {"label": "Image (URL or media library)", "type": "image", "default": ""},
-                        },
-                        "default": [],
-                    },
-                ],
-            },
-            {
                 "key": "hero",
                 "label": "Hero",
                 "fields": [
@@ -85,6 +69,23 @@ PAGES = {
                     _lt("email_placeholder", "Email placeholder", default="Enter your email to be the first to know"),
                     _lt("button", "Button label", default="Join the journey"),
                     _lt("note", "Privacy note", default="No spam — only an invitation when we open our doors."),
+                ],
+            },
+            {
+                "key": "marquee",
+                "label": "Hero carousel (marquee)",
+                "hint": "Photos that scroll behind the hero. Seeded from images/wall-of-memories/ on a fresh site; clear the images to leave the marquee empty.",
+                "fields": [
+                    _lt("rows", "Rows (1-3)", default="3"),
+                    {
+                        "key": "images",
+                        "label": "Images",
+                        "type": "list",
+                        "item": {
+                            "image": {"label": "Image (URL or media library)", "type": "image", "default": ""},
+                        },
+                        "default": [],
+                    },
                 ],
             },
             {
@@ -159,6 +160,13 @@ PAGES = {
                 "label": "Store teaser (“Tools for the journey”)",
                 "fields": [
                     _lt("heading", "Heading", default="Tools for the journey"),
+                ],
+            },
+            {
+                "key": "tools_products",
+                "label": "Store section behaviour",
+                "fields": [
+                    _lt("visit_store_label", "“Visit the store” link", default="Visit the store"),
                 ],
             },
             {
@@ -327,13 +335,6 @@ PAGES = {
                             "Other",
                         ],
                     },
-                ],
-            },
-            {
-                "key": "tools_products",
-                "label": "Store section behaviour",
-                "fields": [
-                    _lt("visit_store_label", "“Visit the store” link", default="Visit the store"),
                 ],
             },
         ],

@@ -16,15 +16,17 @@ import uuid
 import datetime
 from datetime import datetime as _dt
 from functools import wraps
+from urllib.parse import quote
 
 import stripe
 from flask import (
-    Flask, abort, flash, jsonify, redirect, render_template, request, session, send_from_directory, url_for,
+    Flask, Response, abort, flash, jsonify, redirect, render_template, request, session, send_from_directory, url_for,
 )
 from werkzeug.utils import secure_filename
 
 import db
 import cms
+import drive
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
@@ -112,8 +114,34 @@ def images(filename):
 
 @app.route("/media/<path:filename>")
 def media(filename):
-    """Serve files from UPLOAD_DIR (bytes live here; DB stores only the path)."""
+    """Serve files from UPLOAD_DIR, or stream Drive-backed records live."""
+    if filename.startswith("drive/"):
+        return _serve_drive_media(filename)
     return send_from_directory(UPLOAD_DIR, filename)
+
+
+def _serve_drive_media(filename):
+    """Stream a registered Drive-backed file (``source='drive'``) to the client.
+
+    The DB record is the source of truth: only paths recorded there are
+    proxied, so arbitrary Drive file ids cannot be requested."""
+    f = db.get_file_by_path(filename)
+    if not f or f.get("source") != "drive" or not f.get("drive_id"):
+        abort(404)
+    try:
+        resp = drive.stream_download(f["drive_id"])
+    except drive.DriveError:
+        abort(502)
+    headers = {
+        "Cache-Control": "public, max-age=3600",
+        "Content-Length": str(f.get("size") or 0) if f.get("size") else None,
+    }
+    return Response(
+        drive.iter_chunks(resp),
+        mimetype=f.get("mime") or resp.headers.get("Content-Type", "application/octet-stream"),
+        headers={k: v for k, v in headers.items() if v is not None},
+        direct_passthrough=True,
+    )
 
 
 def _wall_files():
@@ -127,17 +155,23 @@ def _wall_files():
             for f in files if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif"))]
 
 
-def _wall_moments():
-    """Marquee + wall-of-memories photo urls.
+def _seed_home_marquee():
+    """Seed the home marquee from images/wall-of-memories/ once (fresh DB).
 
-    Uses the home CMS "marquee" images when any are set; otherwise falls back
-    to scanning images/wall-of-memories/ (served via /images, each url-quoted)."""
+    Only runs when the marquee section has never been saved; afterwards the
+    CMS is the single source of truth for marquee photos."""
+    if "marquee" in db.get_page_sections("home"):
+        return
+    photos = [{"image": "/images/" + "/".join(quote(p, safe="") for p in rel.split("/"))}
+              for rel in _wall_files()]
+    db.save_page_section("home", "marquee", {"rows": "3", "images": photos}, active=True)
+
+
+def _wall_moments():
+    """Marquee + wall-of-memories photo urls from the home CMS (single source)."""
     marquee = cms.resolve("home", db.get_page_sections("home")).get("marquee") or {}
     urls = [img.get("image", "").strip() for img in (marquee.get("images") or [])]
-    urls = [u for u in urls if u]
-    if urls:
-        return urls
-    return [url_for("images", filename=url) for url in _wall_files()]
+    return [u for u in urls if u]
 
 
 # ------------------ file storage ------------------
@@ -640,14 +674,104 @@ def admin_file_delete(file_id):
     if not f:
         abort(404)
     try:
-        path = _upload_abs(f["path"])
-        if os.path.isfile(path):
-            os.remove(path)
+        if f.get("source") != "drive":
+            path = _upload_abs(f["path"])
+            if os.path.isfile(path):
+                os.remove(path)
         db.delete_file(file_id)
         flash("Deleted %s." % (f["name"] or f["path"]))
     except ValueError as exc:
         flash(str(exc), "error")
     return redirect(url_for("admin_files"))
+
+
+# ------------------ admin: Google Drive ------------------
+
+@app.route("/admin/drive")
+@admin_required
+def admin_drive():
+    folder = (request.args.get("folder") or "").strip()
+    page = request.args.get("page") or ""
+    ctx = {"drive_ok": False, "setup_needed": True, "files": [], "folder": folder,
+           "up_folder": "", "folder_name": "", "root_label": "My Drive",
+           "next_page": None, "prev_page": None}
+    if not drive.is_configured():
+        return render_template("admin/drive.html", **ctx)
+    try:
+        files, next_page = drive.list_folder(folder_id=folder or None, page_token=page or None)
+        ctx.update(drive_ok=True, setup_needed=False, files=files, next_page=next_page,
+                   prev_page=page or None, root_label=drive.root_label())
+        if folder:
+            meta = drive.get_metadata(folder)
+            ctx["folder_name"] = meta.get("name") or folder
+            parents = meta.get("parents") or []
+            ctx["up_folder"] = parents[0] if parents else ""
+    except drive.DriveError as exc:
+        ctx["setup_needed"] = False
+        flash("Google Drive error: %s" % exc, "error")
+    return render_template("admin/drive.html", **ctx)
+
+
+@app.route("/admin/drive/import", methods=["POST"])
+@admin_required
+def admin_drive_import():
+    """Download a Drive file into UPLOAD_DIR and record it (source=drive-import)."""
+    file_id = (request.form.get("file_id") or "").strip()
+    back = request.form.get("back") or url_for("admin_drive")
+    if not file_id:
+        flash("Missing Drive file id.", "error")
+        return redirect(back)
+    resp = None
+    try:
+        meta = drive.get_metadata(file_id)
+        if meta.get("is_folder") or not meta.get("is_binary"):
+            raise drive.DriveError("Google-native or folder items cannot be imported")
+        ext = _ext_of(meta.get("name") or "")
+        if ext not in ALLOWED_EXT:
+            raise drive.DriveError("file type .%s is not allowed" % ext)
+        rel = _new_rel_path(meta.get("name") or "file")
+        resp = drive.stream_download(file_id)
+        size = _save_stream(resp.raw, rel)
+        kind = "image" if ext in IMAGE_EXT else "document"
+        mime = meta.get("mimeType") or resp.headers.get("Content-Type", "")
+        db.add_file(path=rel, name=meta.get("name") or rel, kind=kind, size=size,
+                    mime=mime, source="drive-import", drive_id=file_id)
+        flash("Imported “%s” from Drive." % (meta.get("name") or "file"))
+    except (drive.DriveError, ValueError) as exc:
+        flash("Import failed: %s" % exc, "error")
+    finally:
+        if resp is not None:
+            resp.close()
+    return redirect(back)
+
+
+@app.route("/admin/drive/link", methods=["POST"])
+@admin_required
+def admin_drive_link():
+    """Register a Drive file that is streamed live through /media/drive/..."""
+    file_id = (request.form.get("file_id") or "").strip()
+    back = request.form.get("back") or url_for("admin_drive")
+    if not file_id:
+        flash("Missing Drive file id.", "error")
+        return redirect(back)
+    try:
+        meta = drive.get_metadata(file_id)
+        if meta.get("is_folder") or not meta.get("is_binary"):
+            raise drive.DriveError("Google-native or folder items cannot be linked")
+        name = meta.get("name") or "file"
+        rel = "drive/%s/%s" % (file_id, secure_filename(name) or "file")
+        if db.get_file_by_path(rel):
+            flash("“%s” is already linked." % name, "error")
+            return redirect(back)
+        mime = meta.get("mimeType") or ""
+        kind = "image" if mime.startswith("image/") else "document"
+        size = int(meta.get("size") or 0)
+        db.add_file(path=rel, name=name, kind=kind, size=size, mime=mime,
+                    source="drive", drive_id=file_id)
+        flash("Linked “%s” — streamed from Drive at /media/drive/…" % name)
+    except (drive.DriveError, ValueError) as exc:
+        flash("Link failed: %s" % exc, "error")
+    return redirect(back)
 
 
 @app.route("/admin/feedback")
@@ -893,4 +1017,6 @@ def server_error(e):
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        _seed_home_marquee()
     app.run(host="0.0.0.0", port=os.environ.get("PORT", 5000), debug=True)

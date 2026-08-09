@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS files (
   size INTEGER NOT NULL DEFAULT 0,
   mime TEXT NOT NULL DEFAULT '',
   source TEXT NOT NULL DEFAULT 'upload',
+  drive_id TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -156,10 +157,21 @@ def get_conn():
     return conn
 
 
+def _ensure_column(conn, table, column, ddl):
+    """Add ``column`` to ``table`` if it is missing (lightweight migration)."""
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(%s)" % table).fetchall()}
+    if column not in cols:
+        conn.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table, column, ddl))
+
+
 def init_db():
     conn = get_conn()
     conn.executescript(SCHEMA)
     conn.commit()
+
+    # Migrate: add drive_id to existing files tables created before the
+    # Google Drive integration existed.
+    _ensure_column(conn, "files", "drive_id", "TEXT NOT NULL DEFAULT ''")
 
     seed = conn.execute("SELECT COUNT(*) AS c FROM products").fetchone()["c"]
     if seed == 0:
@@ -460,11 +472,11 @@ def list_orders():
 
 # ---------- Files ----------
 
-def add_file(path, name="", kind="image", size=0, mime="", source="upload"):
+def add_file(path, name="", kind="image", size=0, mime="", source="upload", drive_id=""):
     conn = get_conn()
     conn.execute(
-        "INSERT INTO files (path, name, kind, size, mime, source) VALUES (?, ?, ?, ?, ?, ?)",
-        (path, name, kind, size, mime, source),
+        "INSERT INTO files (path, name, kind, size, mime, source, drive_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (path, name, kind, size, mime, source, drive_id),
     )
     conn.commit()
     conn.close()

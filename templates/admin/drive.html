@@ -1,0 +1,108 @@
+{% extends "admin/base.html" %}
+{% block title %}Google Drive - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Google Drive</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  {% if not drive_ok and setup_needed %}
+  <div class="card">
+    <h2>Set up Google Drive</h2>
+    <p class="sub">Browse a Google Drive folder, then <strong>import</strong> files (bytes are saved into the media library) or <strong>link</strong> them (bytes are streamed live to the frontend through <code>/media/drive/…</code>).</p>
+    <ol style="padding-left:1.1rem;margin:0;color:var(--cafe-ink);font-size:0.92rem;">
+      <li>Enable the <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener">Google Drive API</a> in your Cloud project.</li>
+      <li>Create a service account and download its JSON key.</li>
+      <li>Share the folder you want to browse with the service account's email.</li>
+      <li>Set the environment variables below and restart the app.</li>
+    </ol>
+    <div class="form-row" style="margin-top:1rem;">
+      <label><code>GOOGLE_DRIVE_CREDENTIALS</code></label>
+      <input readonly value="path to the service-account JSON, or the JSON itself" />
+    </div>
+    <div class="form-row">
+      <label><code>GOOGLE_DRIVE_FOLDER_ID</code> <small style="text-transform:none;letter-spacing:0;">(optional — defaults to My Drive)</small></label>
+      <input readonly value="e.g. 1AbCdEfGhIjKlMnOpQrStUvWxYz" />
+    </div>
+  </div>
+  {% elif not drive_ok %}
+  <div class="card">
+    <h2>Google Drive</h2>
+    <p class="empty-state">Could not reach Google Drive. Check the flash message above and the <code>GOOGLE_DRIVE_CREDENTIALS</code> / <code>GOOGLE_DRIVE_FOLDER_ID</code> environment variables.</p>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="admin-head" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.6rem;">
+      <h2 style="margin:0;">Drive: {{ root_label }}{% if folder_name and folder_name != root_label %} / {{ folder_name }}{% endif %}</h2>
+      <div class="actions" style="display:flex;gap:0.5rem;margin-left:auto;">
+        {% if folder %}
+        {% if up_folder %}<a class="btn btn-ghost" href="{{ url_for('admin_drive', folder=up_folder) }}">&larr; Up</a>{% endif %}
+        <a class="btn btn-ghost" href="{{ url_for('admin_drive') }}">Root</a>
+        {% endif %}
+      </div>
+    </div>
+    <p class="sub">Folders open in place. Files can be <strong>imported</strong> (cached into the media library) or <strong>linked</strong> (streamed live). Google-native files (Docs, Sheets…) can't be fetched directly and are hidden.</p>
+
+    {% if files %}
+    <div class="file-grid">
+      {% for f in files %}
+      <div class="file-tile">
+        {% if f.is_folder %}
+        <div class="file-thumb" style="cursor:pointer" onclick="location.href='{{ url_for('admin_drive', folder=f.id) }}'" title="Open folder">
+          <div class="file-ico" style="font-size:1.4rem;">&#128193;</div>
+        </div>
+        <div class="file-meta">
+          <div class="file-name" title="{{ f.name }}">{{ f.name }}</div>
+          <div class="file-dim">Folder</div>
+        </div>
+        <a class="btn btn-ghost" style="text-align:center;" href="{{ url_for('admin_drive', folder=f.id) }}">Open</a>
+        {% else %}
+        <div class="file-thumb">
+          {% if f.thumbnailLink and f.mimeType and f.mimeType.startswith('image/') %}
+          <img src="{{ f.thumbnailLink }}" alt="{{ f.name }}" loading="lazy" onerror="this.outerHTML='<div class=&quot;file-ico&quot;>{{ f.iconLink and '&#128196;' or 'FILE' }}</div>'" />
+          {% else %}
+          <div class="file-ico">{{ (f.name.rsplit('.', 1)[-1] | upper) if '.' in f.name else 'FILE' }}</div>
+          {% endif %}
+        </div>
+        <div class="file-meta">
+          <div class="file-name" title="{{ f.name }}">{{ f.name }}</div>
+          <div class="file-dim">{{ f.mimeType.split('/')[-1] }}{% if f.size %} &middot; {{ ((f.size | int) / 1048576) | round(1) }} MB{% endif %}</div>
+        </div>
+        <div style="display:flex;gap:0.4rem;">
+          <form method="POST" action="{{ url_for('admin_drive_import') }}">
+            <input type="hidden" name="file_id" value="{{ f.id }}" />
+            <input type="hidden" name="back" value="{{ url_for('admin_drive', folder=folder, page=prev_page) }}" />
+            <button class="btn" type="submit">Import</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin_drive_link') }}">
+            <input type="hidden" name="file_id" value="{{ f.id }}" />
+            <input type="hidden" name="back" value="{{ url_for('admin_drive', folder=folder, page=prev_page) }}" />
+            <button class="btn btn-ghost" type="submit">Link</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if next_page %}
+    <div style="margin-top:1rem;text-align:center;">
+      <a class="btn" href="{{ url_for('admin_drive', folder=folder, page=next_page) }}">Next page &rarr;</a>
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="empty-state">This folder is empty.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
