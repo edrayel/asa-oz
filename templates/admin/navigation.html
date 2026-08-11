@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% block title %}Navigation — Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Navigation</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">
+    Manage the main navigation menu. Drag items to reorder. Links can point to any URL (internal: use paths like <code>/about</code> or <code>/page/slug</code>).
+  </p>
+
+  <div class="card">
+    <h2>Add menu item</h2>
+    <form method="POST" action="{{ url_for('admin_navigation') }}">
+      <input type="hidden" name="id" value="new" />
+      <div class="two-col">
+        <div class="form-row"><label>Label</label><input name="label" placeholder="e.g. About" required /></div>
+        <div class="form-row"><label>URL</label><input name="url" placeholder="/about or https://…" required /></div>
+      </div>
+      <div class="control-row">
+        <div class="control-label">Visible</div>
+        <input type="checkbox" name="active" value="1" checked />
+      </div>
+      <div class="form-row">
+        <label>Position</label>
+        <input type="number" name="position" value="99" min="0" />
+      </div>
+      <button class="btn" type="submit">Add item</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current items</h2>
+    {% if items %}
+    <form id="navForm" method="POST" action="{{ url_for('admin_navigation') }}">
+      <input type="hidden" name="reorder_ids" id="reorderIds" value="" />
+      <ul id="navList" style="list-style:none;padding:0;margin:0;">
+        {% for item in items %}
+        <li class="nav-item" data-id="{{ item.id }}">
+          <span class="nav-drag" title="Drag to reorder" style="cursor:grab;user-select:none;color:var(--muted);font-size:1rem;padding:0 4px;">&#x2195;</span>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="nav-url"><code>{{ item.url }}</code></span>
+          <span class="nav-status">{% if item.active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</span>
+          <div class="nav-actions">
+            <form method="POST" action="{{ url_for('admin_navigation') }}" style="display:inline;">
+              <input type="hidden" name="id" value="{{ item.id }}" />
+              <input type="hidden" name="label" value="{{ item.label }}" />
+              <input type="hidden" name="url" value="{{ item.url }}" />
+              <input type="hidden" name="position" value="{{ item.position }}" />
+              <input type="hidden" name="active" value="1" />
+            </form>
+            <form method="POST" action="{{ url_for('admin_navigation') }}" style="display:inline;" onsubmit="return confirm('Remove this item?')">
+              <input type="hidden" name="delete_id" value="{{ item.id }}" />
+              <button class="btn btn-danger btn-sm" type="submit">&times;</button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      <button class="btn btn-ghost" type="button" id="saveOrder" style="margin-top:0.8rem;">Save order</button>
+    </form>
+    {% else %}
+    <p class="empty-state">No navigation items yet. Add one above.</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.nav-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(111,90,63,0.12); }
+.nav-label { font-weight: 500; flex: 1; }
+.nav-url code { color: var(--muted); font-size: 0.82rem; }
+.nav-status { margin: 0 0.8rem; }
+.nav-actions { display: flex; gap: 0.3rem; }
+</style>
+
+<script>
+(function () {
+  var list = document.getElementById('navList');
+  if (!list) return;
+  var dragEl = null;
+  var items = Array.prototype.slice.call(list.querySelectorAll('.nav-item'));
+
+  items.forEach(function (item) {
+    var handle = item.querySelector('.nav-drag');
+    if (!handle) return;
+    handle.addEventListener('mousedown', function (e) {
+      dragEl = item;
+      item.style.opacity = '0.5';
+      e.preventDefault();
+    });
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (!dragEl) return;
+    var target = null;
+    items.forEach(function (item) {
+      if (item === dragEl) return;
+      var rect = item.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) { target = item; }
+    });
+    if (target && target !== dragEl) {
+      list.insertBefore(dragEl, target);
+    } else if (!target) {
+      list.appendChild(dragEl);
+    }
+  });
+
+  document.addEventListener('mouseup', function () {
+    if (!dragEl) return;
+    dragEl.style.opacity = '';
+    dragEl = null;
+  });
+
+  document.getElementById('saveOrder').addEventListener('click', function () {
+    var order = list.querySelectorAll('.nav-item');
+    var ids = Array.prototype.slice.call(order).map(function (i) { return i.getAttribute('data-id'); });
+    document.getElementById('reorderIds').value = ids.join(',');
+    list.querySelector('#navForm').submit();
+  });
+})();
+</script>
+{% endblock %}

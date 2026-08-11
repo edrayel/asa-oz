@@ -110,6 +110,24 @@ CREATE TABLE IF NOT EXISTS page_sections (
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (page, section)
 );
+
+CREATE TABLE IF NOT EXISTS dynamic_pages (
+  slug TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  template TEXT NOT NULL DEFAULT 'default',
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS navigation (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  url TEXT NOT NULL,
+  position INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1
+);
 """
 
 DEFAULT_SETTINGS = {
@@ -565,6 +583,88 @@ def set_admin_password(username, password):
         "ON CONFLICT(id) DO UPDATE SET username=excluded.username, password_hash=excluded.password_hash",
         (username, generate_password_hash(password)),
     )
+    conn.commit()
+    conn.close()
+
+
+# ---------- Dynamic pages ----------
+
+def list_dynamic_pages(active_only=False):
+    conn = get_conn()
+    where = "WHERE active = 1 " if active_only else ""
+    rows = conn.execute(f"SELECT * FROM dynamic_pages {where}ORDER BY created_at").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_dynamic_page(slug):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM dynamic_pages WHERE slug = ?", (slug,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def save_dynamic_page(slug, title, description="", template="default", active=True):
+    conn = get_conn()
+    conn.execute(
+        """INSERT INTO dynamic_pages (slug, title, description, template, active, created_at, updated_at)
+           VALUES (?, ?, ?, ?, 1, datetime('now'), datetime('now'))
+           ON CONFLICT(slug) DO UPDATE SET
+             title=excluded.title, description=excluded.description,
+             template=excluded.template, active=excluded.active,
+             updated_at=datetime('now')""",
+        (slug, title, description, template),
+    )
+    conn.execute("UPDATE dynamic_pages SET active = ? WHERE slug = ?", (1 if active else 0, slug))
+    conn.commit()
+    conn.close()
+
+
+def delete_dynamic_page(slug):
+    conn = get_conn()
+    conn.execute("DELETE FROM dynamic_pages WHERE slug = ?", (slug,))
+    conn.execute("DELETE FROM page_sections WHERE page = ?", (slug,))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Navigation ----------
+
+def list_navigation(active_only=False):
+    conn = get_conn()
+    where = "WHERE active = 1 " if active_only else ""
+    rows = conn.execute(f"SELECT * FROM navigation {where}ORDER BY position, id").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def save_navigation_item(item_id, label, url, position=0, active=True):
+    conn = get_conn()
+    if item_id:
+        conn.execute(
+            "UPDATE navigation SET label=?, url=?, position=?, active=? WHERE id=?",
+            (label, url, position, 1 if active else 0, item_id),
+        )
+    else:
+        conn.execute(
+            "INSERT INTO navigation (label, url, position, active) VALUES (?, ?, ?, ?)",
+            (label, url, position, 1 if active else 0),
+        )
+    conn.commit()
+    conn.close()
+
+
+def delete_navigation_item(item_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM navigation WHERE id = ?", (item_id,))
+    conn.commit()
+    conn.close()
+
+
+def reorder_navigation(ordered_ids):
+    conn = get_conn()
+    for pos, item_id in enumerate(ordered_ids):
+        conn.execute("UPDATE navigation SET position = ? WHERE id = ?", (pos, item_id))
     conn.commit()
     conn.close()
 

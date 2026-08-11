@@ -1,0 +1,112 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ page.title if page else 'New Page' }} — Asa-OZ Admin{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/rte.css') }}">{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1>{{ page.title if page else 'New page' }}</h1>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{{ url_for('admin_dynamic_pages') }}">Back</a>
+      {% if page %}<a class="btn btn-ghost" href="{{ url_for('dynamic_page', slug=page.slug) }}" target="_blank">View page</a>{% endif %}
+      <form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form>
+    </div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <h2>Page settings</h2>
+    <form method="POST" action="{{ url_for('admin_dynamic_page_save', slug=slug) }}">
+      <div class="form-row"><label>Title</label><input name="title" value="{{ page.title if page else '' }}" required /></div>
+      <div class="form-row"><label>Description (SEO)</label><input name="description" value="{{ page.description if page else '' }}" placeholder="Used for meta description and social preview" /></div>
+      <div class="control-row">
+        <div class="control-label">Published</div>
+        <input type="checkbox" name="active" value="1" {% if page and page.active %}checked{% endif %} />
+      </div>
+      <button class="btn" type="submit">Save settings</button>
+    </form>
+    {% if page %}
+    <form method="POST" action="{{ url_for('admin_dynamic_page_delete', slug=page.slug) }}" style="margin-top:1rem;" onsubmit="return confirm('Delete this page? This cannot be undone.')">
+      <input type="hidden" name="confirm" value="1" />
+      <button class="btn btn-danger" type="submit">Delete page</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Content sections</h2>
+    <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">
+      Add, reorder, and edit sections on this page. Click a section to expand it.
+    </p>
+    <div id="dynSections">
+      {% set section_keys = ['hero', 'body1', 'body2', 'gallery', 'cta'] %}
+      {% for sk in section_keys %}
+      {% set stored = stored.get(sk) %}
+      {% set active = stored['active'] if stored else true %}
+      {% set content = stored['content'] if stored else {} %}
+      <div class="cms-card dyn-section" data-section="{{ sk }}">
+        <details class="cms-details">
+          <summary>
+            <span class="cms-summary">
+              <span class="cms-title">{{ sk | replace('_', ' ') | title }}</span>
+              <span class="cms-state">{% if active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</span>
+            </span>
+          </summary>
+          <div class="cms-body">
+            <form method="POST" action="{{ url_for('admin_dynamic_page_section', slug=slug) }}">
+              <input type="hidden" name="section_key" value="{{ sk }}" />
+              <div class="form-row"><label>Heading</label><input name="heading" value="{{ content.get('heading', '') }}" /></div>
+              <div class="form-row"><label>Body</label><textarea name="body" data-rte="1" rows="5">{{ content.get('body', '') }}</textarea></div>
+              <div class="form-row"><label>Image URL</label><input name="image" data-cms-image value="{{ content.get('image', '') }}" placeholder="https://… or images/…" />
+                <div class="media-picker">
+                  <select data-cms-media-picker>
+                    <option value="">Choose from media library…</option>
+                    {% for m in media %}<option value="{{ m.url }}"{% if content.get('image') == m.url %} selected{% endif %}>{{ m.name }}</option>{% endfor %}
+                  </select>
+                  <div class="media-preview" data-cms-preview>{% if content.get('image') %}<img src="{{ content.get('image') }}" alt="Preview" loading="lazy" />{% endif %}</div>
+                </div>
+              </div>
+              <div class="form-row"><label>Image alt text</label><input name="image_alt" value="{{ content.get('image_alt', '') }}" /></div>
+              <div class="control-row">
+                <div class="control-label">Section visible</div>
+                <input type="checkbox" name="active" value="1" {% if active %}checked{% endif %} />
+              </div>
+              <button class="btn" type="submit">Save section</button>
+            </form>
+          </div>
+        </details>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/rte.js') }}"></script>
+<script>
+(function () {
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+  document.addEventListener('change', function (e) {
+    var sel = e.target.closest('[data-cms-media-picker]');
+    if (!sel) return;
+    var row = sel.closest('.form-row');
+    if (!row) return;
+    var input = row.querySelector('[data-cms-image]');
+    var preview = row.querySelector('[data-cms-preview]');
+    if (input) input.value = sel.value;
+    if (preview) preview.innerHTML = sel.value ? '<img src="' + esc(sel.value) + '" alt="Preview" loading="lazy" />' : '';
+  });
+  if (window.TinyRich) window.TinyRich.init();
+})();
+</script>
+{% endblock %}

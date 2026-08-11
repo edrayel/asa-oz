@@ -1,0 +1,122 @@
+{% extends "admin/base.html" %}
+{% block title %}Brand — Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Brand</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">
+    Upload or link your logo and favicon, and set brand colours. These appear site-wide.
+  </p>
+
+  <form method="POST" action="{{ url_for('admin_brand') }}">
+    <div class="card">
+      <h2>Logo</h2>
+      <div class="form-row">
+        <label>Logo image URL</label>
+        <input name="logo" value="{{ brand.logo }}" placeholder="https://… or images/…" data-media="logo" />
+        <div class="media-picker">
+          <select data-media-picker="logo">
+            <option value="">Choose from media library…</option>
+            {% for f in media %}<option value="{{ f.url }}"{% if brand.logo == f.url %} selected{% endif %}>{{ f.name }}</option>{% endfor %}
+          </select>
+          <div class="media-preview" data-media-preview>
+            {% if brand.logo %}<img src="{{ brand.logo }}" alt="Logo preview" loading="lazy" style="max-height:60px;" />{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="form-row"><label>Logo alt text</label><input name="logo_alt" value="{{ brand.logo_alt }}" placeholder="e.g. Asa-OZ logo" /></div>
+    </div>
+
+    <div class="card">
+      <h2>Favicon</h2>
+      <div class="form-row">
+        <label>Favicon URL</label>
+        <input name="favicon" value="{{ brand.favicon }}" placeholder="https://… or images/…" data-media="favicon" />
+        <div class="media-picker">
+          <select data-media-picker="favicon">
+            <option value="">Choose from media library…</option>
+            {% for f in media %}<option value="{{ f.url }}"{% if brand.favicon == f.url %} selected{% endif %}>{{ f.name }}</option>{% endfor %}
+          </select>
+          <div class="media-preview" data-media-preview>
+            {% if brand.favicon %}<img src="{{ brand.favicon }}" alt="Favicon preview" loading="lazy" style="max-height:32px;" />{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Colours</h2>
+      <p class="sub" style="margin-bottom:0.8rem;color:var(--muted,#8c7d6d);font-size:0.82rem;">
+        These set the primary brand colours. Changes preview below.
+      </p>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Primary colour</label>
+          <input type="color" name="primary_color" value="{{ brand.primary_color }}" style="width:100%;height:36px;border:none;cursor:pointer;" />
+          <input name="primary_color_text" value="{{ brand.primary_color }}" style="width:100%;margin-top:0.3rem;font-size:0.82rem;" />
+        </div>
+        <div class="form-row">
+          <label>Accent colour</label>
+          <input type="color" name="accent_color" value="{{ brand.accent_color }}" style="width:100%;height:36px;border:none;cursor:pointer;" />
+          <input name="accent_color_text" value="{{ brand.accent_color }}" style="width:100%;margin-top:0.3rem;font-size:0.82rem;" />
+        </div>
+      </div>
+      <div id="colorPreview" style="margin-top:1rem;padding:0.8rem;border-radius:10px;border:1px solid rgba(111,90,63,0.15);display:flex;gap:1rem;">
+        <span style="display:inline-block;width:24px;height:24px;border-radius:6px;" id="primarySwatch"></span>
+        <span style="display:inline-block;width:24px;height:24px;border-radius:6px;" id="accentSwatch"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <button class="btn" type="submit">Save brand settings</button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  function syncColourPicker(input, picker) {
+    input.addEventListener('input', function () { picker.value = input.value; });
+  }
+  var pc = document.querySelector('input[name="primary_color"]');
+  var pt = document.querySelector('input[name="primary_color_text"]');
+  var ac = document.querySelector('input[name="accent_color"]');
+  var at = document.querySelector('input[name="accent_color_text"]');
+  if (pc && pt) syncColourPicker(pt, pc);
+  if (ac && at) syncColourPicker(at, ac);
+
+  // Media pickers
+  document.addEventListener('change', function (e) {
+    var sel = e.target.closest('[data-media-picker]');
+    if (!sel) return;
+    var name = sel.getAttribute('data-media-picker');
+    var input = sel.closest('.form-row').querySelector('input[name="' + name + '"]');
+    var preview = sel.closest('.form-row').querySelector('[data-media-preview]');
+    if (input) input.value = sel.value;
+    if (preview) preview.innerHTML = sel.value ? '<img src="' + sel.value + '" alt="Preview" loading="lazy" style="max-height:60px;" />' : '';
+  });
+
+  // Live swatch preview
+  function updateSwatches() {
+    var p = document.getElementById('primarySwatch');
+    var a = document.getElementById('accentSwatch');
+    if (p) p.style.background = pc ? pc.value : '#4a6650';
+    if (a) a.style.background = ac ? ac.value : '#6f5a3f';
+  }
+  if (pc) pc.addEventListener('input', updateSwatches);
+  if (ac) ac.addEventListener('input', updateSwatches);
+  updateSwatches();
+})();
+</script>
+{% endblock %}

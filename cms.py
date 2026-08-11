@@ -27,11 +27,106 @@ def _lt(key, label, **kw):
 def _ta(key, label, **kw):
     return dict(key=key, label=label, type="textarea", **kw)
 
+def _rt(key, label, **kw):
+    """Rich text field — rendered with a tinyMCE-style editor, stored as HTML."""
+    return dict(key=key, label=label, type="richtext", **kw)
+
+def _vid(key, label, **kw):
+    """Video embed field — accepts YouTube/Vimeo URLs, renders an iframe."""
+    return dict(key=key, label=label, type="video", **kw)
+
 def _img(key, label, **kw):
     return dict(key=key, label=label, type="image", **kw)
 
+def _imga(key, label, alt_label="Alt text", **kw):
+    """Image field with a companion alt-text input."""
+    return [
+        dict(key=key, label=label, type="image", **kw),
+        dict(key=key + "_alt", label=alt_label, type="text", default="", hint="Short description for screen readers and SEO."),
+    ]
+
 def _cb(key, label, default=False, **kw):
     return dict(key=key, label=label, type="checkbox", default=default, **kw)
+
+def _blocks(key, label, **kw):
+    """Reusable content blocks — testimonial, CTA, feature grid, video."""
+    return dict(key=key, label=label, type="content_blocks", **kw)
+
+def _style(key="style", label="Section styling", **kw):
+    """Per-section styling — background, text alignment, padding."""
+    return dict(key=key, label=label, type="section_style", **kw)
+
+
+# --------------------------------------------------------------------------
+# Reusable content block definitions
+# --------------------------------------------------------------------------
+
+BLOCK_TYPES = {
+    "testimonial": {
+        "label": "Testimonial",
+        "icon": "❝",
+        "fields": [
+            {"key": "quote", "label": "Quote", "type": "textarea", "default": ""},
+            {"key": "author", "label": "Author", "type": "text", "default": ""},
+            {"key": "role", "label": "Role", "type": "text", "default": ""},
+            {"key": "photo", "label": "Photo (URL)", "type": "image", "default": ""},
+        ],
+    },
+    "cta": {
+        "label": "Call to Action",
+        "icon": "→",
+        "fields": [
+            {"key": "heading", "label": "Heading", "type": "text", "default": ""},
+            {"key": "text", "label": "Text", "type": "textarea", "default": ""},
+            {"key": "button_label", "label": "Button label", "type": "text", "default": ""},
+            {"key": "button_url", "label": "Button URL", "type": "text", "default": ""},
+        ],
+    },
+    "feature_grid": {
+        "label": "Feature Grid",
+        "icon": "⊞",
+        "fields": [
+            {"key": "columns", "label": "Columns", "type": "text", "default": "3", "hint": "2, 3 or 4"},
+            {"key": "items", "label": "Items", "type": "list", "default": [],
+             "item": {
+                 "title": {"label": "Title", "type": "text"},
+                 "body": {"label": "Body", "type": "textarea"},
+                 "image": {"label": "Image (URL)", "type": "image"},
+             }},
+        ],
+    },
+    "video": {
+        "label": "Video Embed",
+        "icon": "▶",
+        "fields": [
+            {"key": "url", "label": "Video URL (YouTube / Vimeo)", "type": "video", "default": ""},
+            {"key": "caption", "label": "Caption", "type": "text", "default": ""},
+        ],
+    },
+}
+
+# Per-section style options
+SECTION_STYLE_OPTIONS = {
+    "background": [
+        ("none", "None"),
+        ("--cream", "Cream"),
+        ("--paper", "Paper"),
+        ("--espresso", "Espresso (dark)"),
+        ("--sage-deep", "Sage"),
+        ("custom", "Custom colour…"),
+    ],
+    "text_align": [
+        ("left", "Left"),
+        ("center", "Centre"),
+        ("right", "Right"),
+    ],
+    "padding": [
+        ("small", "Small"),
+        ("medium", "Medium"),
+        ("large", "Large"),
+        ("none", "None"),
+    ],
+}
 
 
 PAGES = {
@@ -54,10 +149,10 @@ PAGES = {
                 "fields": [
                     _lt("eyebrow", "Eyebrow", default="Identity • Culture • Belonging"),
                     _lt("title", "Headline", default="Return to Self."),
-                    _ta("lede", "Intro paragraph", default="Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel."),
-                    _ta("supporting", "Supporting copy", default="Connect with like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together."),
+                    _rt("lede", "Intro paragraph", default="Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel."),
+                    _rt("supporting", "Supporting copy", default="Connect with like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
-                    _ta("not_this_body", "“What this is not” body", default="Asa-OZ is not spiritual practice, energy work, therapy, or meditation. It is a cultural and community experience — grounded in real conversation, shared meals, storytelling, and travel."),
+                    _rt("not_this_body", "“What this is not” body", default="Asa-OZ is not spiritual practice, energy work, therapy, or meditation. It is a cultural and community experience — grounded in real conversation, shared meals, storytelling, and travel."),
                 ],
             },
             {
@@ -181,8 +276,8 @@ PAGES = {
                 "key": "testimonials",
                 "label": "Testimonials",
                 "fields": [
-                    _img("photo", "Photo (URL or media library)"),
-                    _ta("quote", "Quote", default="“The journey was more than travel — it was a return.”"),
+                    *_imga("photo", "Photo (URL or media library)", alt_label="Photo alt text"),
+                    _rt("quote", "Quote", default="“The journey was more than travel — it was a return.”"),
                     _lt("author", "Author", default="Margaret"),
                     _lt("role", "Role", default="Community Member"),
                 ],
@@ -205,15 +300,15 @@ PAGES = {
                             "Are seeking reflection and personal growth",
                         ],
                     },
-                    _ta("tagline", "Tagline", default="Designed for adults aged 45 and above who are ready for lasting joy, connection, and belonging."),
+                    _rt("tagline", "Tagline", default="Designed for adults aged 45 and above who are ready for lasting joy, connection, and belonging."),
                 ],
             },
             {
                 "key": "ethos",
                 "label": "Ethos (promise block)",
                 "fields": [
-                    _lt("quote", "Quote", default="You don't have to shrink to fit the life you've"),
-                    _lt("quote_highlight", "Quote highlight", default="outgrown"),
+                    _rt("quote", "Quote", default="You don't have to shrink to fit the life you've"),
+                    _rt("quote_highlight", "Quote highlight", default="outgrown"),
                     _lt("from", "Attribution", default="The Asa-OZ Promise"),
                     {
                         "key": "not",
@@ -244,9 +339,10 @@ PAGES = {
                         "type": "listlines",
                         "default": ["25+ years cultural travel", "Cultural Guide", "Community Builder"],
                     },
-                    _ta("quote1", "Opening quote", default="My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world discovering that travel can do much more than take us to new places — it can restore confidence, create meaningful connections, and help us rediscover parts of ourselves we thought were lost."),
-                    _ta("quote2", "Second quote", default="Through journeys that matter and a community that holds space, I walk alongside adults 45+ as they reconnect with who they are and what they long for."),
+                    _rt("quote1", "Opening quote", default="My name is Ifeoma Adaora, and for more than 25 years, I have traveled the world discovering that travel can do much more than take us to new places — it can restore confidence, create meaningful connections, and help us rediscover parts of ourselves we thought were lost."),
+                    _rt("quote2", "Second quote", default="Through journeys that matter and a community that holds space, I walk alongside adults 45+ as they reconnect with who they are and what they long for."),
                     _lt("signature", "Signature line", default="You are not starting over. You are rediscovering yourself."),
+                    _vid("video", "Featured video", hint="Paste a YouTube or Vimeo URL to embed a video."),
                     _lt("more", "More-about link label", default="More about Asa-OZ and the story behind it"),
                 ],
             },
@@ -309,7 +405,7 @@ PAGES = {
                              "features": ["All Journey benefits", "Small-group cultural trips", "One-to-one check-ins", "Early access to new experiences"]},
                         ],
                     },
-                    _ta("disclaimer_note", "Disclaimer", default="All prices are illustrative. Final pricing will be confirmed before launch."),
+                    _rt("disclaimer_note", "Disclaimer", default="All prices are illustrative. Final pricing will be confirmed before launch."),
                 ],
             },
             {
@@ -335,6 +431,15 @@ PAGES = {
                             "Other",
                         ],
                     },
+                ],
+            },
+            {
+                "key": "custom_blocks",
+                "label": "Custom content blocks",
+                "hint": "Add reusable blocks — testimonials, calls-to-action, feature grids, videos — and reorder them freely.",
+                "fields": [
+                    _blocks("blocks", "Content blocks"),
+                    _style(),
                 ],
             },
         ],
@@ -406,7 +511,7 @@ PAGES = {
                             "Concrete and everyday — shared meals, walking tours, group conversations, and storytelling. Real people, real places, real conversation. Community that feels like home.",
                         ],
                     },
-                    _ta("proof_footnote", "Proof strip footnote", default="No renderings, no stock shots — shared meals, walking tours, and slow conversations from real Asa-OZ days."),
+                    _rt("proof_footnote", "Proof strip footnote", default="No renderings, no stock shots — shared meals, walking tours, and slow conversations from real Asa-OZ days."),
                 ],
             },
             {
@@ -430,7 +535,7 @@ PAGES = {
                 "label": "The founder",
                 "fields": [
                     _lt("heading", "Heading", default="The founder"),
-                    _ta("quote", "Quote", default="You are not starting over. You are simply discovering a deeper, richer version of yourself."),
+                    _rt("quote", "Quote", default="You are not starting over. You are simply discovering a deeper, richer version of yourself."),
                     {
                         "key": "paragraphs",
                         "label": "Paragraphs",
@@ -440,6 +545,7 @@ PAGES = {
                             "Along the way, I met countless people whose lives had been shaped by responsibility. They had spent years building careers, raising families, caring for loved ones, and putting everyone else first. Yet many quietly admitted they felt disconnected from themselves and unsure of what the next chapter of life should look like.",
                         ],
                     },
+                    _vid("video", "Featured video", hint="Paste a YouTube or Vimeo URL to embed a video."),
                     _lt("name", "Name", default="Ifeoma Adaora"),
                     _lt("role", "Role", default="Founder & Cultural Guide"),
                 ],
@@ -721,10 +827,25 @@ PAGES = {
 # Resolver
 # --------------------------------------------------------------------------
 
+def _default_style():
+    return {"background": "none", "background_custom": "", "text_align": "left", "padding": "medium"}
+
+
+def _flatten_fields(fields):
+    """Flatten a field list that may contain nested lists (from _imga groups)."""
+    flat = []
+    for f in fields:
+        if isinstance(f, list):
+            flat.extend(f)
+        else:
+            flat.append(f)
+    return flat
+
+
 def default_content(section):
     """Construct the default values dict for a schema section."""
     out = {}
-    for f in section["fields"]:
+    for f in _flatten_fields(section["fields"]):
         if f["type"] == "list":
             defaults = []
             for item in f.get("default", []):
@@ -735,6 +856,10 @@ def default_content(section):
             out[f["key"]] = defaults
         elif f["type"] == "listlines":
             out[f["key"]] = list(f.get("default", []))
+        elif f["type"] == "content_blocks":
+            out[f["key"]] = f.get("default", [])
+        elif f["type"] == "section_style":
+            out[f["key"]] = _default_style()
         else:
             out[f["key"]] = f.get("default", "")
     return out

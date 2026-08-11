@@ -19,10 +19,10 @@
         <div class="hero-content">
           <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
           <h1 class="reveal">{{ cms.hero.title }}</h1>
-          <p class="lede reveal">{{ cms.hero.lede }}</p>
-          <p class="supporting reveal"{% if settings.get('show_supporting', '1') == '0' %} style="display:none;"{% endif %}>{{ cms.hero.supporting }}</p>
+          <p class="lede reveal">{{ cms.hero.lede | safe }}</p>
+          <p class="supporting reveal"{% if settings.get('show_supporting', '1') == '0' %} style="display:none;"{% endif %}>{{ cms.hero.supporting | safe }}</p>
           <div id="notThisNote"{% if settings.get('show_not_this', '0') == '1' %} style="display:block;"{% else %} style="display:none;"{% endif %}>
-            <p style="font-size:0.88rem; color:var(--ink); margin:0; line-height:1.6;"><strong style="color:var(--espresso);">{{ cms.hero.not_this_title }}</strong> {{ cms.hero.not_this_body }}</p>
+            <p style="font-size:0.88rem; color:var(--ink); margin:0; line-height:1.6;"><strong style="color:var(--espresso);">{{ cms.hero.not_this_title }}</strong> {{ cms.hero.not_this_body | safe }}</p>
           </div>
 
           {% if cms.signup.active and not settings.get('show_signup', '1') == '0' %}
@@ -136,10 +136,10 @@
 
       {% if settings.get('show_testimonials', '0') == '1' and cms.testimonials.active %}<section class="testimonial-ribbon" id="testimonials" aria-label="Testimonials">
         <div class="testimonial-photo reveal" id="testimonialPhoto" aria-hidden="true">
-          <img src="{{ cms.testimonials.photo }}" alt="" loading="lazy" />
+          <img src="{{ cms.testimonials.photo }}" alt="{{ cms.testimonials.photo_alt or 'Testimonial photo' }}" loading="lazy" />
         </div>
         <blockquote class="reveal" id="testimonialQuote">
-          <p>{{ cms.testimonials.quote }}</p>
+          <p>{{ cms.testimonials.quote | safe }}</p>
         </blockquote>
         <p class="author reveal" id="testimonialAuthor">{{ cms.testimonials.author }}<span>{{ cms.testimonials.role }}</span></p>
         <div class="ribbon-rule reveal"></div>
@@ -153,12 +153,12 @@
           <li class="reveal">{{ item }}</li>
           {% endfor %}
         </ul>
-        <p class="who-for-tagline reveal">{{ cms.who.tagline }}</p>
+        <p class="who-for-tagline reveal">{{ cms.who.tagline | safe }}</p>
       </section>
 
       <section class="ethos" id="ethos">
         <div class="reveal">
-          <blockquote>{{ cms.ethos.quote }} <span>{{ cms.ethos.quote_highlight }}</span></blockquote>
+          <blockquote>{{ cms.ethos.quote | safe }} <span>{{ cms.ethos.quote_highlight | safe }}</span></blockquote>
           <p class="from">{{ cms.ethos.from }}</p>
           <div class="not-list">
             {% for item in cms.ethos.not %}
@@ -183,9 +183,10 @@
               {% for cred in cms.founder.credentials %}<span class="founder-credential">{{ cred }}</span>{% endfor %}
             </p>
           </div>
-          <p>{{ cms.founder.quote1 }}</p>
-          <p>{{ cms.founder.quote2 }}</p>
+          <p>{{ cms.founder.quote1 | safe }}</p>
+          <p>{{ cms.founder.quote2 | safe }}</p>
           <p class="founder-signature">&ldquo;{{ cms.founder.signature }}&rdquo;</p>
+          {% if cms.founder.video %}<div class="founder-video reveal">{{ _video_embed(cms.founder.video) | safe }}</div>{% endif %}
           <p><span class="name">{{ cms.founder.name }}</span><br /><span class="role">{{ cms.founder.role }}</span></p>
           <p class="founder-more"><a href="{{ url_for('about') }}">{{ cms.founder.more }} &rarr;</a></p>
         </div>
@@ -217,7 +218,7 @@
             </div>
             {% endfor %}
           </div>
-          <p style="margin-top:1rem; font-size:0.82rem; color:var(--muted);">{{ cms.pricing.disclaimer_note }}</p>
+          <p style="margin-top:1rem; font-size:0.82rem; color:var(--muted);">{{ cms.pricing.disclaimer_note | safe }}</p>
         </div>
       </section>{% endif %}
 
@@ -244,6 +245,12 @@
           </form>
         </div>
       </section>
+
+      {% if cms.custom_blocks.blocks %}
+      <section class="cms-custom-blocks{% if cms.custom_blocks.style %} cms-section--padding-{{ cms.custom_blocks.style.get('padding', 'medium') }} cms-section--align-{{ cms.custom_blocks.style.get('text_align', 'left') }}{% endif %}"{% if cms.custom_blocks.style and cms.custom_blocks.style.get('background') == 'custom' and cms.custom_blocks.style.get('background_custom') %} style="background:{{ cms.custom_blocks.style.background_custom }};"{% elif cms.custom_blocks.style and cms.custom_blocks.style.get('background', 'none') not in ['none', '--cream', '--paper'] %} style="background:var({{ cms.custom_blocks.style.background }});"{% endif %} aria-label="Content blocks">
+        {% include "partials/cms_blocks.html" with context %}
+      </section>
+      {% endif %}
 {% endblock %}
 
 {% block overlays %}

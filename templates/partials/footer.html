@@ -2,7 +2,7 @@
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <b>Asa-OZ</b>
+      <b>{{ brand_settings.logo_alt or 'Asa-OZ' }}</b>
       <p class="footer-tagline">{{ cms_site.tagline }}</p>
       <div class="social-icons" aria-label="Social media">{{ social_links(18) }}</div>
     </div>
@@ -15,11 +15,17 @@
     </div>
     <div class="footer-proof">
       <h4>Explore</h4>
+      {% if nav_items %}
+      {% for item in nav_items %}
+      <a href="{{ item.url }}">{{ item.label }}</a>
+      {% endfor %}
+      {% else %}
       <a href="{{ url_for('about') }}">About</a>
       <a href="{{ url_for('faq') }}">FAQ</a>
       <a href="{{ url_for('contact') }}">Contact</a>
       <a href="{{ url_for('terms') }}">Terms</a>
       <a href="{{ url_for('privacy') }}">Privacy</a>
+      {% endif %}
     </div>
     <div class="footer-proof">
       <h4>Community</h4>

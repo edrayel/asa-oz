@@ -13,6 +13,9 @@ import json
 import mimetypes
 import os
 import uuid
+import csv
+import io
+import re
 import datetime
 from datetime import datetime as _dt
 from functools import wraps
@@ -27,6 +30,7 @@ from werkzeug.utils import secure_filename
 import db
 import cms
 import drive
+import notify
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
@@ -337,6 +341,26 @@ def contact():
     return render_template("contact.html")
 
 
+# ------------------ dynamic pages ------------------
+
+@app.route("/page/<slug>")
+def dynamic_page(slug):
+    page = db.get_dynamic_page(slug)
+    if not page or not page.get("active"):
+        abort(404)
+    stored = db.get_page_sections(slug)
+    # Build a generic schema from stored sections so the template can render them
+    sections = []
+    for key, data in stored.items():
+        sections.append({
+            "key": key,
+            "label": key.replace("_", " ").title(),
+            "active": data.get("active", True),
+            "content": data.get("content", {}),
+        })
+    return render_template("dynamic_page.html", page=page, sections=sections)
+
+
 # ------------------ forms (HTMX) ------------------
 @app.route("/waitlist", methods=["POST"])
 def waitlist():
@@ -345,6 +369,7 @@ def waitlist():
         return '<p class="msg" style="color:#b5482c;" role="status">Please enter a valid email address.</p>'
     ok = db.add_waitlist(email, request.form.get("source", ""))
     if ok:
+        notify.notify_waitlist(email, request.form.get("source", ""))
         return '<p class="msg" role="status">Thank you. You&rsquo;ll be among the first to return to yourself.</p>'
     return '<p class="msg" style="color:#b5482c;" role="status">You&rsquo;re already on the list — we&rsquo;ll be in touch.</p>'
 
@@ -375,6 +400,12 @@ def booking():
         "time": time,
         "message": (request.form.get("message") or "").strip(),
     })
+    notify.notify_booking({
+        "name": name, "email": email,
+        "phone": (request.form.get("phone") or "").strip(),
+        "date": date, "time": time,
+        "message": (request.form.get("message") or "").strip(),
+    })
     return render_template("partials/booking_confirm.html")
 
 
@@ -385,6 +416,7 @@ def feedback():
     if not text:
         return '<p class="feedback-msg" style="color:#b5482c;" role="status">Please write a little something first.</p>'
     db.add_feedback(category, text)
+    notify.notify_feedback(category, text)
     return '<p class="feedback-msg" role="status">Thank you. Your feedback has been saved.</p>'
 
 
@@ -396,6 +428,7 @@ def contact_msg():
     if not all([name, email, message]):
         return '<p class="form-msg" style="color:#b5482c;" role="status">Please fill in every field.</p>'
     db.add_contact(name, email, message)
+    notify.notify_contact(name, email, message)
     return '<p class="form-msg" role="status">Thank you — your message has been saved. We&rsquo;ll reply to you shortly.</p>'
 
 
@@ -466,6 +499,7 @@ def checkout():
 
     if not STRIPE_SECRET:
         order_id = db.add_order(items, total)
+        notify.notify_order(items, total)
         return redirect(url_for("checkout_success", order_id=order_id))
 
     stripe.api_key = STRIPE_SECRET
@@ -483,9 +517,11 @@ def checkout():
     ]
     if not line_items:
         order_id = db.add_order(items, total)
+        notify.notify_order(items, total)
         return redirect(url_for("checkout_success", order_id=order_id))
 
     order_id = db.add_order(items, total, status="pending")
+    notify.notify_order(items, total)
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -850,6 +886,53 @@ def admin_order_status(order_id):
 
 # ------------------ admin: pages (CMS) ------------------
 
+def _video_embed(url):
+    """Convert a YouTube or Vimeo URL to an embed iframe HTML."""
+    if not url:
+        return ""
+    url = url.strip()
+    # YouTube
+    yt_match = None
+    patterns = [
+        r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{6,})',
+    ]
+    for pat in patterns:
+        m = re.search(pat, url)
+        if m:
+            yt_match = m.group(1)
+            break
+    if yt_match:
+        return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe></div>' % yt_match
+    # Vimeo
+    vm = re.search(r'vimeo\.com\/(\d+)', url)
+    if vm:
+        return '<div class="video-embed"><iframe src="https://player.vimeo.com/video/%s" frameborder="0" allowfullscreen allow="autoplay;fullscreen;picture-in-picture"></iframe></div>' % vm.group(1)
+    # Already an iframe or unrecognized — return as-is if it looks like embed code
+    if url.startswith('<iframe'):
+        return url
+    return ''
+
+@app.context_processor
+def _inject_cms_helpers():
+    # Build lookup: {(page, section_key, field_key): type} for richtext/video
+    field_types = {}
+    for pname, page_schema in cms.PAGES.items():
+        for sec in page_schema["sections"]:
+            for f in cms._flatten_fields(sec["fields"]):
+                if f["type"] in ("richtext", "video", "image", "content_blocks", "section_style"):
+                    field_types[(pname, sec["key"], f["key"])] = f["type"]
+    return {
+        '_video_embed': _video_embed,
+        '_cms_field_types': field_types,
+        '_cms_is_richtext': lambda p, s, k: field_types.get((p, s, k)) == "richtext",
+        '_cms_is_video': lambda p, s, k: field_types.get((p, s, k)) == "video",
+        '_cms_is_blocks': lambda p, s, k: field_types.get((p, s, k)) == "content_blocks",
+        '_cms_is_style': lambda p, s, k: field_types.get((p, s, k)) == "section_style",
+        'BLOCK_TYPES': cms.BLOCK_TYPES,
+        'SECTION_STYLE_OPTIONS': cms.SECTION_STYLE_OPTIONS,
+    }
+
+
 @app.route("/admin/pages")
 @admin_required
 def admin_pages():
@@ -877,16 +960,37 @@ def admin_page(page):
     media = [{"name": f["name"], "url": _media_url(f["path"])}
              for f in db.list_files() if f["kind"] == "image"]
     stored = db.get_page_sections(page)
+    sections = list(schema["sections"])
+    saved_order = db.get_settings().get("section_order_%s" % page, "")
+    if saved_order:
+        order_list = [k for k in saved_order.split(",") if k]
+        order_idx = {k: i for i, k in enumerate(order_list)}
+        sections.sort(key=lambda s: order_idx.get(s["key"], 999))
     return render_template("admin/page_edit.html", page_key=page, page_schema=schema,
-                           stored=stored, media=media)
+                           stored=stored, media=media, sections=sections)
+
+
+@app.route("/admin/pages/<page>/reorder", methods=["POST"])
+@admin_required
+def admin_page_reorder(page):
+    schema = cms.PAGES.get(page)
+    if not schema:
+        abort(404)
+    order = request.form.get("section_order", "").strip()
+    if order:
+        valid_keys = {s["key"] for s in schema["sections"]}
+        filtered = [k for k in order.split(",") if k in valid_keys]
+        db.set_setting("section_order_%s" % page, ",".join(filtered))
+        flash("Section order updated.")
+    return redirect(url_for("admin_page", page=page))
 
 
 def _parse_cms_section(section, form):
     """Parse submitted form fields into a content dict per the field types."""
     content = {}
-    for f in section["fields"]:
+    for f in cms._flatten_fields(section["fields"]):
         key = f["key"]
-        if f["type"] in ("text", "textarea", "longtext", "image"):
+        if f["type"] in ("text", "textarea", "longtext", "image", "richtext", "video"):
             content[key] = (form.get("field_%s" % key) or "").strip()
         elif f["type"] == "checkbox":
             content[key] = bool(key in form)
@@ -912,16 +1016,40 @@ def _parse_cms_section(section, form):
                 if not _list_item_is_empty(f["item"], item):
                     items.append(item)
             content[key] = items
+        elif f["type"] == "content_blocks":
+            raw_json = (form.get("field_%s" % key) or "[]").strip()
+            try:
+                parsed = json.loads(raw_json)
+                if not isinstance(parsed, list):
+                    parsed = []
+            except (ValueError, TypeError):
+                parsed = []
+            content[key] = parsed
+        elif f["type"] == "section_style":
+            content[key] = {
+                "background": (form.get("style_%s_background" % key) or "none").strip(),
+                "background_custom": (form.get("style_%s_background_custom" % key) or "").strip(),
+                "text_align": (form.get("style_%s_text_align" % key) or "left").strip(),
+                "padding": (form.get("style_%s_padding" % key) or "medium").strip(),
+            }
     return content
 
 
-def _list_item_is_empty(item_schema, item):
-    """True when every sub-field of a list item holds an empty value."""
-    for sub_key, sub in item_schema.items():
-        v = item.get(sub_key)
-        if sub["type"] == "checkbox":
+def _cms_section_is_empty(section, content):
+    """True when every field holds an empty/default value (no real content)."""
+    for f in cms._flatten_fields(section["fields"]):
+        v = content.get(f["key"])
+        if f["type"] == "list":
+            if any(not _list_item_is_empty(f["item"], item) for item in (v or [])):
+                return False
+        elif f["type"] == "listlines":
             if v:
                 return False
+        elif f["type"] == "content_blocks":
+            if v:
+                return False
+        elif f["type"] == "section_style":
+            continue
         elif isinstance(v, list):
             if v:
                 return False
@@ -1004,6 +1132,220 @@ def admin_export():
         "files": db.list_files(),
         "exportedAt": _dt.now().isoformat(),
     })
+
+
+# ------------------ admin: CSV exports ------------------
+
+def _csv_response(filename, headers, rows):
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(headers)
+    for row in rows:
+        writer.writerow(row)
+    return Response(
+        buf.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=%s" % filename},
+    )
+
+
+@app.route("/admin/export/waitlist.csv")
+@admin_required
+def export_waitlist_csv():
+    rows = [(w["email"], w["source"], w["created_at"]) for w in db.list_waitlist()]
+    return _csv_response("asa-oz-waitlist.csv", ["Email", "Source", "Date"], rows)
+
+
+@app.route("/admin/export/contacts.csv")
+@admin_required
+def export_contacts_csv():
+    rows = [(c["name"], c["email"], c["message"].replace("\n", " "), c["created_at"]) for c in db.list_contacts()]
+    return _csv_response("asa-oz-contacts.csv", ["Name", "Email", "Message", "Date"], rows)
+
+
+@app.route("/admin/export/orders.csv")
+@admin_required
+def export_orders_csv():
+    rows = []
+    for o in db.list_orders():
+        items = json.loads(o.get("items") or "[]")
+        names = ", ".join("%s ×%d" % (it["name"], it["qty"]) for it in items)
+        rows.append((o["id"], names, o["total"], o["status"], o["created_at"]))
+    return _csv_response("asa-oz-orders.csv", ["Order ID", "Items", "Total (EUR)", "Status", "Date"], rows)
+
+
+@app.route("/admin/export/bookings.csv")
+@admin_required
+def export_bookings_csv():
+    rows = [(b["name"], b["email"], b["phone"], b["date"], b["time"], b["status"], b["created_at"]) for b in db.list_bookings()]
+    return _csv_response("asa-oz-bookings.csv", ["Name", "Email", "Phone", "Date", "Time", "Status", "Created"], rows)
+
+
+@app.route("/admin/export/feedback.csv")
+@admin_required
+def export_feedback_csv():
+    rows = [(f["category"], f["text"].replace("\n", " "), f["status"], f["note"], f["created_at"]) for f in db.list_feedback()]
+    return _csv_response("asa-oz-feedback.csv", ["Category", "Text", "Status", "Note", "Date"], rows)
+
+
+# ------------------ admin: dynamic pages ------------------
+
+@app.route("/admin/dynamic-pages")
+@admin_required
+def admin_dynamic_pages():
+    pages = db.list_dynamic_pages()
+    return render_template("admin/dynamic_pages.html", pages=pages)
+
+
+@app.route("/admin/dynamic-pages/new", methods=["GET", "POST"])
+@admin_required
+def admin_dynamic_page_new():
+    if request.method == "POST":
+        slug = (request.form.get("slug") or "").strip().lower()
+        title = (request.form.get("title") or "").strip()
+        description = (request.form.get("description") or "").strip()
+        if not slug or not title:
+            flash("Slug and title are required.", "error")
+            return redirect(url_for("admin_dynamic_page_new"))
+        db.save_dynamic_page(slug, title, description)
+        flash("Page '%s' created." % title, "success")
+        return redirect(url_for("admin_dynamic_page_edit", slug=slug))
+    return render_template("admin/dynamic_page_edit.html", page=None, media=_media_library())
+
+
+@app.route("/admin/dynamic-pages/<slug>")
+@admin_required
+def admin_dynamic_page_edit(slug):
+    page = db.get_dynamic_page(slug)
+    if not page:
+        flash("Page not found.", "error")
+        return redirect(url_for("admin_dynamic_pages"))
+    stored = db.get_page_sections(slug)
+    return render_template("admin/dynamic_page_edit.html", page=page, slug=slug, stored=stored, media=_media_library())
+
+
+@app.route("/admin/dynamic-pages/<slug>/save", methods=["POST"])
+@admin_required
+def admin_dynamic_page_save(slug):
+    page = db.get_dynamic_page(slug)
+    if not page:
+        abort(404)
+    title = (request.form.get("title") or "").strip()
+    description = (request.form.get("description") or "").strip()
+    active = request.form.get("active") == "1"
+    db.save_dynamic_page(slug, title, description, page.get("template", "default"), active)
+    flash("Page settings updated.", "success")
+    return redirect(url_for("admin_dynamic_page_edit", slug=slug))
+
+
+@app.route("/admin/dynamic-pages/<slug>/delete", methods=["POST"])
+@admin_required
+def admin_dynamic_page_delete(slug):
+    page = db.get_dynamic_page(slug)
+    if not page:
+        abort(404)
+    if request.form.get("confirm") == "1":
+        db.delete_dynamic_page(slug)
+        flash("Page deleted.", "success")
+    return redirect(url_for("admin_dynamic_pages"))
+
+
+@app.route("/admin/dynamic-pages/<slug>/section", methods=["POST"])
+@admin_required
+def admin_dynamic_page_section(slug):
+    section_key = request.form.get("section_key", "")
+    content = {
+        "heading": (request.form.get("heading") or "").strip(),
+        "body": (request.form.get("body") or "").strip(),
+    }
+    blocks_raw = (request.form.get("blocks_json") or "[]").strip()
+    try:
+        content["blocks"] = json.loads(blocks_raw) if blocks_raw else []
+    except (ValueError, TypeError):
+        content["blocks"] = []
+    if request.form.get("image"):
+        content["image"] = (request.form.get("image") or "").strip()
+        content["image_alt"] = (request.form.get("image_alt") or "").strip()
+    if not content["heading"] and not content["body"] and not content.get("blocks") and not content.get("image"):
+        db.save_page_section(slug, section_key, {}, active=False)
+    else:
+        db.save_page_section(slug, section_key, content, active=("active" in request.form))
+    flash("Section saved.", "success")
+    return redirect(url_for("admin_dynamic_page_edit", slug=slug))
+
+
+# ------------------ admin: navigation ------------------
+
+@app.route("/admin/navigation", methods=["GET", "POST"])
+@admin_required
+def admin_navigation():
+    if request.method == "POST":
+        if "delete_id" in request.form:
+            db.delete_navigation_item(int(request.form.get("delete_id", 0)))
+            flash("Navigation item deleted.", "success")
+        elif "reorder_ids" in request.form:
+            ids = [int(i) for i in request.form.get("reorder_ids", "").split(",") if i.strip().isdigit()]
+            db.reorder_navigation(ids)
+            flash("Navigation reordered.", "success")
+        else:
+            db.save_navigation_item(
+                None if request.form.get("id") == "new" else int(request.form.get("id", 0) or 0),
+                request.form.get("label", ""),
+                request.form.get("url", ""),
+                int(request.form.get("position", 99)),
+                request.form.get("active") == "1",
+            )
+            flash("Navigation item saved.", "success")
+        return redirect(url_for("admin_navigation"))
+    items = db.list_navigation()
+    return render_template("admin/navigation.html", items=items)
+
+
+def _media_library():
+    return [{"name": f["name"], "url": _media_url(f["path"])}
+            for f in db.list_files() if f["kind"] == "image"]
+
+
+# ------------------ admin: brand settings ------------------
+
+@app.route("/admin/brand", methods=["GET", "POST"])
+@admin_required
+def admin_brand():
+    if request.method == "POST":
+        brand = {
+            "logo": (request.form.get("logo") or "").strip(),
+            "logo_alt": (request.form.get("logo_alt") or "").strip(),
+            "favicon": (request.form.get("favicon") or "").strip(),
+            "primary_color": (request.form.get("primary_color") or "#4a6650").strip(),
+            "accent_color": (request.form.get("accent_color") or "#6f5a3f").strip(),
+        }
+        db.set_setting("brand", json.dumps(brand))
+        flash("Brand settings saved.", "success")
+        return redirect(url_for("admin_brand"))
+    raw = db.get_settings().get("brand", "{}")
+    try:
+        brand = json.loads(raw) if raw else {}
+    except (ValueError, TypeError):
+        brand = {}
+    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": "", "primary_color": "#4a6650", "accent_color": "#6f5a3f"}
+    defaults.update(brand)
+    return render_template("admin/brand.html", brand=defaults, media=_media_library())
+
+
+@app.context_processor
+def _inject_nav_and_brand():
+    nav = db.list_navigation(active_only=True)
+    raw = db.get_settings().get("brand", {})
+    try:
+        brand = json.loads(raw) if isinstance(raw, str) else raw
+    except (ValueError, TypeError):
+        brand = {}
+    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": "", "primary_color": "#4a6650", "accent_color": "#6f5a3f"}
+    defaults.update(brand if brand else {})
+    return {
+        "nav_items": nav,
+        "brand_settings": defaults,
+    }
 
 
 @app.errorhandler(404)

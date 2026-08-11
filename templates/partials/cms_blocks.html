@@ -1,0 +1,40 @@
+{# Render a list of content blocks. Each block has a 'type' and type-specific fields. #}
+{% for block in blocks %}
+{% set btype = block.type %}
+{% if btype == 'testimonial' %}
+<div class="cms-block cms-block--testimonial reveal">
+  {% if block.photo %}<img class="cms-block-photo" src="{{ block.photo }}" alt="{{ block.author or 'Testimonial' }}" loading="lazy" />{% endif %}
+  {% if block.quote %}<blockquote>{{ block.quote }}</blockquote>{% endif %}
+  {% if block.author %}<p class="cms-block-author">{{ block.author }}{% if block.role %}<span>{{ block.role }}</span>{% endif %}</p>{% endif %}
+</div>
+
+{% elif btype == 'cta' %}
+<div class="cms-block cms-block--cta reveal">
+  {% if block.heading %}<h3>{{ block.heading }}</h3>{% endif %}
+  {% if block.text %}<p>{{ block.text }}</p>{% endif %}
+  {% if block.button_label and block.button_url %}<a class="page-btn" href="{{ block.button_url }}">{{ block.button_label }}</a>{% endif %}
+</div>
+
+{% elif btype == 'feature_grid' %}
+{% set cols = block.columns | default(3) | int %}
+{% set col_class = 'cms-block-grid cms-block-grid--' ~ (cols if cols in [2,3,4] else 3) %}
+<div class="cms-block cms-block--grid reveal">
+  <div class="{{ col_class }}">
+    {% for item in block.items %}
+    <div class="cms-block-grid-item">
+      {% if item.image %}<img src="{{ item.image }}" alt="{{ item.title or '' }}" loading="lazy" />{% endif %}
+      {% if item.title %}<h4>{{ item.title }}</h4>{% endif %}
+      {% if item.body %}<p>{{ item.body }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% elif btype == 'video' %}
+<div class="cms-block cms-block--video reveal">
+  {% if block.url %}{{ _video_embed(block.url) | safe }}{% endif %}
+  {% if block.caption %}<p class="cms-block-caption">{{ block.caption }}</p>{% endif %}
+</div>
+
+{% endif %}
+{% endfor %}

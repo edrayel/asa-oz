@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} — Asa-OZ{% endblock %}
+{% block description %}{{ page.description or cms_site.tagline }}{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">{% endblock %}
+
+{% block main %}
+<section class="store-hero">
+  <div style="max-width:640px; margin:0 auto; text-align:center; padding:3rem 1rem;">
+    <h1 class="reveal">{{ page.title }}</h1>
+    {% for sec in sections if sec.active %}
+    {% if sec.content.heading %}<h2 class="reveal">{{ sec.content.heading }}</h2>{% endif %}
+    {% if sec.content.body %}<div class="reveal" style="margin:1.5rem 0; line-height:1.7;">{{ sec.content.body | safe }}</div>{% endif %}
+    {% if sec.content.blocks %}
+    {% set blocks = sec.content.blocks %}
+    {% include "partials/cms_blocks.html" with context %}
+    {% endif %}
+    {% if sec.content.image %}
+    <div class="reveal" style="margin:1.5rem 0;">
+      <img src="{{ sec.content.image }}" alt="{{ sec.content.image_alt or sec.content.heading or '' }}" loading="lazy" style="max-width:100%;border-radius:12px;" />
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% set links = [('admin_dashboard','Overview'),('admin_files','Files'),('admin_drive','Drive'),('admin_products','Products'),('admin_pages','Pages'),('admin_feedback','Feedback'),('admin_waitlist','Waitlist'),('admin_journey','Journey'),('admin_bookings','Bookings'),('admin_contacts','Contacts'),('admin_orders','Orders'),('admin_settings','Settings'),('admin_password','Password')] %}
+{% set links = [('admin_dashboard','Overview'),('admin_files','Files'),('admin_drive','Drive'),('admin_products','Products'),('admin_pages','Pages'),('admin_dynamic_pages','Dynamic Pages'),('admin_navigation','Navigation'),('admin_brand','Brand'),('admin_feedback','Feedback'),('admin_waitlist','Waitlist'),('admin_journey','Journey'),('admin_bookings','Bookings'),('admin_contacts','Contacts'),('admin_orders','Orders'),('admin_settings','Settings'),('admin_password','Password')] %}
 <nav class="admin-nav" aria-label="Admin sections">
   {% for endpoint, label in links %}
   <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active"{% endif %}>{{ label }}</a>

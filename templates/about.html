@@ -5,7 +5,7 @@
       <section class="store-hero">
         <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
         <h1 class="reveal">{{ cms.hero.title }}</h1>
-        <p class="lede reveal">{{ cms.hero.lede }}</p>
+        <p class="lede reveal">{{ cms.hero.lede | safe }}</p>
       </section>
 
       <section class="page-section" aria-label="About Asa-OZ">
@@ -59,7 +59,7 @@
             {% endfor %}
           </div>
 
-          <p class="proof-footnote reveal">{{ cms.feels.proof_footnote }}</p>
+          <p class="proof-footnote reveal">{{ cms.feels.proof_footnote | safe }}</p>
         </section>
 
         <div class="page-block page-block--top reveal">
@@ -72,12 +72,11 @@
           <section class="founder">
             <div class="founder-media">
               <div class="founder-frame">
-                <!-- TODO: swap placeholder video ID for the founder's real YouTube video -->
-                <iframe class="founder-video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" title="Ifeoma Adaora — founder of Asa-OZ" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                {% if cms.founder.video %}{{ _video_embed(cms.founder.video) | safe }}{% else %}<iframe class="founder-video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" title="Ifeoma Adaora — founder of Asa-OZ" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>{% endif %}
               </div>
             </div>
             <div class="founder-copy">
-              <blockquote class="founder-quote">{{ cms.founder.quote }}</blockquote>
+              <blockquote class="founder-quote">{{ cms.founder.quote | safe }}</blockquote>
               <div class="founder-body">
                 {% for p in cms.founder.paragraphs %}<p>{{ p }}</p>{% endfor %}
               </div>

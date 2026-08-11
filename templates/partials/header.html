@@ -3,16 +3,28 @@
   <div class="brand">
     <a href="{{ url_for('index') }}" class="brand-link">
       <span class="brand-logo-fallback">Asa-OZ</span>
-      <img class="brand-logo-img" src="{{ url_for('static', filename='images/logo.svg') }}" alt="Asa-OZ"
-        onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';"
-        onerror="this.style.display='none';">
+      {% if brand_settings.logo %}
+        <img class="brand-logo-img" src="{{ brand_settings.logo }}" alt="{{ brand_settings.logo_alt or 'Asa-OZ' }}"
+          onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';"
+          onerror="this.style.display='none';">
+      {% else %}
+        <img class="brand-logo-img" src="{{ url_for('static', filename='images/logo.svg') }}" alt="Asa-OZ"
+          onload="var f=this.previousElementSibling; if(f&&f.classList.contains('brand-logo-fallback'))f.style.display='none';"
+          onerror="this.style.display='none';">
+      {% endif %}
     </a>
   </div>
   <nav class="main-nav" aria-label="Main">
+    {% if nav_items %}
+    {% for item in nav_items %}
+      <a href="{{ item.url }}"{% if request.path == item.url %} class="active"{% endif %}>{{ item.label }}</a>
+    {% endfor %}
+    {% else %}
     {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('faq','FAQ'), ('contact','Contact')] %}
     {% for endpoint, label in items %}
       <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active"{% endif %}>{{ label }}</a>
     {% endfor %}
+    {% endif %}
   </nav>
   <div class="header-social" aria-label="Social media">{{ social_links(16) }}</div>
   <div class="header-actions">

@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+{% block title %}Dynamic Pages — Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Pages</h1>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>
+      <a class="btn" href="{{ url_for('admin_dynamic_page_new') }}">+ New page</a>
+    </div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <p class="sub">Pages you create here get their own URL at <code>/page/&lt;slug&gt;</code> and use the CMS content editor below.</p>
+
+  <div class="card">
+    <h2>Existing pages</h2>
+    {% if pages %}
+    <table><thead><tr><th>Slug</th><th>Title</th><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for p in pages %}
+      <tr>
+        <td><code>/page/{{ p.slug }}</code></td>
+        <td>{{ p.title }}</td>
+        <td>{% if p.active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</td>
+        <td>{{ p.created_at }}</td>
+        <td><a class="btn btn-ghost" href="{{ url_for('admin_dynamic_page_edit', slug=p.slug) }}">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}
+    <p class="empty-state">No custom pages yet. Create one to get started.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

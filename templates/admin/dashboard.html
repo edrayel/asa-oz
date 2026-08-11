@@ -6,7 +6,11 @@
     <h1>Asa-OZ Admin</h1>
     <div class="actions">
       <a class="btn btn-ghost" href="{{ url_for('index') }}" target="_blank">View site</a>
-      <a class="btn btn-ghost" href="{{ url_for('admin_export') }}">Export JSON</a>
+      <a class="btn btn-ghost" href="{{ url_for('export_waitlist_csv') }}">Waitlist CSV</a>
+      <a class="btn btn-ghost" href="{{ url_for('export_contacts_csv') }}">Contacts CSV</a>
+      <a class="btn btn-ghost" href="{{ url_for('export_orders_csv') }}">Orders CSV</a>
+      <a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Bookings CSV</a>
+      <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>
       <form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form>
     </div>
   </div>

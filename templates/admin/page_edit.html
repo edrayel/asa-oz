@@ -1,5 +1,6 @@
 {% extends "admin/base.html" %}
 {% block title %}{{ page_schema.label }} - Asa-OZ Admin{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/rte.css') }}">{% endblock %}
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>{{ page_schema.label }}</h1>
@@ -19,7 +20,15 @@
   <p class="sub" style="margin-bottom:1.2rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">{{ page_schema.hint }}</p>
   {% endif %}
 
-  {% for section in page_schema.sections %}
+  <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">
+    Drag <span style="font-size:1rem;">&#x2195;</span> to reorder &middot; changes publish immediately.
+  </p>
+
+  <form id="section-order-form" method="POST" action="{{ url_for('admin_page_reorder', page=page_key) }}" style="display:none;">
+    <input type="hidden" name="section_order" id="section-order-input" value="" />
+  </form>
+
+  {% for section in sections %}
   {% set sec_key = section.key %}
   {% set stored_sec = stored.get(sec_key) %}
   {% set active = stored_sec['active'] if stored_sec else True %}
@@ -27,6 +36,7 @@
     <details class="cms-details"{% if loop.first %} open{% endif %}>
       <summary>
         <span class="cms-summary">
+          <span class="cms-drag" title="Drag to reorder" style="cursor:grab;user-select:none;color:var(--muted);font-size:1rem;padding:0 4px;">&#x2195;</span>
           <span class="cms-title">{{ section.label }}</span>
           <span class="cms-state">{% if active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</span>
         </span>
@@ -38,25 +48,43 @@
         <form method="POST" action="{{ url_for('admin_page', page=page_key) }}">
           <input type="hidden" name="section_key" value="{{ sec_key }}" />
 
-          {% for f in section.fields %}
+          {% for f in cms._flatten_fields(section.fields) %}
           {% set fkey = f.key %}
           {% set value = stored_sec['content'].get(fkey) if stored_sec and stored_sec['content'] else None %}
+          {% set hint = f.get('hint', '') %}
 
           {% if f.type == 'text' %}
           <div class="form-row">
             <label>{{ f.label }}</label>
             <input name="field_{{ fkey }}" value="{{ value if value is not none else f.get('default', '') }}" />
+            {% if hint %}<small style="color:var(--muted);font-size:0.75rem;">{{ hint }}</small>{% endif %}
           </div>
 
           {% elif f.type == 'textarea' or f.type == 'longtext' %}
           <div class="form-row">
             <label>{{ f.label }}</label>
             <textarea name="field_{{ fkey }}" rows="{{ 4 if f.type == 'longtext' else 3 }}">{{ value if value is not none else f.get('default', '') }}</textarea>
+            {% if hint %}<small style="color:var(--muted);font-size:0.75rem;">{{ hint }}</small>{% endif %}
+          </div>
+
+          {% elif f.type == 'richtext' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <textarea name="field_{{ fkey }}" data-rte="1">{{ value if value is not none else f.get('default', '') }}</textarea>
+            {% if hint %}<small style="color:var(--muted);font-size:0.75rem;">{{ hint }}</small>{% endif %}
+          </div>
+
+          {% elif f.type == 'video' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <input name="field_{{ fkey }}" value="{{ value if value is not none else '' }}" placeholder="https://www.youtube.com/watch?v=… or https://vimeo.com/…" />
+            {% if hint %}<small style="color:var(--muted);font-size:0.75rem;">{{ hint }}</small>{% endif %}
+            {% if value %}<div class="rte-video-preview" style="margin-top:0.5rem;max-width:320px;">{{ _video_embed(value) | safe }}</div>{% endif %}
           </div>
 
           {% elif f.type == 'checkbox' %}
           <div class="control-row">
-            <div class="control-label">{{ f.label }}</div>
+            <div class="control-label">{{ f.label }}<small>{{ hint }}</small></div>
             <input type="checkbox" name="{{ fkey }}" value="1" {% if (value if value is not none else f.get('default', False)) %}checked{% endif %} />
           </div>
 
@@ -119,6 +147,57 @@
             </div>
             <button type="button" class="btn btn-ghost cms-add" data-list="{{ fkey }}">+ Add {{ f.label | lower }}</button>
           </div>
+
+          {% elif f.type == 'content_blocks' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <div class="cms-blocks" data-blocks="{{ fkey }}">
+              <input type="hidden" name="field_{{ fkey }}" class="cms-blocks-json" value="{{ value | default('[]') | replace("'", '&#39;') }}" />
+              <div class="cms-blocks-list"></div>
+              <div class="cms-blocks-add">
+                <span class="sub" style="font-size:0.82rem;margin-bottom:0.5rem;">Add a block:</span>
+                <div class="cms-blocks-buttons">
+                  {% for btype, bdef in BLOCK_TYPES.items() %}
+                  <button type="button" class="btn btn-ghost" data-block-type="{{ btype }}">{{ bdef.icon }} {{ bdef.label }}</button>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% elif f.type == 'section_style' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <div class="cms-style" data-style="{{ fkey }}">
+              <div class="cms-style-grid">
+                <div class="form-row">
+                  <label>Background</label>
+                  <select name="style_{{ fkey }}_background" class="cms-style-bg">
+                    {% for val, label in SECTION_STYLE_OPTIONS.background %}
+                    <option value="{{ val }}"{% if (value or {}).get('background', 'none') == val %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                  <input name="style_{{ fkey }}_background_custom" class="cms-style-bg-custom" placeholder="#faf6ef or url(...)" value="{{ (value or {}).get('background_custom', '') }}" style="margin-top:0.4rem;{% if (value or {}).get('background', 'none') != 'custom' %}display:none;{% endif %}" />
+                </div>
+                <div class="form-row">
+                  <label>Text alignment</label>
+                  <select name="style_{{ fkey }}_text_align" class="cms-style-align">
+                    {% for val, label in SECTION_STYLE_OPTIONS.text_align %}
+                    <option value="{{ val }}"{% if (value or {}).get('text_align', 'left') == val %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>Padding</label>
+                  <select name="style_{{ fkey }}_padding" class="cms-style-padding">
+                    {% for val, label in SECTION_STYLE_OPTIONS.padding %}
+                    <option value="{{ val }}"{% if (value or {}).get('padding', 'medium') == val %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
           {% endif %}
           {% endfor %}
 
@@ -133,6 +212,7 @@
   {% endfor %}
 </div>
 
+<script src="{{ url_for('static', filename='js/rte.js') }}"></script>
 <script>
 (function () {
   function esc(s) {
@@ -141,8 +221,7 @@
     return d.innerHTML;
   }
 
-  // Media pickers: select -> fill the sibling input + preview in the same
-  // form-row. Delegated so it also works for rows added by the repeater.
+  // Media pickers: select -> fill the sibling input + preview in the same form-row.
   document.addEventListener('change', function (e) {
     var sel = e.target.closest ? e.target.closest('[data-cms-media-picker]') : null;
     if (!sel) return;
@@ -172,12 +251,12 @@
         }
       });
       clone.querySelectorAll('[data-cms-preview]').forEach(function (p) { p.innerHTML = ''; });
-      var addBtn = list.querySelector('.cms-add') || btn;
       var removeBtn = clone.querySelector('.cms-remove');
       if (removeBtn) {
         removeBtn.addEventListener('click', function () { clone.remove(); });
       }
       list.appendChild(clone);
+      if (window.TinyRich) window.TinyRich.init();
     });
   });
 
@@ -187,6 +266,182 @@
         e.target.closest('.cms-list-item').remove();
       }
     });
+  });
+
+  // --- Section drag-to-reorder ---
+  (function () {
+    var wrap = document.querySelector('.admin-wrap');
+    var cards = Array.prototype.slice.call(wrap.querySelectorAll('.cms-card'));
+    var dragEl = null;
+
+    cards.forEach(function (card) {
+      var handle = card.querySelector('.cms-drag');
+      if (!handle) return;
+      handle.addEventListener('mousedown', function (e) {
+        if (e.target.tagName === 'SUMMARY' || e.target.closest('summary')) return;
+        dragEl = card;
+        card.style.opacity = '0.5';
+        e.preventDefault();
+      });
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!dragEl) return;
+      var target = null;
+      for (var i = 0; i < cards.length; i++) {
+        var rect = cards[i].getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) { target = cards[i]; break; }
+      }
+      var wrapEl = dragEl.parentNode;
+      if (target && target !== dragEl) {
+        wrapEl.insertBefore(dragEl, target);
+      } else if (!target) {
+        wrapEl.appendChild(dragEl);
+      }
+      dragEl.style.opacity = '0.5';
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (!dragEl) return;
+      dragEl.style.opacity = '';
+      dragEl = null;
+      var order = Array.prototype.slice.call(wrap.querySelectorAll('.cms-card')).map(function (c) {
+        return c.getAttribute('data-section');
+      });
+      var input = document.getElementById('section-order-input');
+      if (input) input.value = order.join(',');
+      var form = document.getElementById('section-order-form');
+      if (form) form.submit();
+    });
+  })();
+
+  // --- Content block editor ---
+  (function () {
+    var BLOCKS = {};
+    var BLOCK_TYPES = {{ BLOCK_TYPES | tojson }};
+
+    function loadBlocks() {
+      document.querySelectorAll('.cms-blocks').forEach(function (container) {
+        var key = container.getAttribute('data-blocks');
+        if (BLOCKS[key]) return;
+        BLOCKS[key] = true;
+        var jsonInput = container.querySelector('.cms-blocks-json');
+        var list = container.querySelector('.cms-blocks-list');
+        var addBtns = container.querySelectorAll('.cms-blocks-buttons button');
+        var blocks = [];
+        try { blocks = JSON.parse(jsonInput.value || '[]'); } catch (e) { blocks = []; }
+        if (!Array.isArray(blocks)) blocks = [];
+
+        function sync() {
+          jsonInput.value = JSON.stringify(blocks);
+        }
+
+        function render() {
+          list.innerHTML = '';
+          blocks.forEach(function (block, idx) {
+            var def = null;
+            for (var t in BLOCK_TYPES) { if (t === block.type) { def = BLOCK_TYPES[t]; break; } }
+            if (!def) def = { label: block.type || 'Block', icon: '■' };
+            var item = document.createElement('div');
+            item.className = 'cms-block-item';
+            item.setAttribute('data-idx', idx);
+            var head = document.createElement('div');
+            head.className = 'cms-block-item-head';
+            head.innerHTML = '<span class="cms-block-handle">&#x2195;</span>' +
+              '<span class="cms-block-title">' + esc(def.icon + ' ' + def.label) + '</span>' +
+              '<button type="button" data-act="toggle">&#9660;</button>' +
+              '<button type="button" data-act="up">&uarr;</button>' +
+              '<button type="button" data-act="down">&darr;</button>' +
+              '<button type="button" data-act="remove">&times;</button>';
+            var body = document.createElement('div');
+            body.className = 'cms-block-item-body';
+            (def.fields || []).forEach(function (fld) {
+              var row = document.createElement('div');
+              row.className = 'form-row';
+              var val = block[fld.key] != null ? block[fld.key] : (fld.default || '');
+              var label = document.createElement('label');
+              label.textContent = fld.label;
+              row.appendChild(label);
+              var input;
+              if (fld.type === 'textarea') {
+                input = document.createElement('textarea');
+                input.rows = 3;
+                input.value = typeof val === 'string' ? val : '';
+              } else {
+                input = document.createElement('input');
+                input.value = typeof val === 'string' ? val : JSON.stringify(val || '');
+              }
+              input.name = 'block_' + key + '_' + idx + '_' + fld.key;
+              if (fld.hint) {
+                var hintEl = document.createElement('small');
+                hintEl.style.cssText = 'color:var(--muted);font-size:0.75rem;';
+                hintEl.textContent = fld.hint;
+                row.appendChild(label);
+                row.appendChild(input);
+                row.appendChild(hintEl);
+              } else {
+                row.appendChild(label);
+                row.appendChild(input);
+              }
+              body.appendChild(row);
+            });
+            item.appendChild(head);
+            item.appendChild(body);
+            list.appendChild(item);
+          });
+          // Wire events
+          list.querySelectorAll('.cms-block-item').forEach(function (item) {
+            var idx = parseInt(item.getAttribute('data-idx'), 10);
+            item.querySelector('[data-act="toggle"]').addEventListener('click', function () {
+              item.classList.toggle('is-open');
+            });
+            item.querySelector('[data-act="up"]').addEventListener('click', function () {
+              if (idx > 0) { var tmp = blocks[idx]; blocks[idx] = blocks[idx-1]; blocks[idx-1] = tmp; render(); sync(); }
+            });
+            item.querySelector('[data-act="down"]').addEventListener('click', function () {
+              if (idx < blocks.length - 1) { var tmp = blocks[idx]; blocks[idx] = blocks[idx+1]; blocks[idx+1] = tmp; render(); sync(); }
+            });
+            item.querySelector('[data-act="remove"]').addEventListener('click', function () {
+              blocks.splice(idx, 1); render(); sync();
+            });
+            item.querySelectorAll('input, textarea').forEach(function (el) {
+              el.addEventListener('input', function () {
+                var parts = el.name.split('_');
+                var fkey = parts[parts.length - 1];
+                blocks[idx][fkey] = el.value;
+                sync();
+              });
+            });
+          });
+        }
+
+        addBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var btype = btn.getAttribute('data-block-type');
+            var def = BLOCK_TYPES[btype];
+            var block = { type: btype };
+            (def.fields || []).forEach(function (fld) { block[fld.key] = fld.default || ''; });
+            blocks.push(block);
+            render();
+            sync();
+            var items = list.querySelectorAll('.cms-block-item');
+            if (items.length) items[items.length - 1].classList.add('is-open');
+          });
+        });
+
+        render();
+      });
+    }
+
+    loadBlocks();
+  })();
+
+  // --- Section style: show/hide custom bg input ---
+  document.addEventListener('change', function (e) {
+    if (!e.target.classList.contains('cms-style-bg')) return;
+    var row = e.target.closest('.form-row');
+    var custom = row.querySelector('.cms-style-bg-custom');
+    if (custom) custom.style.display = e.target.value === 'custom' ? '' : 'none';
   });
 })();
 </script>
