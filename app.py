@@ -1190,9 +1190,19 @@ def export_feedback_csv():
 
 # ------------------ admin: dynamic pages ------------------
 
-@app.route("/admin/dynamic-pages")
+@app.route("/admin/dynamic-pages", methods=["GET", "POST"])
 @admin_required
 def admin_dynamic_pages():
+    if request.method == "POST":
+        slug = (request.form.get("slug") or "").strip().lower()
+        title = (request.form.get("title") or "").strip()
+        description = (request.form.get("description") or "").strip()
+        if not slug or not title:
+            flash("Slug and title are required.", "error")
+        else:
+            db.save_dynamic_page(slug, title, description)
+            flash("Page '%s' created." % title, "success")
+        return redirect(url_for("admin_dynamic_pages"))
     pages = db.list_dynamic_pages()
     return render_template("admin/dynamic_pages.html", pages=pages)
 
@@ -1200,17 +1210,7 @@ def admin_dynamic_pages():
 @app.route("/admin/dynamic-pages/new", methods=["GET", "POST"])
 @admin_required
 def admin_dynamic_page_new():
-    if request.method == "POST":
-        slug = (request.form.get("slug") or "").strip().lower()
-        title = (request.form.get("title") or "").strip()
-        description = (request.form.get("description") or "").strip()
-        if not slug or not title:
-            flash("Slug and title are required.", "error")
-            return redirect(url_for("admin_dynamic_page_new"))
-        db.save_dynamic_page(slug, title, description)
-        flash("Page '%s' created." % title, "success")
-        return redirect(url_for("admin_dynamic_page_edit", slug=slug))
-    return render_template("admin/dynamic_page_edit.html", page=None, media=_media_library())
+    return render_template("admin/dynamic_page_edit.html", page=None, slug="", stored={}, media=_media_library())
 
 
 @app.route("/admin/dynamic-pages/<slug>")

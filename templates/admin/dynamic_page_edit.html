@@ -21,24 +21,35 @@
   {% endif %}
   {% endwith %}
 
+  {% if page %}
   <div class="card">
     <h2>Page settings</h2>
-    <form method="POST" action="{{ url_for('admin_dynamic_page_save', slug=slug) }}">
-      <div class="form-row"><label>Title</label><input name="title" value="{{ page.title if page else '' }}" required /></div>
-      <div class="form-row"><label>Description (SEO)</label><input name="description" value="{{ page.description if page else '' }}" placeholder="Used for meta description and social preview" /></div>
+    <form method="POST" action="{{ url_for('admin_dynamic_page_save', slug=page.slug) }}">
+      <div class="form-row"><label>Title</label><input name="title" value="{{ page.title }}" required /></div>
+      <div class="form-row"><label>Description (SEO)</label><input name="description" value="{{ page.description }}" placeholder="Used for meta description and social preview" /></div>
       <div class="control-row">
         <div class="control-label">Published</div>
-        <input type="checkbox" name="active" value="1" {% if page and page.active %}checked{% endif %} />
+        <input type="checkbox" name="active" value="1" {% if page.active %}checked{% endif %} />
       </div>
       <button class="btn" type="submit">Save settings</button>
     </form>
-    {% if page %}
     <form method="POST" action="{{ url_for('admin_dynamic_page_delete', slug=page.slug) }}" style="margin-top:1rem;" onsubmit="return confirm('Delete this page? This cannot be undone.')">
       <input type="hidden" name="confirm" value="1" />
       <button class="btn btn-danger" type="submit">Delete page</button>
     </form>
-    {% endif %}
   </div>
+  {% else %}
+  <div class="card">
+    <h2>Create page</h2>
+    <p class="sub">Fill in the slug and title below to create a new dynamic page.</p>
+    <form method="POST" action="{{ url_for('admin_dynamic_pages') }}" style="display:flex;gap:1rem;align-items:end;">
+      <div class="form-row"><label>Slug</label><input name="slug" placeholder="e.g. about-us" required /></div>
+      <div class="form-row"><label>Title</label><input name="title" placeholder="Page title" required /></div>
+      <div class="form-row"><label>Description (SEO)</label><input name="description" placeholder="Used for meta description" /></div>
+      <button class="btn" type="submit">Create page</button>
+    </form>
+  </div>
+  {% endif %}
 
   <div class="card">
     <h2>Content sections</h2>
