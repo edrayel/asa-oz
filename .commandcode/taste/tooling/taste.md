@@ -14,3 +14,5 @@
 
 - Prefers extracting shared/identical code (e.g., the per-page cart JS) into the shared component (shared.js/shared.css) to avoid duplicating the same logic across files, and checks whether logic is truly identical across files before deciding to extract. Confidence: 0.6
 
+- Accepts pushing through an authenticated MCP GitHub connection (which recreates commits via the API rather than a literal `git push`) when the machine's git/gh credentials are broken — explicitly choosing the fastest option that requires no user action over re-authenticating, and letting the agent reconcile local/remote afterward (e.g., fast-forwarding local master to the API-created commit). Confidence: 0.6
+
