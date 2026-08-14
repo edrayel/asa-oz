@@ -1359,7 +1359,8 @@ def server_error(e):
     return render_template("500.html"), 500
 
 
+with app.app_context():
+    _seed_home_marquee()
+
 if __name__ == "__main__":
-    with app.app_context():
-        _seed_home_marquee()
     app.run(host="0.0.0.0", port=os.environ.get("PORT", 5000), debug=True)
