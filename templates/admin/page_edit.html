@@ -48,7 +48,7 @@
         <form method="POST" action="{{ url_for('admin_page', page=page_key) }}">
           <input type="hidden" name="section_key" value="{{ sec_key }}" />
 
-          {% for f in cms._flatten_fields(section.fields) %}
+          {% for f in _flatten_fields(section.fields) %}
           {% set fkey = f.key %}
           {% set value = stored_sec['content'].get(fkey) if stored_sec and stored_sec['content'] else None %}
           {% set hint = f.get('hint', '') %}

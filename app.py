@@ -923,6 +923,7 @@ def _inject_cms_helpers():
                     field_types[(pname, sec["key"], f["key"])] = f["type"]
     return {
         '_video_embed': _video_embed,
+        '_flatten_fields': cms._flatten_fields,
         '_cms_field_types': field_types,
         '_cms_is_richtext': lambda p, s, k: field_types.get((p, s, k)) == "richtext",
         '_cms_is_video': lambda p, s, k: field_types.get((p, s, k)) == "video",
