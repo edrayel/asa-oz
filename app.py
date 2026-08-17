@@ -991,7 +991,7 @@ def _parse_cms_section(section, form):
     content = {}
     for f in cms._flatten_fields(section["fields"]):
         key = f["key"]
-        if f["type"] in ("text", "textarea", "longtext", "image", "richtext", "video"):
+        if f["type"] in ("text", "textarea", "longtext", "image", "richtext", "video", "select"):
             content[key] = (form.get("field_%s" % key) or "").strip()
         elif f["type"] == "checkbox":
             content[key] = bool(key in form)

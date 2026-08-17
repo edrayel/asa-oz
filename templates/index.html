@@ -54,7 +54,7 @@
              CSS nth-child rules own the per-row direction (--row-dur 58/72/64s,
              --row-h, marqueeLeft on row 2 incl. the mobile media-query override).
              Odd rows (2nd) are reverse-ordered for the mirrored scroll. -->
-        <div class="hero-marquee" aria-hidden="true">
+        <div class="hero-marquee" aria-hidden="true" style="--marquee-speed: {{ cms.marquee.speed if cms.marquee.speed else '1' }};">
           {% for row_idx in range(marquee_rows) %}
           <div class="marquee-row">
             <div class="marquee-track">

@@ -382,9 +382,9 @@
     }
     .marquee-row:nth-child(2) .marquee-track { animation-name: marqueeLeft; }
     .marquee-row:nth-child(3) .marquee-track { animation-name: marqueeRight; }
-    .marquee-row:nth-child(1) { --row-dur: 92s; --row-h: clamp(120px, 15vw, 200px); }
-    .marquee-row:nth-child(2) { --row-dur: 115s; --row-h: clamp(100px, 13vw, 170px); }
-    .marquee-row:nth-child(3) { --row-dur: 102s; --row-h: clamp(110px, 14vw, 185px); }
+    .marquee-row:nth-child(1) { --row-dur: calc(92s * var(--marquee-speed, 1)); --row-h: clamp(120px, 15vw, 200px); }
+    .marquee-row:nth-child(2) { --row-dur: calc(115s * var(--marquee-speed, 1)); --row-h: clamp(100px, 13vw, 170px); }
+    .marquee-row:nth-child(3) { --row-dur: calc(102s * var(--marquee-speed, 1)); --row-h: clamp(110px, 14vw, 185px); }
     .marquee-group {
       display: flex;
       flex: none;

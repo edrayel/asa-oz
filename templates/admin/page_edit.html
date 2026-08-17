@@ -88,6 +88,17 @@
             <input type="checkbox" name="{{ fkey }}" value="1" {% if (value if value is not none else f.get('default', False)) %}checked{% endif %} />
           </div>
 
+          {% elif f.type == 'select' %}
+          <div class="form-row">
+            <label>{{ f.label }}</label>
+            <select name="field_{{ fkey }}" class="admin-select">
+              {% for opt_val, opt_label in f.options %}
+              <option value="{{ opt_val }}"{% if (value if value is not none else f.get('default', '')) == opt_val %} selected{% endif %}>{{ opt_label }}</option>
+              {% endfor %}
+            </select>
+            {% if hint %}<small style="color:var(--muted);font-size:0.75rem;">{{ hint }}</small>{% endif %}
+          </div>
+
           {% elif f.type == 'image' %}
           <div class="form-row">
             <label>{{ f.label }}</label>

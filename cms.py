@@ -48,6 +48,9 @@ def _imga(key, label, alt_label="Alt text", **kw):
 def _cb(key, label, default=False, **kw):
     return dict(key=key, label=label, type="checkbox", default=default, **kw)
 
+def _sel(key, label, options, default=None, **kw):
+    return dict(key=key, label=label, type="select", options=options, default=default or (options[0][0] if options else ""), **kw)
+
 def _blocks(key, label, **kw):
     """Reusable content blocks — testimonial, CTA, feature grid, video."""
     return dict(key=key, label=label, type="content_blocks", **kw)
@@ -172,6 +175,10 @@ PAGES = {
                 "hint": "Photos that scroll behind the hero. Seeded from images/wall-of-memories/ on a fresh site; clear the images to leave the marquee empty.",
                 "fields": [
                     _lt("rows", "Rows (1-3)", default="3"),
+                    _sel("speed", "Scrolling speed",
+                         [("1.4", "Calm — slower"), ("1", "Normal"), ("0.65", "Lively — faster")],
+                         default="1",
+                         hint="How fast the photo rows scroll. Calm is slower and gentler; lively is quicker."),
                     {
                         "key": "images",
                         "label": "Images",
