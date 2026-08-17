@@ -292,6 +292,18 @@ def api_wall():
     return jsonify({"images": _wall_moments()})
 
 
+@app.route("/health")
+def health():
+    """Lightweight liveness probe — safe to ping to keep the service warm."""
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route("/ping")
+def ping():
+    """Alias of /health for keep-alive pings."""
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/store")
 def store():
     type_filter = request.args.get("type", "all")
