@@ -1,0 +1,16 @@
+{# Renders an AdSense ad unit. Caller passes a slot ID (the data-ad-slot value
+   from your AdSense account). Renders nothing if show_ads is off or if no
+   AdSense publisher ID is configured. Slot IDs and the publisher ID are
+   configured via the env (ADSENSE_PUBLISHER_ID) and the admin's per-page
+   ad settings — see DEPLOY.md. #}
+{% if settings.get('show_ads', '1') == '1' and adsense_publisher_id %}
+<div class="ad-slot ad-slot-{{ name|default('default') }}" data-ad-slot-name="{{ name|default('default') }}">
+  <ins class="adsbygoogle"
+       style="display:block; min-height: 90px;"
+       data-ad-client="ca-{{ adsense_publisher_id }}"
+       data-ad-slot="{{ slot_id|default('1234567890') }}"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{% endif %}

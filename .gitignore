@@ -38,3 +38,7 @@ admin-dashboard.png
 *.png
 # Playwright snapshot dumps
 *.yml
+
+# Legacy source copy directories
+webcopy/
+feedback/

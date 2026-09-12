@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Bookings</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
   <div class="card">
@@ -19,6 +20,7 @@
         {% if b.message %}<p style="white-space:pre-wrap;"><strong>Message:</strong> {{ b.message }}</p>{% endif %}
         <p><strong>Requested:</strong> {{ b.created_at }}</p>
         <form method="POST" action="{{ url_for('admin_booking_status', booking_id=b.id) }}" class="multi-status">
+  {{ csrf_input() }}
           <button class="btn" name="status" value="new">New</button>
           <button class="btn" name="status" value="confirmed">Confirmed</button>
           <button class="btn" name="status" value="completed">Completed</button>

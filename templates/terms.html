@@ -9,6 +9,8 @@
         <p class="lede reveal">{{ cms.hero.lede }}</p>
       </section>
 
+      {% with name='terms-top', slot_id='7890123456' %}{% include "partials/ads.html" %}{% endwith %}
+
       <section class="page-section" aria-label="Terms and conditions">
         {% for block in cms.blocks.sections %}
         <div class="page-block reveal">

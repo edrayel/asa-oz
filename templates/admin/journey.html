@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Journey Subscribers</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
   <div class="card">
@@ -19,7 +20,8 @@
           <td>{{ j.journey_stage }}</td>
           <td>{{ j.source }}</td>
           <td>{{ j.created_at }}</td>
-          <td><form method="POST" action="{{ url_for('admin_journey_delete', subscriber_id=j.id) }}" onsubmit="return confirm('Delete this subscriber?')"><button class="btn btn-danger btn-sm">Delete</button></form></td>
+          <td><form method="POST" action="{{ url_for('admin_journey_delete', subscriber_id=j.id) }}" onsubmit="return confirm('Delete this subscriber?')">
+  {{ csrf_input() }}<button class="btn btn-danger btn-sm">Delete</button></form></td>
         </tr>
         {% endfor %}
       </tbody>

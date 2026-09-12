@@ -8,6 +8,8 @@
         <p class="lede reveal">{{ cms.hero.lede }}</p>
       </section>
 
+      {% with name='faq-top', slot_id='6789012345' %}{% include "partials/ads.html" %}{% endwith %}
+
       <section class="faq-section page-section" aria-label="Frequently asked questions">
         {% for item in cms.entries.faqs %}
         <details class="reveal">

@@ -609,3 +609,14 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
 .cms-section--align-left { text-align: left; }
 .cms-section--align-center { text-align: center; }
 .cms-section--align-right { text-align: right; }
+
+/* Ad slots — reserve vertical space so layout doesn't shift when ads load. */
+.ad-slot {
+  margin: 2.2rem auto;
+  max-width: 100%;
+  text-align: center;
+}
+.ad-slot ins.adsbygoogle {
+  display: block;
+  min-height: 90px;
+}

@@ -11,4 +11,8 @@ services:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        value: asa-oz-prod-secret-key-change-me
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Optional — see DEPLOY.md for the full list of supported env vars
+      # (STRIPE_*, SMTP_*, GOOGLE_DRIVE_*, ADSENSE_PUBLISHER_ID, APP_URL).

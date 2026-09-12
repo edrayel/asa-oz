@@ -143,6 +143,7 @@ DEFAULT_SETTINGS = {
     "price_public": "1",
     "price_free_first": "0",
     "price_commitment": "0",
+    "show_ads": "1",
 }
 
 DEFAULT_PRODUCTS = [
@@ -203,7 +204,13 @@ def init_db():
         conn.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, value))
 
     if conn.execute("SELECT COUNT(*) AS c FROM admins").fetchone()["c"] == 0:
-        pw = os.environ.get("ADMIN_PASSWORD", "asa-oz-admin")
+        pw = os.environ.get("ADMIN_PASSWORD")
+        if not pw:
+            raise RuntimeError(
+                "ADMIN_PASSWORD env var is required on first run to seed the admin user"
+            )
+        if len(pw) < 12:
+            raise RuntimeError("ADMIN_PASSWORD must be at least 12 characters")
         conn.execute(
             "INSERT INTO admins (id, username, password_hash) VALUES (1, 'admin', ?)",
             (generate_password_hash(pw),),

@@ -11,7 +11,8 @@
       <a class="btn btn-ghost" href="{{ url_for('export_orders_csv') }}">Orders CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Bookings CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>
-      <form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form>
+      <form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form>
     </div>
   </div>
   {% include "admin/_nav.html" %}

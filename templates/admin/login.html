@@ -6,6 +6,7 @@
       <h1>Asa-OZ Admin</h1>
       {% if error %}<p class="login-error">{{ error }}</p>{% endif %}
       <form method="POST" action="{{ url_for('admin_login') }}">
+        {{ csrf_input() }}
         <label for="username">Username</label>
         <input type="text" id="username" name="username" autocomplete="username" required />
         <label for="password">Password</label>

@@ -8,7 +8,8 @@
     <div class="actions">
       <a class="btn btn-ghost" href="{{ url_for('admin_dynamic_pages') }}">Back</a>
       {% if page %}<a class="btn btn-ghost" href="{{ url_for('dynamic_page', slug=page.slug) }}" target="_blank">View page</a>{% endif %}
-      <form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form>
+      <form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form>
     </div>
   </div>
   {% include "admin/_nav.html" %}
@@ -25,6 +26,7 @@
   <div class="card">
     <h2>Page settings</h2>
     <form method="POST" action="{{ url_for('admin_dynamic_page_save', slug=page.slug) }}">
+  {{ csrf_input() }}
       <div class="form-row"><label>Title</label><input name="title" value="{{ page.title }}" required /></div>
       <div class="form-row"><label>Description (SEO)</label><input name="description" value="{{ page.description }}" placeholder="Used for meta description and social preview" /></div>
       <div class="control-row">
@@ -34,6 +36,7 @@
       <button class="btn" type="submit">Save settings</button>
     </form>
     <form method="POST" action="{{ url_for('admin_dynamic_page_delete', slug=page.slug) }}" style="margin-top:1rem;" onsubmit="return confirm('Delete this page? This cannot be undone.')">
+  {{ csrf_input() }}
       <input type="hidden" name="confirm" value="1" />
       <button class="btn btn-danger" type="submit">Delete page</button>
     </form>
@@ -43,6 +46,7 @@
     <h2>Create page</h2>
     <p class="sub">Fill in the slug and title below to create a new dynamic page.</p>
     <form method="POST" action="{{ url_for('admin_dynamic_pages') }}" style="display:flex;gap:1rem;align-items:end;">
+  {{ csrf_input() }}
       <div class="form-row"><label>Slug</label><input name="slug" placeholder="e.g. about-us" required /></div>
       <div class="form-row"><label>Title</label><input name="title" placeholder="Page title" required /></div>
       <div class="form-row"><label>Description (SEO)</label><input name="description" placeholder="Used for meta description" /></div>
@@ -72,6 +76,7 @@
           </summary>
           <div class="cms-body">
             <form method="POST" action="{{ url_for('admin_dynamic_page_section', slug=slug) }}">
+  {{ csrf_input() }}
               <input type="hidden" name="section_key" value="{{ sk }}" />
               <div class="form-row"><label>Heading</label><input name="heading" value="{{ content.get('heading', '') }}" /></div>
               <div class="form-row"><label>Body</label><textarea name="body" data-rte="1" rows="5">{{ content.get('body', '') }}</textarea></div>

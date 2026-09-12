@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Settings</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -20,6 +21,7 @@
   </p>
 
   <form method="POST" action="{{ url_for('admin_settings') }}">
+  {{ csrf_input() }}
     <div class="card">
       <h2>Homepage</h2>
       {% set toggles = [
@@ -60,6 +62,14 @@
       <div class="control-row">
         <div class="control-label">Commitment pricing<small>Show commitment note</small></div>
         <input type="checkbox" name="price_commitment" value="1" {% if settings.get('price_commitment','0') == '1' %}checked{% endif %} />
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Advertising</h2>
+      <div class="control-row">
+        <div class="control-label">Show ads<small>Render AdSense ad slots (requires ADSENSE_PUBLISHER_ID env var)</small></div>
+        <input type="checkbox" name="show_ads" value="1" {% if settings.get('show_ads', '1') == '1' %}checked{% endif %} />
       </div>
     </div>
 

@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Feedback</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
   <div class="card">
@@ -17,6 +18,7 @@
         <p style="white-space:pre-wrap;">{{ f.text }}</p>
         {% if f.note %}<p style="color:var(--muted,#8c7d6d);font-size:0.85rem;"><em>Note: {{ f.note }}</em></p>{% endif %}
         <form method="POST" action="{{ url_for('admin_feedback_update', feedback_id=f.id) }}" style="display:flex;gap:0.5rem;align-items:center;">
+  {{ csrf_input() }}
           <select name="status" style="border:1px solid rgba(111,90,63,0.28);border-radius:8px;padding:0.35rem 0.6rem;font-family:var(--sans);font-size:0.82rem;">
             <option value="new" {% if f.status == 'new' %}selected{% endif %}>New</option>
             <option value="reviewed" {% if f.status == 'reviewed' %}selected{% endif %}>Reviewed</option>

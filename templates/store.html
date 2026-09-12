@@ -8,6 +8,8 @@
         <p class="lede reveal">{{ cms_store.hero_lede }}</p>
       </section>
 
+      {% with name='store-top', slot_id='4567890123' %}{% include "partials/ads.html" %}{% endwith %}
+
       <section class="store-section" aria-label="Shop">
         <div class="store-filters reveal">
           <button class="filter-btn{% if type_filter == 'all' %} active{% endif %}" data-filter="all">All</button>
@@ -30,6 +32,7 @@
                 <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
                 <div class="price">{% if p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
                 <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML">
+                  {{ csrf_input() }}
                   <input type="hidden" name="id" value="{{ p.id }}" />
                   <button type="submit" class="add-btn">Add to cart</button>
                 </form>

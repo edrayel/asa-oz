@@ -176,20 +176,54 @@
     });
   })();
 
-  // ---- Cookie consent (GDPR / ePrivacy) ----
+  // ---- Cookie consent (GDPR / Google Consent Mode v2) ----
   (function () {
     var STORE_KEY = 'asa-oz-consent';
+    var COOKIE_NAME = 'asa-oz-consent';
+    var COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 180 days
     var bar = document.getElementById('cookieBar');
     if (!bar) return;
-    function setConsent(value) {
+
+    function setCookie(name, value, maxAge) {
+      try {
+        document.cookie = name + '=' + encodeURIComponent(value) + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+      } catch (e) {}
+    }
+    function applyConsent(value) {
+      // Mirror to both localStorage and a first-party cookie so AdSense and
+      // any future third-party SDKs see a consistent state.
       try { localStorage.setItem(STORE_KEY, value); } catch (e) {}
+      setCookie(COOKIE_NAME, value, COOKIE_MAX_AGE);
+      if (typeof window.gtag === 'function') {
+        if (value === 'all') {
+          gtag('consent', 'update', {
+            ad_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            analytics_storage: 'granted'
+          });
+        } else {
+          gtag('consent', 'update', {
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            analytics_storage: 'denied'
+          });
+        }
+      }
+    }
+    function setConsent(value) {
       bar.classList.remove('show');
       bar.classList.add('is-hidden');
-      if (value === 'all') { /* hook for analytics load here */ }
+      applyConsent(value);
     }
     var stored = null;
     try { stored = localStorage.getItem(STORE_KEY); } catch (e) {}
-    if (stored === 'all' || stored === 'necessary') {
+    if (stored === 'all') {
+      // Apply granted signals for returning users who accepted previously.
+      applyConsent('all');
+      bar.classList.add('is-hidden');
+    } else if (stored === 'necessary') {
       bar.classList.add('is-hidden');
     } else {
       requestAnimationFrame(function () {

@@ -29,6 +29,7 @@
           <div class="signup reveal" id="signup">
             <form id="journeyform" action="{{ url_for('journey_subscribe') }}" method="POST" novalidate
                   hx-post="{{ url_for('journey_subscribe') }}" hx-target="#formMsg" hx-swap="innerHTML">
+              {{ csrf_input() }}
               <input type="hidden" name="source" value="asa-oz-coming-soon" />
               <input type="hidden" name="journey_stage" value="interest" />
               <div class="journey-fields">
@@ -85,6 +86,8 @@
         </div>
       </section>
 
+      {% with name='home-top', slot_id='1234567890' %}{% include "partials/ads.html" %}{% endwith %}
+
       <section class="how-it-works" aria-label="How Asa-OZ works">
         <h2 class="reveal">{{ cms.how.title }}</h2>
         <div class="steps">
@@ -108,6 +111,8 @@
           {% endfor %}
         </div>
       </section>{% endif %}
+
+      {% with name='home-mid', slot_id='2345678901' %}{% include "partials/ads.html" %}{% endwith %}
 
       <section class="tools" aria-label="Tools for the journey"{% if settings.get('show_store', '1') == '0' %} style="display:none;"{% endif %}>
         <h2 class="reveal">{{ cms.storeteaser.heading }}</h2>
@@ -223,10 +228,12 @@
       </section>{% endif %}
 
       <section class="feedback-section" aria-label="Feedback">
+      {% with name='home-bottom', slot_id='3456789012' %}{% include "partials/ads.html" %}{% endwith %}
         <div class="feedback-wrap reveal">
           <h2>{{ cms.feedback.title }}</h2>
           <p class="feedback-lede">{{ cms.feedback.lede }}</p>
           <form id="feedbackForm" action="{{ url_for('feedback') }}" method="POST" novalidate>
+            {{ csrf_input() }}
             <div class="feedback-field">
               <label for="fbCategory">{{ cms.feedback.topic_label }}</label>
               <select id="fbCategory" name="category">

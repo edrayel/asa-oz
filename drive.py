@@ -28,10 +28,13 @@ The app degrades gracefully: without credentials the admin Drive page explains
 the setup and every other feature keeps working.
 """
 import json
+import logging
 import os
 from urllib.parse import quote
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 # Mime types that Google stores natively and cannot be downloaded as raw bytes
 # (importing those would require an export step, which is out of scope).
@@ -144,7 +147,8 @@ def root_label():
         return "My Drive"
     try:
         return get_metadata(folder).get("name") or folder
-    except DriveError:
+    except DriveError as exc:
+        logger.warning("drive.root_label failed for %s: %s", folder, _exc_text(exc))
         return folder
 
 
@@ -159,6 +163,7 @@ def get_metadata(file_id):
             fields="id,name,mimeType,size,parents,thumbnailLink,iconLink,webViewLink,modifiedTime",
         ).execute()
     except Exception as exc:  # googleapiclient.HttpError and friends
+        logger.warning("drive.get_metadata failed for %s: %s", file_id, _exc_text(exc))
         raise DriveError("Drive lookup failed for %r: %s" % (file_id, _exc_text(exc)))
     return _annotate(res)
 
@@ -182,6 +187,7 @@ def list_folder(folder_id=None, page_token=None, page_size=50):
         )
         res = req.execute()
     except Exception as exc:
+        logger.warning("drive.list_folder failed for folder=%s: %s", folder, _exc_text(exc))
         raise DriveError("Drive listing failed: %s" % _exc_text(exc))
     files = [_annotate(f) for f in res.get("files", [])]
     # Keep folders (for navigation) and binary files; hide Google-native items
@@ -207,10 +213,13 @@ def stream_download(file_id, chunk_size=64 * 1024):
             timeout=30,
         )
     except requests.RequestException as exc:
+        logger.warning("drive.stream_download network error for %s: %s", file_id, exc)
         raise DriveError("Drive download failed: %s" % exc)
     if resp.status_code != 200:
+        logger.warning("drive.stream_download HTTP %s for %s", resp.status_code, file_id)
         resp.close()
         raise DriveError("Drive download failed with HTTP %s" % resp.status_code)
+    logger.info("drive.stream_download ok file=%s status=200", file_id)
     return resp
 
 

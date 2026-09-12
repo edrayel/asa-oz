@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Google Drive</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -79,11 +80,13 @@
         </div>
         <div style="display:flex;gap:0.4rem;">
           <form method="POST" action="{{ url_for('admin_drive_import') }}">
+  {{ csrf_input() }}
             <input type="hidden" name="file_id" value="{{ f.id }}" />
             <input type="hidden" name="back" value="{{ url_for('admin_drive', folder=folder, page=prev_page) }}" />
             <button class="btn" type="submit">Import</button>
           </form>
           <form method="POST" action="{{ url_for('admin_drive_link') }}">
+  {{ csrf_input() }}
             <input type="hidden" name="file_id" value="{{ f.id }}" />
             <input type="hidden" name="back" value="{{ url_for('admin_drive', folder=folder, page=prev_page) }}" />
             <button class="btn btn-ghost" type="submit">Link</button>

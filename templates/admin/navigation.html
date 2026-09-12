@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Navigation</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -22,6 +23,7 @@
   <div class="card">
     <h2>Add menu item</h2>
     <form method="POST" action="{{ url_for('admin_navigation') }}">
+  {{ csrf_input() }}
       <input type="hidden" name="id" value="new" />
       <div class="two-col">
         <div class="form-row"><label>Label</label><input name="label" placeholder="e.g. About" required /></div>
@@ -43,6 +45,7 @@
     <h2>Current items</h2>
     {% if items %}
     <form id="navForm" method="POST" action="{{ url_for('admin_navigation') }}">
+  {{ csrf_input() }}
       <input type="hidden" name="reorder_ids" id="reorderIds" value="" />
       <ul id="navList" style="list-style:none;padding:0;margin:0;">
         {% for item in items %}
@@ -53,6 +56,7 @@
           <span class="nav-status">{% if item.active %}<span class="badge badge-reviewed">visible</span>{% else %}<span class="badge badge-cancelled">hidden</span>{% endif %}</span>
           <div class="nav-actions">
             <form method="POST" action="{{ url_for('admin_navigation') }}" style="display:inline;">
+  {{ csrf_input() }}
               <input type="hidden" name="id" value="{{ item.id }}" />
               <input type="hidden" name="label" value="{{ item.label }}" />
               <input type="hidden" name="url" value="{{ item.url }}" />
@@ -60,6 +64,7 @@
               <input type="hidden" name="active" value="1" />
             </form>
             <form method="POST" action="{{ url_for('admin_navigation') }}" style="display:inline;" onsubmit="return confirm('Remove this item?')">
+  {{ csrf_input() }}
               <input type="hidden" name="delete_id" value="{{ item.id }}" />
               <button class="btn btn-danger btn-sm" type="submit">&times;</button>
             </form>

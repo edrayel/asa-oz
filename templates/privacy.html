@@ -8,6 +8,8 @@
         <p>Last updated: {{ today }}</p>
       </div>
 
+      {% with name='privacy-top', slot_id='8901234567' %}{% include "partials/ads.html" %}{% endwith %}
+
       <article class="legal-content">
         <p>{{ cms.body.intro }}</p>
 

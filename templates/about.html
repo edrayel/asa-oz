@@ -8,6 +8,8 @@
         <p class="lede reveal">{{ cms.hero.lede | safe }}</p>
       </section>
 
+      {% with name='about-top', slot_id='5678901234' %}{% include "partials/ads.html" %}{% endwith %}
+
       <section class="page-section" aria-label="About Asa-OZ">
         <div class="page-block reveal">
           <h2>{{ cms.why.heading }}</h2>

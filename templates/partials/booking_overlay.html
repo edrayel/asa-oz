@@ -6,6 +6,7 @@
     </div>
     <div class="booking-body" id="bookingBody">
       <form id="bookingForm" action="{{ url_for('booking') }}" method="POST" novalidate>
+        {{ csrf_input() }}
         <div class="booking-field" id="fieldName">
           <label for="bName">{{ cms_booking.full_name }}</label>
           <input type="text" id="bName" name="name" placeholder="{{ cms_booking.placeholder_full }}" required />

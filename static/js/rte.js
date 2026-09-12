@@ -29,6 +29,40 @@
     return d.innerHTML;
   }
 
+  function safeScheme(url) {
+    if (!url) return false;
+    var u = String(url).trim();
+    if (u.charAt(0) === '/' && u.charAt(1) !== '/' && u.charAt(1) !== '\\') return true;
+    if (/^(https?|mailto|tel):/i.test(u)) return true;
+    return false;
+  }
+
+  function showStatus(editor, msg) {
+    var root = editor && editor._rte ? editor._rte.root : null;
+    if (!root) return;
+    var bar = root.querySelector('.rte-status');
+    if (!bar) {
+      bar = document.createElement('span');
+      bar.className = 'rte-status';
+      var tb = root.querySelector('.rte-toolbar');
+      if (tb) tb.appendChild(bar);
+    }
+    bar.textContent = msg || '';
+    if (msg) setTimeout(function () { bar.textContent = ''; }, 4000);
+  }
+
+  function stripUnsafeLinks(rootEl) {
+    if (!rootEl) return;
+    var anchors = rootEl.querySelectorAll('a[href]');
+    anchors.forEach(function (a) {
+      if (!safeScheme(a.getAttribute('href'))) {
+        // Replace the <a> with its inner text — keeps layout, drops the link
+        var text = document.createTextNode(a.textContent || '');
+        a.parentNode.replaceChild(text, a);
+      }
+    });
+  }
+
   function buildToolbar(editor) {
     var tb = document.createElement('div');
     tb.className = 'rte-toolbar';
@@ -55,6 +89,10 @@
         if (tool.cmd === 'createLink') {
           var url = prompt(tool.prompt || 'URL:', 'https://');
           if (!url) return;
+          if (!safeScheme(url)) {
+            showStatus(editor, 'Only http(s), mailto, tel, or internal paths allowed.');
+            return;
+          }
           document.execCommand('createLink', false, url);
         } else {
           document.execCommand(tool.cmd, false, tool.arg || null);
@@ -114,6 +152,11 @@
     editor.addEventListener('input', function () { inst.sync(); });
     editor.addEventListener('keyup', function () { inst.updateActive(); });
     editor.addEventListener('mouseup', function () { inst.updateActive(); });
+    editor.addEventListener('paste', function (e) {
+      // Strip disallowed link schemes on paste. The clipboard payload may
+      // already contain an <a href="javascript:...">; we sanitize at sync.
+      setTimeout(function () { stripUnsafeLinks(editor); inst.sync(); }, 0);
+    });
     editor.addEventListener('keydown', function (e) {
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
         var map = { 'b': 'bold', 'i': 'italic', 'u': 'underline' };
@@ -123,7 +166,9 @@
     });
     source.addEventListener('input', function () {
       editor.innerHTML = source.value;
-      textarea.value = source.value;
+      stripUnsafeLinks(editor);
+      textarea.value = editor.innerHTML;
+      source.value = editor.innerHTML;
     });
     return inst;
   }

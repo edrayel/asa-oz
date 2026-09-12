@@ -4,7 +4,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>{{ page_schema.label }}</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_pages') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_pages') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -25,6 +26,7 @@
   </p>
 
   <form id="section-order-form" method="POST" action="{{ url_for('admin_page_reorder', page=page_key) }}" style="display:none;">
+  {{ csrf_input() }}
     <input type="hidden" name="section_order" id="section-order-input" value="" />
   </form>
 
@@ -46,6 +48,7 @@
         <p class="cms-hint">{{ section.hint }}</p>
         {% endif %}
         <form method="POST" action="{{ url_for('admin_page', page=page_key) }}">
+  {{ csrf_input() }}
           <input type="hidden" name="section_key" value="{{ sec_key }}" />
 
           {% for f in _flatten_fields(section.fields) %}

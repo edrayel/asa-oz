@@ -8,27 +8,60 @@
   <meta name="theme-color" content="#2b2118" />
   {% block og_meta %}
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Asa-OZ — Return to Yourself" />
-  <meta property="og:description" content="{{ cms_site.tagline }} Coming soon." />
+  <meta property="og:title" content="{{ self.title() }}" />
+  <meta property="og:description" content="{{ self.description() }}" />
+  <meta property="og:image" content="{{ og_image_url }}" />
+  <meta property="og:url" content="{{ base_url }}{{ request.path }}" />
   <meta property="og:site_name" content="Asa-OZ" />
-  <meta property="og:url" content="https://asa-oz.com" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Asa-OZ — Return to Yourself" />
-  <meta name="twitter:description" content="{{ cms_site.tagline }} Coming soon." />
+  <meta name="twitter:title" content="{{ self.title() }}" />
+  <meta name="twitter:description" content="{{ self.description() }}" />
+  <meta name="twitter:image" content="{{ og_image_url }}" />
+  {% endblock %}
+  {% block jsonld %}
+  <script type="application/ld+json">
+  {{ {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Asa-OZ",
+    "url": base_url,
+    "logo": base_url + "/static/images/logo.svg",
+    "description": "A movement for identity, belonging and renewal.",
+    "sameAs": [
+      "https://instagram.com/asa-oz",
+      "https://facebook.com/asa-oz",
+      "https://x.com/asa-oz",
+      "https://tiktok.com/@asa-oz",
+      "https://youtube.com/@asa-oz",
+      "https://linkedin.com/company/asa-oz"
+    ]
+  } | tojson }}
+  </script>
   {% endblock %}
   <link rel="icon" href="{% if brand_settings.favicon %}{{ brand_settings.favicon }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b2118'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23a67b5b' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E{% endif %}" />
-  <style>
-    :root {
-      {% if brand_settings.primary_color %}--brand-primary: {{ brand_settings.primary_color }};{% endif %}
-      {% if brand_settings.accent_color %}--brand-accent: {{ brand_settings.accent_color }};{% endif %}
-    }
-  </style>
+  {# Google Consent Mode v2 — must run BEFORE the AdSense script. #}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      wait_for_update: 500
+    });
+  </script>
+  {% if adsense_publisher_id %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-{{ adsense_publisher_id }}" crossorigin="anonymous"></script>
+  {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
   {% block styles %}{% endblock %}
   <script src="{{ url_for('static', filename='js/htmx.min.js') }}" defer></script>
+  <script>window.ASA_ADSENSE_PUB_ID = {{ adsense_publisher_id | tojson }};</script>
   <script>window.ASA_SETTINGS = {{ settings | tojson }};</script>
 </head>
 <body>

@@ -29,17 +29,34 @@ from werkzeug.utils import secure_filename
 
 import db
 import cms
+import csrf
 import drive
 import notify
+import nh3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+ADSENSE_PUBLISHER_ID = os.environ.get("ADSENSE_PUBLISHER_ID", "").strip()
 APP_URL = (os.environ.get("APP_URL") or os.environ.get("RENDER_EXTERNAL_URL") or "http://localhost:5000").rstrip("/")
 BASE_URL = APP_URL
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY env var is required. Generate one with: "
+        "python -c 'import secrets; print(secrets.token_urlsafe(48))'"
+    )
+
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "asa-oz-dev-secret-change-me")
+app.secret_key = SECRET_KEY
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    MAX_CONTENT_LENGTH=int(os.environ.get("MAX_UPLOAD_MB", "20")) * 1024 * 1024,
+    SEND_FILE_MAX_AGE_DEFAULT=60 * 60 * 24 * 7,  # 1 week for /images, /static
+)
 
 
 ENDPOINT_PAGE = {
@@ -124,6 +141,31 @@ def media(filename):
     return send_from_directory(UPLOAD_DIR, filename)
 
 
+def _stream_drive_with_retry(file_id, max_attempts=3):
+    """Stream a Drive file with exponential backoff on transient 5xx/network errors.
+
+    Returns an open ``requests.Response`` (caller must close). Raises
+    ``drive.DriveError`` if all attempts fail or a non-transient error is hit.
+    """
+    import time
+    delay = 0.5
+    last_exc = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return drive.stream_download(file_id)
+        except drive.DriveError as exc:
+            last_exc = exc
+            msg = str(exc).lower()
+            transient = "http 5" in msg or "http 429" in msg or "network" in msg or "timeout" in msg
+            if not transient or attempt == max_attempts:
+                raise
+            app.logger.warning("drive stream retry %d/%d for %s: %s", attempt, max_attempts, file_id, exc)
+            time.sleep(delay)
+            delay *= 2
+    # Defensive — loop always either returns or raises
+    raise last_exc  # pragma: no cover
+
+
 def _serve_drive_media(filename):
     """Stream a registered Drive-backed file (``source='drive'``) to the client.
 
@@ -133,11 +175,11 @@ def _serve_drive_media(filename):
     if not f or f.get("source") != "drive" or not f.get("drive_id"):
         abort(404)
     try:
-        resp = drive.stream_download(f["drive_id"])
+        resp = _stream_drive_with_retry(f["drive_id"])
     except drive.DriveError:
         abort(502)
     headers = {
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "public, max-age=300",
         "Content-Length": str(f.get("size") or 0) if f.get("size") else None,
     }
     return Response(
@@ -263,6 +305,7 @@ def _flat_cms(page_name):
 
 @app.context_processor
 def inject_globals():
+    request_path = request.path if request else "/"
     return {
         "base_url": BASE_URL,
         "today": _dt.now().strftime("%d %B %Y"),
@@ -278,7 +321,27 @@ def inject_globals():
         "cms_site": _flat_cms("sitewide"),
         "cms_store": _flat_cms("store"),
         "cms_booking": _flat_cms("booking"),
+        "csrf_input": csrf.render_input,
+        "og_image_url": _og_image_url(request_path),
+        "adsense_publisher_id": ADSENSE_PUBLISHER_ID,
     }
+
+
+def _og_image_url(request_path):
+    """Resolve a per-page OG image. Falls back to the default.
+
+    Per-page override lives in the page's CMS hero section as an `image` field.
+    The default is /static/images/og-default.jpg (ships in static/images/).
+    """
+    page = ENDPOINT_PAGE.get(request.endpoint or "")
+    stored = db.get_page_sections(page) if page else {}
+    hero = (stored or {}).get("hero", {}) or {}
+    img = (hero.get("image") or "").strip()
+    if img:
+        if img.startswith("http://") or img.startswith("https://") or img.startswith("/"):
+            return img
+        return f"{BASE_URL}/{img.lstrip('/')}"
+    return f"{BASE_URL}/static/images/og-default.svg"
 
 
 # ------------------ public pages ------------------
@@ -294,14 +357,97 @@ def api_wall():
 
 @app.route("/health")
 def health():
-    """Lightweight liveness probe — safe to ping to keep the service warm."""
-    return jsonify({"status": "ok"}), 200
+    """Real liveness probe — exercises DB and (if configured) Drive.
+
+    Returns 200 with a JSON status report when all subsystems respond, or
+    503 when anything is degraded. Safe to use as a Render healthcheck.
+    """
+    report = {"status": "ok", "db": False}
+    http_status = 200
+    # 1. Database
+    try:
+        db.get_conn().execute("SELECT 1").fetchone()
+        report["db"] = True
+    except Exception as exc:  # noqa: BLE001
+        report["db"] = False
+        report["db_error"] = str(exc)
+        report["status"] = "degraded"
+        http_status = 503
+    # 2. Drive (only if configured)
+    if drive.is_configured():
+        report["drive"] = False
+        folder = drive.root_folder_id() or "root"
+        try:
+            drive.get_metadata(folder)
+            report["drive"] = True
+        except drive.DriveError as exc:
+            report["drive"] = False
+            report["drive_error"] = str(exc)
+            report["status"] = "degraded"
+            http_status = 503
+    return jsonify(report), http_status
 
 
 @app.route("/ping")
 def ping():
-    """Alias of /health for keep-alive pings."""
+    """Cheap no-op alias of /health for keep-alive pings."""
     return jsonify({"status": "ok"}), 200
+
+
+# ------------------ SEO: robots / sitemap / ads ------------------
+
+@app.route("/ads.txt")
+def ads_txt():
+    """Serve ads.txt at the IAB-required domain root."""
+    return send_from_directory(app.static_folder, "ads.txt", mimetype="text/plain")
+
+
+@app.route("/robots.txt")
+def robots():
+    return Response(render_template("robots.txt"), mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """Generate a sitemap of all public pages + active dynamic pages."""
+    today = _dt.now().strftime("%Y-%m-%d")
+    static_routes = [
+        ("/", 1.0, today),
+        ("/about", 0.8, today),
+        ("/store", 0.7, today),
+        ("/faq", 0.7, today),
+        ("/terms", 0.5, today),
+        ("/privacy", 0.5, today),
+        ("/contact", 0.8, today),
+    ]
+    urls = []
+    for path, priority, lastmod in static_routes:
+        urls.append({
+            "loc": f"{BASE_URL}{path}",
+            "lastmod": lastmod,
+            "priority": f"{priority:.1f}",
+        })
+    # Dynamic CMS pages
+    try:
+        for p in db.list_dynamic_pages(active_only=True):
+            urls.append({
+                "loc": f"{BASE_URL}/page/{p['slug']}",
+                "lastmod": (p.get("updated_at") or today)[:10],
+                "priority": "0.6",
+            })
+    except Exception as exc:  # noqa: BLE001
+        app.logger.warning("sitemap: dynamic page list failed: %s", exc)
+
+    xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        xml_lines.append("  <url>")
+        xml_lines.append(f"    <loc>{u['loc']}</loc>")
+        xml_lines.append(f"    <lastmod>{u['lastmod']}</lastmod>")
+        xml_lines.append(f"    <priority>{u['priority']}</priority>")
+        xml_lines.append("  </url>")
+    xml_lines.append("</urlset>")
+    return Response("\n".join(xml_lines), mimetype="application/xml")
 
 
 @app.route("/store")
@@ -375,6 +521,7 @@ def dynamic_page(slug):
 
 # ------------------ forms (HTMX) ------------------
 @app.route("/waitlist", methods=["POST"])
+@csrf.require_csrf
 def waitlist():
     email = (request.form.get("email") or "").strip().lower()
     if not email or "@" not in email:
@@ -387,6 +534,7 @@ def waitlist():
 
 
 @app.route("/booking", methods=["POST"])
+@csrf.require_csrf
 def booking():
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip()
@@ -422,6 +570,7 @@ def booking():
 
 
 @app.route("/feedback", methods=["POST"])
+@csrf.require_csrf
 def feedback():
     text = (request.form.get("text") or "").strip()
     category = (request.form.get("category") or "").strip()
@@ -433,6 +582,7 @@ def feedback():
 
 
 @app.route("/contact-msg", methods=["POST"])
+@csrf.require_csrf
 def contact_msg():
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip()
@@ -445,6 +595,7 @@ def contact_msg():
 
 
 @app.route("/journey", methods=["POST"])
+@csrf.require_csrf
 def journey_subscribe():
     email = (request.form.get("email") or "").strip().lower()
     name = (request.form.get("name") or "").strip()
@@ -463,6 +614,7 @@ def cart_drawer_view():
 
 
 @app.route("/cart/add", methods=["POST"])
+@csrf.require_csrf
 def cart_add():
     product_id = request.form.get("id")
     p = db.get_product(product_id)
@@ -475,6 +627,7 @@ def cart_add():
 
 
 @app.route("/cart/qty", methods=["POST"])
+@csrf.require_csrf
 def cart_qty():
     product_id, delta = request.form.get("id"), int(request.form.get("delta", 0))
     cart = session.get("cart", {})
@@ -484,6 +637,7 @@ def cart_qty():
 
 
 @app.route("/cart/remove", methods=["POST"])
+@csrf.require_csrf
 def cart_remove():
     product_id = request.form.get("id")
     cart = session.get("cart", {})
@@ -503,6 +657,7 @@ def cart_drawer():
 
 # ------------------ checkout ------------------
 @app.route("/checkout", methods=["POST"])
+@csrf.require_csrf
 def checkout():
     items = cart_contents()
     if not items:
@@ -573,6 +728,8 @@ def checkout_success():
 # ------------------ admin ------------------
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
+    if request.method == "POST" and not csrf.validate():
+        abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
@@ -586,6 +743,7 @@ def admin_login():
 
 
 @app.route("/admin/logout", methods=["POST"])
+@csrf.require_csrf
 def admin_logout():
     session.pop("admin", None)
     return redirect(url_for("admin_login"))
@@ -630,6 +788,7 @@ def admin_products():
 
 @app.route("/admin/products/new", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_products_new():
     existing = db.list_products()
     used_ids = {p["id"] for p in existing}
@@ -655,6 +814,7 @@ def admin_products_new():
 
 @app.route("/admin/products/<product_id>", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_product_update(product_id):
     p = db.get_product(product_id) or {}
     db.save_product({
@@ -672,6 +832,7 @@ def admin_product_update(product_id):
 
 @app.route("/admin/products/<product_id>/delete", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_product_delete(product_id):
     db.delete_product(product_id)
     return redirect(url_for("admin_products"))
@@ -692,6 +853,7 @@ def admin_files():
 
 @app.route("/admin/files/upload", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_files_upload():
     uploaded = request.files.getlist("files")
     if not uploaded:
@@ -717,6 +879,7 @@ def admin_files_upload():
 
 @app.route("/admin/files/<int:file_id>/delete", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_file_delete(file_id):
     f = db.get_file(file_id)
     if not f:
@@ -762,6 +925,7 @@ def admin_drive():
 
 @app.route("/admin/drive/import", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_drive_import():
     """Download a Drive file into UPLOAD_DIR and record it (source=drive-import)."""
     file_id = (request.form.get("file_id") or "").strip()
@@ -795,6 +959,7 @@ def admin_drive_import():
 
 @app.route("/admin/drive/link", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_drive_link():
     """Register a Drive file that is streamed live through /media/drive/..."""
     file_id = (request.form.get("file_id") or "").strip()
@@ -830,6 +995,7 @@ def admin_feedback():
 
 @app.route("/admin/feedback/<int:feedback_id>", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_feedback_update(feedback_id):
     db.update_feedback(feedback_id, request.form.get("status", "new"), request.form.get("note", ""))
     return redirect(url_for("admin_feedback"))
@@ -837,6 +1003,7 @@ def admin_feedback_update(feedback_id):
 
 @app.route("/admin/feedback/<int:feedback_id>/delete", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_feedback_delete(feedback_id):
     db.delete_feedback(feedback_id)
     return redirect(url_for("admin_feedback"))
@@ -856,6 +1023,7 @@ def admin_bookings():
 
 @app.route("/admin/bookings/<int:booking_id>/status", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_booking_status(booking_id):
     db.set_booking_status(booking_id, request.form.get("status", "new"))
     return redirect(url_for("admin_bookings"))
@@ -875,6 +1043,7 @@ def admin_journey():
 
 @app.route("/admin/journey/<int:subscriber_id>/delete", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_journey_delete(subscriber_id):
     db.delete_journey_subscriber(subscriber_id)
     return redirect(url_for("admin_journey"))
@@ -891,6 +1060,7 @@ def admin_orders():
 
 @app.route("/admin/orders/<int:order_id>/status", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_order_status(order_id):
     db.set_order_status(order_id, request.form.get("status", "enquiry"))
     return redirect(url_for("admin_orders"))
@@ -954,6 +1124,7 @@ def admin_pages():
 
 @app.route("/admin/pages/<page>", methods=["GET", "POST"])
 @admin_required
+@csrf.require_csrf
 def admin_page(page):
     schema = cms.PAGES.get(page)
     if not schema:
@@ -985,6 +1156,7 @@ def admin_page(page):
 
 @app.route("/admin/pages/<page>/reorder", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_page_reorder(page):
     schema = cms.PAGES.get(page)
     if not schema:
@@ -998,13 +1170,42 @@ def admin_page_reorder(page):
     return redirect(url_for("admin_page", page=page))
 
 
+# Rich-text sanitization. Keeps a tight allow-list of tags/attributes and
+# strips any URL whose scheme is not in the same allow-list used by the
+# RTE on the client side. Called from _parse_cms_section for every
+# `richtext` field before the content is persisted.
+
+_RTE_TAGS = {
+    "p", "h2", "h3", "h4", "blockquote",
+    "ul", "ol", "li",
+    "strong", "em", "u", "s", "br", "a",
+}
+_RTE_ATTRIBUTES = {"a": {"href", "title"}}
+_RTE_URL_SCHEMES = {"http", "https", "mailto", "tel"}
+
+
+def _sanitize_rte_html(raw):
+    """Return sanitized HTML for a richtext field, or an empty string."""
+    if not raw:
+        return ""
+    return nh3.clean(
+        raw,
+        tags=_RTE_TAGS,
+        attributes=_RTE_ATTRIBUTES,
+        url_schemes=_RTE_URL_SCHEMES,
+        link_rel="noopener",
+    ).strip()
+
+
 def _parse_cms_section(section, form):
     """Parse submitted form fields into a content dict per the field types."""
     content = {}
     for f in cms._flatten_fields(section["fields"]):
         key = f["key"]
-        if f["type"] in ("text", "textarea", "longtext", "image", "richtext", "video", "select"):
+        if f["type"] in ("text", "textarea", "longtext", "image", "video", "select"):
             content[key] = (form.get("field_%s" % key) or "").strip()
+        elif f["type"] == "richtext":
+            content[key] = _sanitize_rte_html(form.get("field_%s" % key) or "")
         elif f["type"] == "checkbox":
             content[key] = bool(key in form)
         elif f["type"] == "listlines":
@@ -1071,24 +1272,6 @@ def _cms_section_is_empty(section, content):
     return True
 
 
-def _cms_section_is_empty(section, content):
-    """True when every field holds an empty/default value (no real content)."""
-    for f in section["fields"]:
-        v = content.get(f["key"])
-        if f["type"] == "list":
-            if any(not _list_item_is_empty(f["item"], item) for item in (v or [])):
-                return False
-        elif f["type"] == "listlines":
-            if v:
-                return False
-        elif f["type"] == "checkbox":
-            if v:
-                return False
-        elif str(v or "").strip():
-            return False
-    return True
-
-
 def _form_indexes(form, prefix):
     """Collect the numeric indexes present for names like ``<prefix>_<n>_<key>``."""
     seen = set()
@@ -1104,6 +1287,7 @@ def _form_indexes(form, prefix):
 
 @app.route("/admin/settings", methods=["GET", "POST"])
 @admin_required
+@csrf.require_csrf
 def admin_settings():
     if request.method == "POST":
         boolean_keys = [k for k, _ in db.DEFAULT_SETTINGS.items()
@@ -1123,12 +1307,16 @@ def admin_settings():
 @app.route("/admin/password", methods=["GET", "POST"])
 @admin_required
 def admin_password():
+    if request.method == "POST" and not csrf.validate():
+        abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         new_pw = request.form.get("password", "")
         if len(new_pw) >= 8:
-            db.set_admin_password(request.form.get("username", "admin"), new_pw)
+            db.set_admin_password("admin", new_pw)
+            flash("Password updated.")
             return redirect(url_for("admin_dashboard"))
-    return render_template("admin/password.html", admin_user=session.get("admin", "admin"))
+        flash("Password must be at least 8 characters.", "error")
+    return render_template("admin/password.html")
 
 
 @app.route("/admin/export")
@@ -1205,6 +1393,7 @@ def export_feedback_csv():
 
 @app.route("/admin/dynamic-pages", methods=["GET", "POST"])
 @admin_required
+@csrf.require_csrf
 def admin_dynamic_pages():
     if request.method == "POST":
         slug = (request.form.get("slug") or "").strip().lower()
@@ -1222,6 +1411,7 @@ def admin_dynamic_pages():
 
 @app.route("/admin/dynamic-pages/new", methods=["GET", "POST"])
 @admin_required
+@csrf.require_csrf
 def admin_dynamic_page_new():
     return render_template("admin/dynamic_page_edit.html", page=None, slug="", stored={}, media=_media_library())
 
@@ -1239,6 +1429,7 @@ def admin_dynamic_page_edit(slug):
 
 @app.route("/admin/dynamic-pages/<slug>/save", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_dynamic_page_save(slug):
     page = db.get_dynamic_page(slug)
     if not page:
@@ -1253,6 +1444,7 @@ def admin_dynamic_page_save(slug):
 
 @app.route("/admin/dynamic-pages/<slug>/delete", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_dynamic_page_delete(slug):
     page = db.get_dynamic_page(slug)
     if not page:
@@ -1265,6 +1457,7 @@ def admin_dynamic_page_delete(slug):
 
 @app.route("/admin/dynamic-pages/<slug>/section", methods=["POST"])
 @admin_required
+@csrf.require_csrf
 def admin_dynamic_page_section(slug):
     section_key = request.form.get("section_key", "")
     content = {
@@ -1289,9 +1482,33 @@ def admin_dynamic_page_section(slug):
 
 # ------------------ admin: navigation ------------------
 
+def _safe_navigation_url(url):
+    """Allow only internal paths or http(s)/mailto schemes. Returns (ok, value)."""
+    if not isinstance(url, str):
+        return False, ""
+    u = url.strip()
+    if not u:
+        return False, ""
+    if u.startswith("/"):
+        if u.startswith("//") or u.startswith("/\\"):
+            return False, ""
+        return True, u
+    # mailto: has no // separator
+    if u.lower().startswith("mailto:"):
+        return True, u
+    if "://" not in u:
+        return False, ""
+    scheme = u.split("://", 1)[0].lower()
+    if scheme not in {"http", "https"}:
+        return False, ""
+    return True, u
+
+
 @app.route("/admin/navigation", methods=["GET", "POST"])
 @admin_required
 def admin_navigation():
+    if request.method == "POST" and not csrf.validate():
+        abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         if "delete_id" in request.form:
             db.delete_navigation_item(int(request.form.get("delete_id", 0)))
@@ -1301,14 +1518,18 @@ def admin_navigation():
             db.reorder_navigation(ids)
             flash("Navigation reordered.", "success")
         else:
-            db.save_navigation_item(
-                None if request.form.get("id") == "new" else int(request.form.get("id", 0) or 0),
-                request.form.get("label", ""),
-                request.form.get("url", ""),
-                int(request.form.get("position", 99)),
-                request.form.get("active") == "1",
-            )
-            flash("Navigation item saved.", "success")
+            ok, safe_url = _safe_navigation_url(request.form.get("url", ""))
+            if not ok:
+                flash("Invalid URL — must start with / or use http(s)/mailto.", "error")
+            else:
+                db.save_navigation_item(
+                    None if request.form.get("id") == "new" else int(request.form.get("id", 0) or 0),
+                    request.form.get("label", ""),
+                    safe_url,
+                    int(request.form.get("position", 99)),
+                    request.form.get("active") == "1",
+                )
+                flash("Navigation item saved.", "success")
         return redirect(url_for("admin_navigation"))
     items = db.list_navigation()
     return render_template("admin/navigation.html", items=items)
@@ -1324,13 +1545,13 @@ def _media_library():
 @app.route("/admin/brand", methods=["GET", "POST"])
 @admin_required
 def admin_brand():
+    if request.method == "POST" and not csrf.validate():
+        abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         brand = {
             "logo": (request.form.get("logo") or "").strip(),
             "logo_alt": (request.form.get("logo_alt") or "").strip(),
             "favicon": (request.form.get("favicon") or "").strip(),
-            "primary_color": (request.form.get("primary_color") or "#4a6650").strip(),
-            "accent_color": (request.form.get("accent_color") or "#6f5a3f").strip(),
         }
         db.set_setting("brand", json.dumps(brand))
         flash("Brand settings saved.", "success")
@@ -1340,7 +1561,7 @@ def admin_brand():
         brand = json.loads(raw) if raw else {}
     except (ValueError, TypeError):
         brand = {}
-    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": "", "primary_color": "#4a6650", "accent_color": "#6f5a3f"}
+    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": ""}
     defaults.update(brand)
     return render_template("admin/brand.html", brand=defaults, media=_media_library())
 
@@ -1353,7 +1574,7 @@ def _inject_nav_and_brand():
         brand = json.loads(raw) if isinstance(raw, str) else raw
     except (ValueError, TypeError):
         brand = {}
-    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": "", "primary_color": "#4a6650", "accent_color": "#6f5a3f"}
+    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": ""}
     defaults.update(brand if brand else {})
     return {
         "nav_items": nav,
@@ -1373,6 +1594,7 @@ def server_error(e):
 
 with app.app_context():
     _seed_home_marquee()
+    app.logger.info("boot: drive configured=%s", drive.is_configured())
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=os.environ.get("PORT", 5000), debug=True)
+    app.run(host="0.0.0.0", port=os.environ.get("PORT", 5000), debug=False)

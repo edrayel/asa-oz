@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Products</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -22,6 +23,7 @@
   <div class="card">
     <h2>Add product</h2>
     <form method="POST" action="{{ url_for('admin_products_new') }}">
+  {{ csrf_input() }}
       <div class="two-col">
         <div class="form-row"><label>Name</label><input name="name" required /></div>
         <div class="form-row"><label>Type</label>
@@ -55,6 +57,7 @@
       </summary>
       <div class="inner">
         <form method="POST" action="{{ url_for('admin_product_update', product_id=p.id) }}">
+  {{ csrf_input() }}
           <div class="two-col">
             <div class="form-row"><label>Name</label><input name="name" value="{{ p.name }}" /></div>
             <div class="form-row"><label>Price</label><input type="number" name="price" value="{{ p.price }}" min="0" step="1" /></div>

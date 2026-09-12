@@ -3,7 +3,8 @@
 {% block body %}
 <div class="admin-wrap">
   <div class="admin-header"><h1>Files</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}"><button class="btn">Sign out</button></form></div>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
   </div>
   {% include "admin/_nav.html" %}
 
@@ -19,6 +20,7 @@
     <h2>Upload files</h2>
     <p class="sub">Files are stored outside the database (see <code>UPLOAD_DIR</code>); the DB keeps only the paths and the public URLs below are ready to paste into products or the hero carousel.</p>
     <form method="POST" action="{{ url_for('admin_files_upload') }}" enctype="multipart/form-data">
+  {{ csrf_input() }}
       <div class="form-row">
         <label>Choose files</label>
         <input type="file" name="files" multiple />
@@ -51,6 +53,7 @@
           </details>
         </div>
         <form method="POST" action="{{ url_for('admin_file_delete', file_id=f.id) }}">
+  {{ csrf_input() }}
           <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this file?')">Delete</button>
         </form>
       </div>

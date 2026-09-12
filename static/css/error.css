@@ -1,0 +1,35 @@
+/* 404 / 500 error pages — minimal, centred, no other per-page chrome. */
+.error-page {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+.error-page .eyebrow {
+  font-family: var(--sans, "Jost", system-ui, sans-serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cafe-ink, #8a6038);
+  margin-bottom: 0.8rem;
+}
+.error-page h1 {
+  font-family: var(--serif, "Fraunces", Georgia, serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  color: var(--espresso, #2b2118);
+}
+.error-page p {
+  max-width: 34rem;
+  color: var(--muted, #7d6e5b);
+  line-height: 1.7;
+}
+.error-page a.pricing-btn {
+  text-decoration: none;
+  display: inline-block;
+}
