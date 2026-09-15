@@ -4,13 +4,44 @@
  */
 
 /* ---------- Header ---------- */
-header {
-  position: relative;
-  z-index: 5;
+/* Full-bleed sticky bar. The .header-inner re-creates the .shell measure so
+ * the brand/nav stay aligned with the page content at every width. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              border-color 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              box-shadow 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              backdrop-filter 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: clamp(1.6rem, 4vw, 2.6rem);
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-inline: clamp(1.4rem, 5vw, 4rem);
+  padding-block: clamp(1.5rem, 3.6vw, 2.5rem);
+  transition: padding-block 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.site-header.is-scrolled {
+  background: rgba(250, 245, 236, 0.82);
+  background: color-mix(in srgb, var(--paper, #faf5ec) 82%, transparent);
+  border-bottom-color: rgba(111, 90, 63, 0.14);
+  box-shadow: 0 14px 34px -24px rgba(43, 33, 24, 0.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+}
+.site-header.is-scrolled .header-inner {
+  padding-block: clamp(0.65rem, 1.5vw, 0.95rem);
 }
 .brand { display: flex; align-items: center; }
 .brand-link {
@@ -20,7 +51,8 @@ header {
   text-decoration: none;
   color: inherit;
 }
-.brand-logo-img { display: block; max-height: 36px; width: auto; }
+.site-header .brand-logo-img { display: block; max-height: 36px; width: auto; transition: max-height 0.45s var(--ease); }
+.site-header.is-scrolled .brand-logo-img { max-height: 30px; }
 .brand-logo-fallback {
   font-family: var(--serif);
   font-weight: 500;
@@ -135,7 +167,14 @@ header {
 .cart-count.show { opacity: 1; transform: scale(1); }
 
 /* ---------- Mobile menu ---------- */
-.header-booking-text { display: inline; }
+/* The uppercase booking label sits optically high inside a `line-height: 1`
+ * pill (the font's ascent is taller than its descent) and a touch left (the
+ * trailing letter-space). Nudge it to the true optical centre. */
+.site-header .header-booking-text {
+  display: inline-block;
+  transform: translateY(0.11em);
+  margin-right: -0.12em;
+}
 .header-booking-icon { display: none; }
 .mobile-menu {
   position: fixed;
@@ -535,6 +574,28 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
 @media (max-width: 860px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
+/* Progressive header density: shed the least essential block first so the
+ * bar never crowds or overflows. Scoped under .site-header so these win over
+ * the page stylesheets (which load after this file). Social links remain in
+ * the footer and mobile menu. */
+@media (max-width: 1000px) {
+  .site-header .header-inner { gap: 0.9rem; }
+  .site-header .main-nav { gap: 1.1rem; }
+  .site-header .header-social { display: none; }
+}
+@media (max-width: 700px) {
+  .site-header .main-nav { gap: 0.95rem; }
+  .site-header .header-booking-text { display: none; }
+  .site-header .header-booking-icon { display: inline; }
+  .site-header .header-booking {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 100px;
+  }
+}
 @media (max-width: 560px) {
   .main-nav { display: none; }
   .header-social { display: none; }
@@ -542,6 +603,8 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
   .header-booking-icon { display: inline; }
   .menu-toggle { display: grid; }
   .header-actions { gap: 0.55rem; }
+  .header-inner { padding-block: clamp(1rem, 4vw, 1.35rem); }
+  .site-header.is-scrolled .header-inner { padding-block: clamp(0.6rem, 2.6vw, 0.8rem); }
   .cart-toggle { order: 1; }
   .header-booking { order: 2; }
   .menu-toggle { order: 3; }
@@ -619,4 +682,10 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
 .ad-slot ins.adsbygoogle {
   display: block;
   min-height: 90px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .header-inner,
+  .brand-logo-img { transition: none; }
 }

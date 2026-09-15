@@ -29,6 +29,7 @@
       line-height: 1.65;
       font-weight: 400;
       overflow-x: hidden;
+      overflow-x: clip;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -128,14 +129,6 @@
     }
 
     /* ---------- Header ---------- */
-    header {
-      position: relative;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: clamp(1.6rem, 4vw, 2.6rem);
-    }
     .brand {
       display: flex;
       align-items: center;

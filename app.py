@@ -59,6 +59,29 @@ app.config.update(
 )
 
 
+def _static_version(filename):
+    """Cache-busting token for a static file, derived from its mtime."""
+    try:
+        return str(int(os.path.getmtime(os.path.join(app.static_folder or "", filename))))
+    except OSError:
+        return "0"
+
+
+def _url_for(endpoint, **values):
+    """``url_for`` that versions static asset URLs.
+
+    SEND_FILE_MAX_AGE_DEFAULT is a week, so a changed stylesheet or script must
+    get a *different* URL to avoid clients serving a stale copy after a deploy.
+    """
+    url = url_for(endpoint, **values)
+    if endpoint == "static" and values.get("filename"):
+        url = f"{url}?v={_static_version(values['filename'])}"
+    return url
+
+
+app.jinja_env.globals["url_for"] = _url_for
+
+
 ENDPOINT_PAGE = {
     "index": "home",
     "about": "about",

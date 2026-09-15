@@ -21,6 +21,24 @@
     btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
   })();
 
+  // ---- Sticky header state ----
+  (function () {
+    var header = document.getElementById('siteHeader');
+    if (!header) return;
+    var ticking = false;
+    function apply() {
+      header.classList.toggle('is-scrolled', window.scrollY > 12);
+      ticking = false;
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(apply);
+    }
+    apply();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+
   // ---- Mobile menu ----
   (function () {
     var menu = document.getElementById('mobileMenu');

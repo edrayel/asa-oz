@@ -8,8 +8,9 @@ a{color:var(--sage-deep)}
 .admin-header h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0;color:var(--espresso)}
 .admin-header .actions{display:flex;gap:0.5rem;align-items:center}
 .admin-header .actions a,.admin-header .actions form{display:inline-block}
-.btn{border:1px solid var(--espresso);background:var(--espresso);color:var(--paper);padding:0.45rem 1.1rem;border-radius:100px;font-family:var(--sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;line-height:1;cursor:pointer;text-decoration:none}
+.btn{border:1px solid var(--espresso);background:var(--espresso);color:var(--paper);padding:0.45rem 1.1rem;border-radius:100px;font-family:var(--sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;line-height:1;cursor:pointer;text-decoration:none;transition:background .3s ease,border-color .3s ease,color .3s ease}
 .btn:hover{background:var(--cafe);border-color:var(--cafe)}
+.btn:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px}
 .btn-ghost{background:transparent;color:var(--espresso)}
 .btn-ghost:hover{background:rgba(43,33,24,0.06)}
 .btn-danger{background:#b5482c;border-color:#b5482c}
@@ -38,7 +39,7 @@ td.wrap{max-width:340px;word-break:break-word}
 .login-card h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0 0 1.1rem;color:var(--espresso);text-align:center}
 .login-card label{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted,#8c7d6d);display:block;margin:0.8rem 0 0.3rem}
 .login-card input{width:100%;border:1px solid rgba(111,90,63,0.28);border-radius:10px;padding:0.6rem 0.8rem;font-family:var(--sans);font-size:0.95rem;background:#fff}
-.login-card button{width:100%;margin-top:1.1rem}
+.login-card button{width:100%;margin-top:1.1rem;padding:0.8rem 1.6rem;font-size:0.78rem}
 .login-error{color:#b5482c;font-size:0.85rem;text-align:center;margin:0 0 0.6rem}
 .login-foot{margin-top:1.2rem;text-align:center;font-size:0.82rem}
 .control-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:0.7rem 0;border-bottom:1px solid rgba(111,90,63,0.1)}

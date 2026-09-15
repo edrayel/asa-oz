@@ -78,8 +78,8 @@
   {% block pre_shell %}{% endblock %}
 
   {% block shell %}
+  {% include "partials/header.html" %}
   <div class="shell">
-    {% include "partials/header.html" %}
     <main id="main-content">
       {% block main %}{% endblock %}
     </main>

@@ -29,6 +29,7 @@
       line-height: 1.65;
       font-weight: 400;
       overflow-x: hidden;
+      overflow-x: clip;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }

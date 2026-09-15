@@ -153,7 +153,7 @@ PAGES = {
                     _lt("eyebrow", "Eyebrow", default="Identity • Culture • Belonging"),
                     _lt("title", "Headline", default="Return to Self."),
                     _rt("lede", "Intro paragraph", default="Asa-OZ is a cultural reconnection experience helping adults 45+ rediscover identity, belonging, and purpose through guided journeys, community, and meaningful travel."),
-                    _rt("supporting", "Supporting copy", default="Connect with like-minded people who share your interests, values and curiosity. Whether you enjoy history, food, art, nature, photography or simply meaningful conversation, Asa-OZ helps you connect with others before travelling together."),
+                    _rt("supporting", "Supporting copy", default="Connect with like-minded people who share your interests and curiosity, then travel together."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
                     _rt("not_this_body", "“What this is not” body", default="Asa-OZ is not spiritual practice, energy work, therapy, or meditation. It is a cultural and community experience — grounded in real conversation, shared meals, storytelling, and travel."),
                 ],

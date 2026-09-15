@@ -38,5 +38,7 @@
 
 - When documenting a third-party service integration (SMTP provider, OAuth library, payment processor, etc.) in `DEPLOY.md` or config, expects the agent to verify the current settings/endpoints by web-fetching the vendor's docs before writing them down — not to paraphrase from memory. Cites the source URL in the doc/PR summary so the values can be re-checked. Confidence: 0.7
 
+- Runs the local dev server themselves in a separate terminal and expects the agent to keep that in mind — don't assume the server is down or broken, and don't kill/restart the user's running instance. When verification would otherwise interfere, work around it (e.g., a second instance on another port, or the Flask test client) and leave the user's server untouched. Confidence: 0.6
+
 - Maintains secrets as one-file-per-credential under `~/.config/opencode/keys/` (e.g. `render_asa-oz_api_key`) and expects env vars to be populated from those files — e.g. shell rc exports like `export X="$(cat ~/.config/opencode/keys/<name> 2>/dev/null)"` — so rotating a credential is a one-file change instead of editing it in multiple places. Points the agent at the key file path so it can wire the env var up itself. Confidence: 0.7
 
