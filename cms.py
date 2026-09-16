@@ -218,6 +218,7 @@ PAGES = {
                 "key": "pillars",
                 "label": "What Asa-OZ offers (simple mode off)",
                 "fields": [
+                    _lt("title", "Heading", default="What Asa-OZ offers"),
                     {
                         "key": "entries",
                         "label": "Pillars",

@@ -100,6 +100,7 @@
       </section>
 
       {% if settings.get('simple_mode', '0') == '0' %}<section class="pillars" aria-label="What Asa-OZ offers">
+        {% if cms.pillars.title %}<h2 class="reveal">{{ cms.pillars.title }}</h2>{% endif %}
         {% for pillar in cms.pillars.entries %}
         <div class="pillar reveal"><span class="num">0{{ loop.index }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.body }}</p></div>
         {% endfor %}
@@ -124,7 +125,7 @@
             <span class="tool-num">0{{ loop.index }}</span>
             <h3>{{ tool.name }}</h3>
             <p>{{ tool.desc }}</p>
-            <div class="tool-price">{% if settings.get('show_prices', '1') == '0' %}Pricing on request{% elif tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
+            <div class="tool-price">{% if settings.get('show_prices', '0') == '0' %}Pricing on request{% elif tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
           </div>
         {% endfor %}
         </div>

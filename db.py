@@ -162,7 +162,10 @@ CREATE TABLE IF NOT EXISTS email_log (
 """
 
 DEFAULT_SETTINGS = {
-    "show_prices": "1",
+    # Prices are not final, so they are hidden unless an admin turns them on.
+    # Reads as "Pricing on request" on the home teaser, store listings and
+    # product pages. Applies to every fresh database, including production.
+    "show_prices": "0",
     "show_signup": "1",
     "show_supporting": "1",
     "show_faq_section": "1",

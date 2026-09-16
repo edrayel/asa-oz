@@ -46,7 +46,7 @@
       <h2>Store &amp; pricing</h2>
       <div class="control-row">
         <div class="control-label">Show prices<small>Show prices on the home teaser, store listings and product pages. Turn off to show “Pricing on request” instead</small></div>
-        <input type="checkbox" name="show_prices" value="1" {% if settings.get('show_prices', '1') == '1' %}checked{% endif %} />
+        <input type="checkbox" name="show_prices" value="1" {% if settings.get('show_prices', '0') == '1' %}checked{% endif %} />
       </div>
     </div>
 

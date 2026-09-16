@@ -1127,6 +1127,19 @@
       padding: clamp(2.5rem, 6vh, 4.5rem) 0;
       border-top: 1px solid rgba(111, 90, 63, 0.18);
     }
+    /* The heading is a grid child, so it has to span every column rather than
+       take the first cell. */
+    .pillars h2 {
+      grid-column: 1 / -1;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--espresso);
+      max-width: 18ch;
+      margin-bottom: clamp(0.4rem, 1.2vw, 1rem);
+    }
     .pillar {
       text-align: left;
     }
@@ -1320,7 +1333,7 @@
       color: var(--ink);
       margin-bottom: 1.1rem;
     }
-    .ethos .founder p:last-child { margin-bottom: 0; }
+    .ethos .founder p:last-child { margin-bottom: 24px; }
     .ethos .founder .founder-more { margin: 1.2rem 0 0; }
     .ethos .founder .founder-more a {
       display: inline-block;
