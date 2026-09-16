@@ -212,7 +212,7 @@
         <p class="faq-more reveal"><a href="{{ url_for('faq') }}">{{ cms.faq.more }} &rarr;</a></p>
       </section>{% endif %}
 
-      {% if settings.get('show_pricing', '1') != '0' %}<section class="pricing-section" aria-label="Membership and pricing">
+      {% if settings.get('show_pricing', '0') == '1' %}<section class="pricing-section" aria-label="Membership and pricing">
         <div class="pricing-wrap reveal">
           <h2>{{ cms.pricing.title }}</h2>
           <p class="pricing-lede">{{ cms.pricing.lede }}</p>

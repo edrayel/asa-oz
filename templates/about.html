@@ -124,11 +124,13 @@
         <div class="page-block reveal">
           <h2>{{ cms.founder.heading }}</h2>
           <section class="founder">
+            {% if cms.founder.video_enabled and cms.founder.video %}
             <div class="founder-media">
               <div class="founder-frame">
-                {% if cms.founder.video %}{{ _video_embed(cms.founder.video) | safe }}{% else %}<iframe class="founder-video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" title="Ifeoma Adaora, founder of Asa-OZ" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>{% endif %}
+                {{ _video_embed(cms.founder.video) | safe }}
               </div>
             </div>
+            {% endif %}
             <div class="founder-copy">
               <blockquote class="founder-quote">{{ cms.founder.quote | safe }}</blockquote>
               <div class="founder-body">

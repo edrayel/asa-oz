@@ -170,7 +170,9 @@ DEFAULT_SETTINGS = {
     "simple_mode": "0",
     "show_not_this": "0",
     "show_testimonials": "0",
-    "show_pricing": "1",
+    # Membership pricing is not final, so it is hidden unless an admin turns it
+    # on. Applies to every fresh database, including production.
+    "show_pricing": "0",
     "show_ads": "1",
     # Automatic email. These keys must stay in this dict: admin_settings calls
     # prune_settings(DEFAULT_SETTINGS), which deletes any stored key not listed.
