@@ -24,6 +24,10 @@ zoho-mail-cred-info-*.txt
 *cred-info*.txt
 *credentials*.txt
 
+# Google OAuth client secrets (never commit — the Drive integration reads
+# GOOGLE_DRIVE_CREDENTIALS from the environment instead)
+client_secret*.json
+
 # Python
 __pycache__/
 *.pyc
