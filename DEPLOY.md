@@ -94,9 +94,18 @@ Notes specific to Zoho:
   A regular login password will be rejected.
 - The `From` address in outgoing mail must match the SMTP account (or one
   of its aliases) or Zoho will return `Relaying disallowed`.
+- **Free instances cannot send mail at all.** Render blocks outbound traffic to
+  SMTP ports 25, 465 and 587 on free web services. Port 25 is blocked on every
+  plan because Render runs on EC2; 465 and 587 work on paid instances. On free
+  the connection never leaves the network and every send fails with
+  `TimeoutError`, which the admin's Emails page will show. The fix is to move
+  the service to any paid instance type. Nothing in the code or the credentials
+  needs to change.
 - Render's outbound IPs are not on any RBL, so no special DNS work is
   needed. Add SPF / DKIM / DMARC records on `asa-oz.com` once you have a
-  stable sending domain to improve deliverability.
+  stable sending domain to improve deliverability. Note also that
+  `asa-oz.com` currently has no MX record, so `info@asa-oz.com` cannot receive
+  replies and `Reply-To` on outgoing mail is a dead end until one exists.
 
 Local development: the credentials are never committed. They live as one
 file per value under `~/.config/opencode/keys/` (mode `600`), and
