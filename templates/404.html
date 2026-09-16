@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Page not found — Asa-OZ{% endblock %}
+{% block title %}Page not found | Asa-OZ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">{% endblock %}
 {% block main %}
       <section class="error-page">
         <p class="eyebrow">404</p>
-        <h1>This page isn’t part of the journey — yet.</h1>
+        <h1>This page isn’t part of the journey yet.</h1>
         <p>The page you’re looking for may have moved, or never existed. Let’s get you back to somewhere you belong.</p>
         <p style="margin-top:1.5rem;"><a href="{{ url_for('index') }}" class="pricing-btn">Return home</a></p>
       </section>

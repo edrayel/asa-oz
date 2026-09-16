@@ -26,6 +26,14 @@
 <div class="cart-footer">
   <div class="cart-total"><span>Total</span><span id="cartTotal">€{{ cart_total }}</span></div>
   <form method="post" action="{{ url_for('checkout') }}">
+    {{ csrf_input() }}
+    {% if error %}<p role="alert" style="margin:0 0 0.7rem; font-size:0.85rem; color:#b5482c;">{{ error }}</p>{% endif %}
+    <label style="display:block; margin-bottom:0.7rem;">
+      <span style="display:block; font-family:var(--sans); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:0.35rem;">Email for your confirmation</span>
+      <input type="email" name="email" required autocomplete="email" placeholder="you@example.com"
+             value="{{ checkout_email }}"
+             style="width:100%; box-sizing:border-box; font:inherit; font-size:0.9rem; padding:0.6rem 0.75rem; border:1px solid rgba(111,90,63,0.28); border-radius:10px; background:rgba(255,255,255,0.75); color:var(--ink);" />
+    </label>
     <button class="cart-checkout" type="submit"{% if not cart_items %} disabled{% endif %}>Enquire to purchase</button>
   </form>
 </div>

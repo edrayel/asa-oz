@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Share your story | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}" />{% endblock %}
+
+{% block main %}
+      <section class="store-hero">
+        <h1 class="reveal">Share your story</h1>
+        <p class="lede reveal">Travelled somewhere worth talking about? Send us a report from the road and we will consider it for the Stories page.</p>
+      </section>
+
+      <section class="blog-submit page-section narrow">
+        {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+        <form method="POST" action="{{ url_for('blog_submit') }}" class="blog-form">
+          {{ csrf_input() }}
+          <label>Title
+            <input type="text" name="title" required value="{{ form.get('title','') }}" placeholder="Lagos in the rain" />
+          </label>
+          <label>Your name
+            <input type="text" name="author" value="{{ form.get('author','') }}" placeholder="Optional" />
+          </label>
+          <label>Your email
+            <input type="email" name="author_email" value="{{ form.get('author_email','') }}" placeholder="So we can reply to you" />
+          </label>
+          <label>One-line summary
+            <input type="text" name="summary" value="{{ form.get('summary','') }}" placeholder="A two-day trip that turned into a week" />
+          </label>
+          <label>Category
+            <input type="text" name="category" value="{{ form.get('category','Member stories') }}" placeholder="Member stories" />
+          </label>
+          <label>Cover image URL
+            <input type="text" name="image" value="{{ form.get('image','') }}" placeholder="https://..." />
+          </label>
+          <label>Your story
+            <textarea name="body" rows="10" required placeholder="Tell us what happened...">{{ form.get('body','') }}</textarea>
+          </label>
+          <button type="submit" class="page-btn">Submit story</button>
+        </form>
+      </section>
+{% endblock %}

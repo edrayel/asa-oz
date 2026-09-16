@@ -1,70 +1,45 @@
-"""Email notifications for admin alerts.
+"""Admin alert emails.
 
-Sends notifications to the admin when a visitor submits a booking, order,
-contact form, or feedback. Uses SMTP via stdlib smtplib — no extra deps.
+Notifies the Asa-OZ admin when a visitor submits a booking, order, contact
+form, feedback, newsletter signup or story. Delivery goes through mailer.py,
+so there is one SMTP transport and one background queue for the whole app.
 
-Configuration (environment variables):
-  SMTP_HOST       — SMTP server hostname (e.g. smtp.gmail.com)
-  SMTP_PORT       — SMTP port (default: 587)
-  SMTP_USERNAME   — SMTP login username
-  SMTP_PASSWORD   — SMTP login password / app password
-  ADMIN_EMAIL     — recipient address for notifications
-  FROM_EMAIL      — sender address (defaults to SMTP_USERNAME)
+These are internal operations messages, not site copy, so their wording lives
+here rather than in the CMS. Visitor-facing mail is templated and CMS-editable
+(see mailer.py and the ``emails`` page in cms.py).
 
-If any of SMTP_HOST / ADMIN_EMAIL are unset, notifications are silently
-skipped (and logged to the Flask logger) — the site keeps working.
+Every alert is skipped when SMTP is unconfigured, or when the admin turns
+``email_admin_alerts`` off in Settings.
 """
 import logging
 import os
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+
+import db
+import mailer
 
 logger = logging.getLogger(__name__)
 
 
-def _smtp_configured():
-    return bool(os.environ.get("SMTP_HOST") and os.environ.get("ADMIN_EMAIL"))
+def is_configured():
+    return mailer.is_configured()
 
 
-def _send(to, subject, body):
-    if not _smtp_configured():
-        logger.debug("email skipped (SMTP not configured): %s", subject)
-        return False
-    host = os.environ["SMTP_HOST"]
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    user = os.environ.get("SMTP_USERNAME") or os.environ.get("FROM_EMAIL") or os.environ["ADMIN_EMAIL"]
-    password = os.environ.get("SMTP_PASSWORD", "")
-    sender = os.environ.get("FROM_EMAIL") or user
-
-    msg = MIMEMultipart("alternative")
-    msg["From"] = sender
-    msg["To"] = to
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-    msg.attach(MIMEText(_html_body(body), "html"))
-
+def _alerts_enabled():
     try:
-        with smtplib.SMTP(host, port, timeout=15) as server:
-            server.ehlo()
-            if port == 587:
-                server.starttls()
-                server.ehlo()
-            if password:
-                server.login(user, password)
-            server.sendmail(sender, [to], msg.as_string())
-        logger.info("email sent: %s -> %s", subject, to)
+        return db.setting_bool("email_admin_alerts", "1")
+    except Exception:
         return True
-    except Exception as exc:
-        logger.error("email failed (%s): %s", subject, exc)
+
+
+def _send(subject, body):
+    if not _alerts_enabled():
+        logger.debug("admin alert skipped (disabled): %s", subject)
         return False
-
-
-def _html_body(text):
-    escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    lines = escaped.split("\n")
-    items = "".join("<li>%s</li>" % ln.strip() for ln in lines if ln.strip())
-    return "<ul>%s</ul>" % items if items else "<p>%s</p>" % escaped
+    recipient = os.environ.get("ADMIN_EMAIL", "")
+    if not recipient:
+        logger.debug("admin alert skipped (no ADMIN_EMAIL): %s", subject)
+        return False
+    return mailer.send_raw(recipient, subject, body)
 
 
 def notify_booking(data):
@@ -77,15 +52,17 @@ def notify_booking(data):
         "Time: %(time)s\n"
         "Message: %(message)s\n"
     ) % data
-    return _send(os.environ["ADMIN_EMAIL"], "New Asa-OZ Booking Request", body)
+    return _send("New Asa-OZ Booking Request", body)
 
 
-def notify_order(items, total):
+def notify_order(items, total, customer_email=""):
     lines = ["New Asa-OZ order:\n"]
     for it in items:
         lines.append("- %(qty)s × %(name)s (€%(price)s)" % it)
     lines.append("\nTotal: €%s" % total)
-    return _send(os.environ["ADMIN_EMAIL"], "New Asa-OZ Order", "\n".join(lines))
+    if customer_email:
+        lines.append("Email: %s" % customer_email)
+    return _send("New Asa-OZ Order", "\n".join(lines))
 
 
 def notify_contact(name, email, message):
@@ -94,7 +71,7 @@ def notify_contact(name, email, message):
         "From: %(name)s <%(email)s>\n\n"
         "%(message)s"
     ) % {"name": name, "email": email, "message": message}
-    return _send(os.environ["ADMIN_EMAIL"], "New Asa-OZ Contact Message", body)
+    return _send("New Asa-OZ Contact Message", body)
 
 
 def notify_feedback(category, text):
@@ -103,7 +80,7 @@ def notify_feedback(category, text):
         "Category: %(category)s\n\n"
         "%(text)s"
     ) % {"category": category or "(none)", "text": text}
-    return _send(os.environ["ADMIN_EMAIL"], "New Asa-OZ Feedback", body)
+    return _send("New Asa-OZ Feedback", body)
 
 
 def notify_waitlist(email, source):
@@ -111,4 +88,25 @@ def notify_waitlist(email, source):
         "email": email,
         "source": source or "(none)",
     }
-    return _send(os.environ["ADMIN_EMAIL"], "New Asa-OZ Waitlist Signup", body)
+    return _send("New Asa-OZ Waitlist Signup", body)
+
+
+def notify_subscriber(email, name="", source=""):
+    body = (
+        "New newsletter signup (awaiting confirmation):\n\n"
+        "Email: %(email)s\n"
+        "Name: %(name)s\n"
+        "Source: %(source)s"
+    ) % {"email": email, "name": name or "(none)", "source": source or "(none)"}
+    return _send("New Asa-OZ Newsletter Signup", body)
+
+
+def notify_story(title, author, author_email):
+    body = (
+        "A member submitted a story for review:\n\n"
+        "Title: %(title)s\n"
+        "Author: %(author)s\n"
+        "Email: %(email)s\n\n"
+        "It is saved as a draft. Review it under Stories in the admin."
+    ) % {"title": title, "author": author or "(none)", "email": author_email or "(none)"}
+    return _send("New Asa-OZ Story Submission", body)

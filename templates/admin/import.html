@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% block title %}Restore backup - Asa-OZ Admin{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header"><h1>Restore backup</h1>
+    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <h2>Restore from a backup</h2>
+    <p class="sub" style="color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      Upload the JSON produced by <a href="{{ url_for('admin_export') }}">/admin/export</a>.
+      Restores feedback, waitlist, bookings, contacts, orders, newsletter subscribers,
+      products, settings and CMS copy. Rows are matched on their id, so running the
+      same file twice changes nothing the second time. Nothing already in the database
+      is deleted.
+    </p>
+    <form method="POST" action="{{ url_for('admin_import') }}" enctype="multipart/form-data">
+      {{ csrf_input() }}
+      <div class="form-row">
+        <label>Backup file</label>
+        <input type="file" name="payload" accept="application/json,.json" required />
+      </div>
+      <div class="form-row">
+        <label>or paste the JSON</label>
+        <textarea name="payload" rows="6" placeholder='{"contacts": [...]}'></textarea>
+      </div>
+      <button class="btn" type="submit">Restore</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current row counts</h2>
+    <table>
+      <tbody>
+        <tr><th>Feedback</th><td>{{ counts.feedback }}</td></tr>
+        <tr><th>Bookings</th><td>{{ counts.bookings }}</td></tr>
+        <tr><th>Contacts</th><td>{{ counts.contacts }}</td></tr>
+        <tr><th>Newsletter subscribers</th><td>{{ counts.journey }}</td></tr>
+        <tr><th>Waitlist</th><td>{{ counts.waitlist }}</td></tr>
+        <tr><th>Orders</th><td>{{ counts.orders }}</td></tr>
+        <tr><th>Products</th><td>{{ counts.products }}</td></tr>
+        <tr><th>CMS sections stored</th><td>{{ counts.cms }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

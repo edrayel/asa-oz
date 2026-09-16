@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}" />{% endblock %}
+
+{% block main %}
+      <article class="blog-single page-section">
+        <header class="blog-single-header">
+          {% if post.category %}<span class="blog-card-cat">{{ post.category }}</span>{% endif %}
+          <h1 class="blog-single-title">{{ post.title }}</h1>
+          <div class="blog-card-meta">
+            {% if post.author %}<span>By {{ post.author }}</span>{% endif %}
+            {% if post.published_at %}<span>{{ post.published_at[:10] }}</span>{% endif %}
+          </div>
+        </header>
+
+        {% if post.image %}<div class="blog-single-hero" style="background-image:url('{{ post.image }}')"></div>{% endif %}
+
+        <div class="blog-single-body">{{ post.body | safe }}</div>
+      </article>
+
+      {% if others %}
+      <section class="blog-more page-section" aria-label="More stories">
+        <h2 class="blog-more-heading">More stories</h2>
+        <div class="blog-grid">
+          {% for o in others %}
+            <a href="{{ url_for('blog_post', slug=o.slug) }}" class="blog-card">
+              {% if o.image %}<div class="blog-card-img" style="background-image:url('{{ o.image }}')"></div>{% endif %}
+              <div class="blog-card-body">
+                {% if o.category %}<span class="blog-card-cat">{{ o.category }}</span>{% endif %}
+                <h3 class="blog-card-title">{{ o.title }}</h3>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <div class="blog-back">
+        <a class="page-btn page-btn-ghost" href="{{ url_for('blog') }}">All stories</a>
+      </div>
+{% endblock %}

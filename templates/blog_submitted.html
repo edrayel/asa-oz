@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Story submitted | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}" />{% endblock %}
+
+{% block main %}
+      <section class="store-hero">
+        <h1 class="reveal">Story received</h1>
+        <p class="lede reveal">Thank you. We will read it and be in touch if we decide to publish it on the Stories page.</p>
+      </section>
+
+      <section class="blog-back page-section narrow center">
+        <p><a class="page-btn page-btn-ghost" href="{{ url_for('blog') }}">Back to stories</a></p>
+      </section>
+{% endblock %}

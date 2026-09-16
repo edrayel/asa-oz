@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ product.name }} — Asa-OZ{% endblock %}
+{% block title %}{{ product.name }} | Asa-OZ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">{% endblock %}
 {% block main %}
       <section class="store-hero">
@@ -10,7 +10,7 @@
             <span class="product-badge {{ product.type }}">{{ product.type | capitalize }}</span>
             <h1>{{ product.name }}</h1>
             <p class="product-desc">{{ product.desc }}</p>
-            <p class="product-price"{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %} data-price="{% if product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}"{% endif %}>{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %}Pricing on request{% elif product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}</p>
+            <p class="product-price">{% if settings.get('show_prices', '1') == '0' %}Pricing on request{% elif product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}</p>
             <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
               {{ csrf_input() }}
               <input type="hidden" name="id" value="{{ product.id }}" />
@@ -19,7 +19,7 @@
           </div>
         </div>
       </section>
-      <section class="similar-section" aria-label="{{ cms_store.similar_title }}">
+      {% if similar %}<section class="similar-section" aria-label="{{ cms_store.similar_title }}">
         <h2 class="reveal">{{ cms_store.similar_title }}</h2>
         <div class="similar-grid" id="similarGrid">
           {% for p in similar %}
@@ -29,7 +29,7 @@
               <span class="badge {{ p.type }}">{{ p.type | capitalize }}</span>
               <h3>{{ p.name }}</h3>
               <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
-              <div class="price">{% if settings.get('show_prices', '1') == '0' or settings.get('price_public', '1') == '0' %}Pricing on request{% elif p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
+              <div class="price">{% if settings.get('show_prices', '1') == '0' %}Pricing on request{% elif p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
               <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
                 {{ csrf_input() }}
                 <input type="hidden" name="id" value="{{ p.id }}" />
@@ -40,5 +40,5 @@
           </div>
           {% endfor %}
         </div>
-      </section>
+      </section>{% endif %}
 {% endblock %}

@@ -8,7 +8,9 @@
 
 - When replicating a tool/config setup, wants the agent to follow the pattern already established in their other repos — e.g., pointing at `/home/edrayel/dev/projectkreate` as the reference for how the Command Code MCP was set up, so conventions stay consistent across projects. Confidence: 0.7
 
-- Treats "commit" and "push" as separate, explicitly-scoped steps — when the user says only "commit all changes" (after being offered "commit and push"), the agent should commit, verify a clean working tree, and stop there without pushing; pushing happens only when explicitly requested. Confidence: 0.6
+- Treats "commit" and "push" as separate, explicitly-scoped steps — when the user says only "commit all changes" (after being offered "commit and push"), the agent should commit, verify a clean working tree, and stop there without pushing; pushing happens only when explicitly requested. Confidence: 0.7
+
+- Prefers a branch-per-initiative workflow: commit the outstanding work first, then create a dedicated branch for a new, distinct initiative rather than continuing on the default branch. Expects the agent to propose a descriptive branch name that encodes the purpose/target (type prefix + goal, e.g. `content/align-rorys-travel-club`) — the "Suggest a name for the branch" asks are an invitation to name it and offer alternatives. Confidence: 0.65
 
 - Handles authenticated git operations non-interactively by passing the PAT directly in the push URL (`https://user:PAT@github.com/...`) for that single operation, without writing the token to git config, credentials files, or the repo — the established remote/credential-helper auth may be broken or stale, so one-off PAT-in-URL pushes (with the token read from an out-of-repo key file, e.g. `~/.config/opencode/keys/...`) are an accepted workflow. Confidence: 0.7
 
@@ -39,6 +41,8 @@
 - When documenting a third-party service integration (SMTP provider, OAuth library, payment processor, etc.) in `DEPLOY.md` or config, expects the agent to verify the current settings/endpoints by web-fetching the vendor's docs before writing them down — not to paraphrase from memory. Cites the source URL in the doc/PR summary so the values can be re-checked. Confidence: 0.7
 
 - Runs the local dev server themselves in a separate terminal and expects the agent to keep that in mind — don't assume the server is down or broken, and don't kill/restart the user's running instance. When verification would otherwise interfere, work around it (e.g., a second instance on another port, or the Flask test client) and leave the user's server untouched. Confidence: 0.6
+
+- When a change has accidentally removed or overwritten existing functionality/design (e.g. a section the agent replaced while adding a new one, wiping the wall-of-moments marquee), expects the agent to consult git history to recover and restore the original implementation verbatim ("Restore it back. Check the git history.") instead of reinventing a replacement. Treats unintentional deletion of shipped work as a regression to be reverted to the previously intended state. Confidence: 0.7
 
 - Maintains secrets as one-file-per-credential under `~/.config/opencode/keys/` (e.g. `render_asa-oz_api_key`) and expects env vars to be populated from those files — e.g. shell rc exports like `export X="$(cat ~/.config/opencode/keys/<name> 2>/dev/null)"` — so rotating a credential is a one-file change instead of editing it in multiple places. Points the agent at the key file path so it can wire the env var up itself. Confidence: 0.7
 

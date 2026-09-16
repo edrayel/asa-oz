@@ -19,6 +19,44 @@ loud, not silent.
 `render.yaml` declares both as `sync: false` — set them in the Render
 dashboard's **Environment** tab, not in the YAML.
 
+`ADMIN_PASSWORD` matters more than it looks. `init_db()` seeds the admin row
+from it on first boot and raises `RuntimeError` if it is missing while the
+admins table is empty. On a database that has already been seeded the app boots
+without it, which hides the problem until the day something resets the
+database: the deploy then crash-loops and the site goes down. Keep it set.
+
+## 1.1 Persistence
+
+Render's filesystem is **ephemeral** on a service without a disk. The SQLite
+database is recreated empty on every deploy, every restart, and every
+environment variable change. On the free instance type it is also discarded
+whenever the service spins down.
+
+`render.yaml` therefore declares a disk, and everything the app writes points
+into it:
+
+```yaml
+disk:
+  name: asa-oz-data
+  mountPath: /var/data
+  sizeGB: 1
+```
+
+```
+DATABASE=/var/data/asaoz.sqlite3
+UPLOAD_DIR=/var/data/uploads
+```
+
+Anything written outside `/var/data` is lost on the next deploy, so if you add
+a new writable path, put it under the mount. A disk requires a paid instance
+type, so the disk and the plan belong together.
+
+Attaching a disk restarts the service, and that restart still begins from an
+empty volume: the data that existed before the disk was attached is gone. From
+then on, deploys preserve it. If a deploy ever needs to be made on a service
+that has neither a disk nor a backup, treat the database as write-only and
+expect to lose it.
+
 ## 2. Optional environment variables
 
 All other vars are optional. If a var is missing, the corresponding
@@ -36,16 +74,18 @@ feature degrades gracefully (no email sent, no payment, no Drive, no ads).
 If any of these are unset, every notification (booking / contact / feedback
 / waitlist / order) is silently skipped — the form still saves to the DB.
 
-Asa-OZ uses **Zoho Mail** for transactional email. The settings below are
-for a custom-domain account on `asa-oz.com` (use `smtp.zoho.com` for a
-plain `zoho.com` personal account).
+Asa-OZ uses **Zoho Mail** for transactional email. The mailbox lives on
+Zoho's **EU** data centre — `asa-oz.com` is verified there
+(`zoho-verification=…zmverify.zoho.eu`), so the SMTP host is `smtppro.zoho.eu`.
+Use `smtp.zoho.eu` for a plain personal account, or swap the `eu` for `com` /
+`in` if the account is ever moved to another data centre.
 
 | Var | Value | Purpose |
 |---|---|---|
-| `SMTP_HOST` | `smtppro.zoho.com` | Zoho's outgoing server for custom-domain accounts. |
-| `SMTP_PORT` | `587` | TLS (STARTTLS). Use `465` with `SMTP_USE_SSL=1` if you prefer implicit SSL. |
-| `SMTP_USERNAME` | `notifications@asa-oz.com` (or whatever you create) | The full mailbox address. |
-| `SMTP_PASSWORD` | The mailbox password, or an app password if 2FA is enabled on the Zoho account. | Generate an app password at <https://accounts.zoho.com> → Security → App Passwords. |
+| `SMTP_HOST` | `smtppro.zoho.eu` | Zoho EU outgoing server (custom-domain accounts). |
+| `SMTP_PORT` | `587` | STARTTLS. Port `465` switches to implicit TLS automatically (or set `SMTP_USE_SSL=1`). |
+| `SMTP_USERNAME` | `info@asa-oz.com` | The full mailbox address. |
+| `SMTP_PASSWORD` | The mailbox password, or an app password if 2FA is enabled on the Zoho account. | Generate an app password at <https://accounts.zoho.eu> → Security → App Passwords. |
 | `ADMIN_EMAIL` | `info@asa-oz.com` | Recipient for admin notifications. |
 | `FROM_EMAIL` | Defaults to `SMTP_USERNAME`. | Override only if you want a different Reply-To or display name (set the display name in the Zoho account, not here). |
 
@@ -58,6 +98,60 @@ Notes specific to Zoho:
   needed. Add SPF / DKIM / DMARC records on `asa-oz.com` once you have a
   stable sending domain to improve deliverability.
 
+Local development: the credentials are never committed. They live as one
+file per value under `~/.config/opencode/keys/` (mode `600`), and
+`~/.bashrc` / `~/.profile` export them:
+
+```sh
+export SMTP_HOST="smtppro.zoho.eu"
+export SMTP_PORT="587"
+export SMTP_USERNAME="$(cat ~/.config/opencode/keys/zoho_asa-oz_smtp_user 2>/dev/null)"
+export SMTP_PASSWORD="$(cat ~/.config/opencode/keys/zoho_asa-oz_smtp_password 2>/dev/null)"
+export FROM_EMAIL="$SMTP_USERNAME"
+export ADMIN_EMAIL="$SMTP_USERNAME"
+```
+
+Rotating the password is a one-file change. In production set the same six
+vars in the Render dashboard. Note that saving env vars on Render restarts
+the service, which wipes the ephemeral SQLite database — add a `disk:` block
+to `render.yaml` first if that data matters.
+
+#### Automatic emails
+
+Every message is sent through `mailer.py`, which renders a branded HTML and
+plain-text pair and hands delivery to a background thread, so a slow SMTP
+handshake never delays a form submission.
+
+| Flow | Trigger | Goes to |
+|---|---|---|
+| Newsletter: confirm your email | `/journey` signup | the person signing up |
+| Newsletter: welcome | the confirm link is opened | the confirmed subscriber |
+| Contact acknowledgement | `/contact-msg` | the person who wrote in |
+| Discovery call confirmation | `/booking` | the person booking |
+| Order confirmation | `/checkout` | the buyer |
+| Story acknowledgement | `/blog/submit` | the person submitting |
+| Admin alerts | all of the above, plus feedback and orders | `ADMIN_EMAIL` |
+
+Wording lives in the admin under **Pages → Emails** (the `emails` CMS page),
+so no deploy is needed to change a subject or a paragraph. Each message can be
+switched off under **Settings → Email**. Delivery history, including failures
+and skips, is listed under **Emails** in the admin (`email_log` table).
+
+The newsletter uses double opt-in: a signup is stored as `pending` and only
+becomes `confirmed` when the emailed link is opened. Welcome mail is sent once,
+on that first confirmation, and carries `List-Unsubscribe` plus
+`List-Unsubscribe-Post` headers for one-click unsubscribe.
+
+Two things to know:
+
+- With a Stripe key configured, a paid order is deliberately **not** confirmed
+  by email at checkout, because payment is not complete at that point. A
+  receipt belongs on a payment webhook, which is still to be built. Orders
+  recorded as enquiries (the default when Stripe is unset) are confirmed
+  immediately.
+- `MAIL_SYNC=1` makes sends synchronous. It exists for tests; leave it unset
+  in production or every form POST waits on SMTP.
+
 ### 2.3 Google Drive (admin media library)
 
 | Var | Purpose |
@@ -69,8 +163,7 @@ Notes specific to Zoho:
 
 | Var | Default | Purpose |
 |---|---|---|
-| `APP_URL` | `RENDER_EXTERNAL_URL` (set by Render) or `http://localhost:5000` | Canonical site URL. Set this only if you're behind a custom domain that Render doesn't know about. |
-| `RENDER_EXTERNAL_URL` | — | Set automatically by Render. |
+| `APP_URL` | `https://asa-oz.com` | Canonical public site URL. Drives emailed confirm and unsubscribe links, the email logo, Stripe return URLs, OG tags and the sitemap. Declared in `render.yaml`. Never point this at the `*.onrender.com` host: the app no longer falls back to `RENDER_EXTERNAL_URL` for exactly that reason. A local run can set `APP_URL=http://localhost:5000` to get clickable local links. |
 | `DATABASE` | `instance/asaoz.sqlite3` | SQLite file path. |
 | `UPLOAD_DIR` | `instance/uploads/` | File-upload directory. |
 | `MAX_UPLOAD_MB` | `20` | Max upload size in MB. Enforced at the Werkzeug level (413 on oversize). |
@@ -247,7 +340,8 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
 - [ ] `SECRET_KEY` set to a random 48+ byte value
 - [ ] `ADMIN_PASSWORD` set to a strong (≥ 12 char) initial value, then
       changed at `/admin/password`
-- [ ] `APP_URL` set if using a custom domain
+- [ ] `APP_URL` is `https://asa-oz.com` (declared in `render.yaml`) so emailed
+      links and OG tags use the live domain, not the `*.onrender.com` host
 - [ ] `STRIPE_SECRET_KEY` set if you want to take real payments
       (otherwise the site runs in enquiry-only mode)
 - [ ] `SMTP_*` set with Zoho Mail credentials (use an app password if 2FA
@@ -255,6 +349,8 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
 - [ ] `GOOGLE_DRIVE_CREDENTIALS` set if you want the admin Drive browser
 - [ ] First boot logs `boot: drive configured=True` (or `False` if
       intentionally skipped)
+- [ ] First boot logs `boot: email configured=True host=smtppro.zoho.eu`
+      (or `False` if mail is intentionally off)
 - [ ] `GET /health` returns 200 with all subsystems `true`
 
 ## 10. Security model — quick reference

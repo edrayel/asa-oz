@@ -3,6 +3,12 @@
  * defined in each page's <style> block).
  */
 
+/* Clip horizontal overflow at the root as well as the body. The off-canvas
+ * cart drawer is position: fixed, so the body alone does not contain it and it
+ * was widening the document on some pages. Unlike overflow-x: hidden, clip does
+ * not create a scroll container, so the sticky header keeps working. */
+html { overflow-x: clip; }
+
 /* ---------- Header ---------- */
 /* Full-bleed sticky bar. The .header-inner re-creates the .shell measure so
  * the brand/nav stay aligned with the page content at every width. */
@@ -269,7 +275,7 @@ footer {
   line-height: 1.5;
   max-width: 38ch;
 }
-.social-icons { display: flex; gap: 0.75rem; margin-top: 1.2rem; }
+.social-icons { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.2rem; }
 .social-icons a {
   display: grid;
   place-items: center;
@@ -688,4 +694,18 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
   .site-header,
   .header-inner,
   .brand-logo-img { transition: none; }
+}
+
+/* Scroll reveal. Lives here rather than in a page stylesheet so the effect is
+   consistent on every page. Scoped to .js so the content stays visible when
+   scripts never run. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
+}
+.js .reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; }
 }

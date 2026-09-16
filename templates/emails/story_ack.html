@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block details %}
+<tr>
+  <td style="padding:6px 34px 0;">
+    {{ m.rows([("Story", story_title)]) }}
+  </td>
+</tr>
+{% endblock %}

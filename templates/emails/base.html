@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <title>{{ section.subject }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4ece0; -webkit-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4ece0;">
+    <tr>
+      <td align="center" style="padding:26px 12px 36px;">
+
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px; max-width:100%; background-color:#faf5ec; border:1px solid rgba(111,90,63,0.20); border-radius:18px;">
+
+          <tr>
+            <td align="center" style="padding:28px 34px 0;">
+              <img src="{{ base_url }}/static/images/logo.svg" alt="Asa-OZ" width="56" style="display:block; width:56px; height:auto; border:0; outline:none; text-decoration:none;" />
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:22px 34px 0;">
+              <h1 style="margin:0 0 16px; font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:27px; line-height:1.25; letter-spacing:-0.01em; color:#2b2118; text-align:center;">{% block heading %}{{ section.heading }}{% endblock %}</h1>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 34px;">
+              <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:15px; line-height:1.68; color:#3a2f22;">
+                {% block content %}{{ section.body | paragraphs }}{% endblock %}
+              </div>
+            </td>
+          </tr>
+
+          {% block details %}{% endblock %}
+          {% block cta %}{% endblock %}
+
+          <tr>
+            <td style="padding:8px 34px 30px;">
+              <p style="margin:0; font-family:Georgia,'Times New Roman',serif; font-style:italic; font-size:16px; color:#8a6038;">{{ section.signoff }}</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 34px 26px; border-top:1px solid rgba(111,90,63,0.20);">
+              <p style="margin:0 0 8px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:12px; line-height:1.6; color:#7d6e5b;">{{ footer.note }}</p>
+              <p style="margin:0 0 10px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:12px; line-height:1.6; color:#7d6e5b;">{{ footer.legal }}</p>
+              <p style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:12px; line-height:1.6; color:#7d6e5b;">
+                <a href="mailto:{{ site_email }}" style="color:#5f6d3d; text-decoration:underline;">{{ site_email }}</a>
+                <span style="color:#c4a882;">&nbsp;|&nbsp;</span>
+                <a href="{{ base_url }}/contact" style="color:#5f6d3d; text-decoration:underline;">{{ footer.contact_label }}</a>
+                {% if marketing and unsubscribe_url %}
+                <span style="color:#c4a882;">&nbsp;|&nbsp;</span>
+                <a href="{{ unsubscribe_url }}" style="color:#5f6d3d; text-decoration:underline;">{{ footer.unsubscribe_label }}</a>
+                {% endif %}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -11,7 +11,7 @@
       <p>{{ cms_site.legal }}</p>
       <p>{{ cms_site.rc }}</p>
       <p><a href="mailto:{{ cms_site.email }}">{{ cms_site.email }}</a></p>
-      <p>Phone: {{ cms_site.phone }}</p>
+      <p>Phone: <span class="phone-obf" data-tel="{{ cms_site.phone | b64 }}"></span></p>
     </div>
     <div class="footer-proof">
       <h4>Explore</h4>
@@ -29,7 +29,7 @@
     </div>
     <div class="footer-proof">
       <h4>Community</h4>
-      <a href="{{ url_for('index') }}#signup">Join the waitlist</a>
+      <a href="{{ url_for('index') }}#signup">Join the club</a>
       <a href="{{ url_for('index') }}#testimonials">Read testimonials</a>
       <a href="{{ url_for('about') }}">Community stories</a>
     </div>

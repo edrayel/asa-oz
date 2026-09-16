@@ -1,0 +1,82 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit story' if post else 'New story' }} | Asa-OZ Admin{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/rte.css') }}">{% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1>{{ 'Edit story' if post else 'New story' }}</h1>
+    <div class="actions">
+      {% if post and post.status == 'published' %}
+      <a class="btn btn-ghost" href="{{ url_for('blog_post', slug=post.slug) }}" target="_blank">View on site</a>
+      {% endif %}
+      <a class="btn btn-ghost" href="{{ url_for('admin_blog') }}">Back</a>
+      <form method="POST" action="{{ url_for('admin_logout') }}">
+  {{ csrf_input() }}<button class="btn">Sign out</button></form>
+    </div>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('admin_blog_edit', post_id=post.id) if post else url_for('admin_blog_new') }}" class="blog-edit-form">
+    {{ csrf_input() }}
+
+    <div class="card">
+      <h2>Story details</h2>
+      <div class="form-row">
+        <label>Title</label>
+        <input type="text" name="title" required value="{{ form.get('title','') }}" placeholder="Lagos in the rain" />
+      </div>
+      <div class="form-row">
+        <label>Slug</label>
+        <input type="text" name="slug" value="{{ form.get('slug','') }}" placeholder="auto-generated-from-title" />
+        <small style="color:var(--muted,#8c7d6d)">Leave blank to auto-generate from the title.</small>
+      </div>
+      <div class="form-row">
+        <label>Author</label>
+        <input type="text" name="author" value="{{ form.get('author','') }}" placeholder="Anonymous member" />
+      </div>
+      <div class="form-row">
+        <label>Category</label>
+        <input type="text" name="category" value="{{ form.get('category','Member stories') }}" placeholder="Member stories" />
+      </div>
+      <div class="form-row">
+        <label>Cover image URL</label>
+        <input type="text" name="image" value="{{ form.get('image','') }}" placeholder="https://..." />
+      </div>
+      <div class="form-row">
+        <label>Summary</label>
+        <input type="text" name="summary" value="{{ form.get('summary','') }}" placeholder="A two-day trip that turned into a week" />
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Body</h2>
+      <div class="form-row">
+        <textarea name="body" data-rte rows="16" placeholder="Tell the story...">{{ form.get('body','') }}</textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Publish</h2>
+      <div class="form-row">
+        <label>Status</label>
+        <select name="status">
+          <option value="draft"{% if form.get('status') == 'draft' %} selected{% endif %}>Draft</option>
+          <option value="published"{% if form.get('status') == 'published' %} selected{% endif %}>Published</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn">Save</button>
+        <button type="submit" name="publish" value="1" class="btn btn-ghost">Save &amp; publish</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

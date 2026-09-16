@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Asa-OZ — Return to Yourself{% endblock %}
+{% block title %}Asa-OZ | Travel with your people{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">{% endblock %}
 
 {% block pre_shell %}
@@ -90,11 +90,13 @@
 
       <section class="how-it-works" aria-label="How Asa-OZ works">
         <h2 class="reveal">{{ cms.how.title }}</h2>
+        {% if cms.how.lede %}<p class="how-lede reveal">{{ cms.how.lede }}</p>{% endif %}
         <div class="steps">
           {% for step in cms.how.steps %}
           <div class="step reveal"><span class="num">0{{ loop.index }}</span><h3>{{ step.title }}</h3><p>{{ step.body }}</p></div>
           {% endfor %}
         </div>
+        {% if cms.how.note %}<p class="how-note reveal">{{ cms.how.note }}</p>{% endif %}
       </section>
 
       {% if settings.get('simple_mode', '0') == '0' %}<section class="pillars" aria-label="What Asa-OZ offers">
@@ -114,29 +116,36 @@
 
       {% with name='home-mid', slot_id='2345678901' %}{% include "partials/ads.html" %}{% endwith %}
 
-      <section class="tools" aria-label="Tools for the journey"{% if settings.get('show_store', '1') == '0' %} style="display:none;"{% endif %}>
+      <section class="tools" aria-label="Things to take with you"{% if settings.get('show_store', '1') == '0' %} style="display:none;"{% endif %}>
         <h2 class="reveal">{{ cms.storeteaser.heading }}</h2>
         <div class="tools-grid" id="toolsGrid">
-        {% for tool in products[:4] %}
+        {% for tool in products[:3] %}
           <div class="tool-item reveal">
             <span class="tool-num">0{{ loop.index }}</span>
             <h3>{{ tool.name }}</h3>
             <p>{{ tool.desc }}</p>
-            <div class="tool-price">{% if tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
+            <div class="tool-price">{% if settings.get('show_prices', '1') == '0' %}Pricing on request{% elif tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
           </div>
         {% endfor %}
         </div>
         <p class="tools-cta reveal"><a href="{{ url_for('store') }}">{{ cms.tools_products.visit_store_label }}</a></p>
       </section>
 
-      {% if settings.get('simple_mode', '0') == '0' %}<section class="gallery" aria-label="Moments from Asa-OZ">
+      {% if settings.get('simple_mode', '0') == '0' and blog_posts %}<section class="stories-band" aria-label="Stories from the road">
         <h2 class="reveal">{{ cms.gallery.title }}</h2>
-        <div class="gallery-stage reveal" id="galleryStage">
-          <div class="gallery-track" id="galleryTrack"></div>
+        <div class="stories-grid">
+          {% for post in blog_posts[:3] %}
+          <a href="{{ url_for('blog_post', slug=post.slug) }}" class="blog-card reveal">
+            {% if post.image %}<div class="blog-card-img" style="background-image:url('{{ post.image }}')"></div>{% endif %}
+            <div class="blog-card-body">
+              {% if post.category %}<span class="blog-card-cat">{{ post.category }}</span>{% endif %}
+              <h3 class="blog-card-title">{{ post.title }}</h3>
+              {% if post.summary %}<p class="blog-card-summary">{{ post.summary }}</p>{% endif %}
+            </div>
+          </a>
+          {% endfor %}
         </div>
-        <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous">&#8592;</button>
-        <button class="gallery-nav next" id="galleryNext" aria-label="Next">&#8594;</button>
-        <p class="gallery-caption reveal" id="galleryCaption"></p>
+        <p class="tools-cta reveal"><a href="{{ url_for('blog') }}">{{ cms.gallery.cta_label }}</a></p>
       </section>{% endif %}
 
       {% if settings.get('show_testimonials', '0') == '1' and cms.testimonials.active %}<section class="testimonial-ribbon" id="testimonials" aria-label="Testimonials">
@@ -207,16 +216,12 @@
         <div class="pricing-wrap reveal">
           <h2>{{ cms.pricing.title }}</h2>
           <p class="pricing-lede">{{ cms.pricing.lede }}</p>
-          <div class="pricing-toggle" id="pricingToggle">
-            <button type="button" class="active" data-period="monthly">{{ cms.pricing.monthly_label }}</button>
-            <button type="button" data-period="yearly">{{ cms.pricing.yearly_label }}</button>
-          </div>
           <div class="pricing-grid" id="pricingGrid">
             {% for card in cms.pricing.cards %}
             <div class="pricing-card{% if card.badge %} featured{% endif %}">
               {% if card.badge %}<span class="badge">{{ card.badge }}</span>{% endif %}
               <h3>{{ card.name }}</h3>
-              <div class="price" data-monthly="{{ card.price_m }}" data-yearly="{{ card.price_y }}">{{ card.price_m }}<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span></div>
+              <div class="price">{{ card.price }}<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/year</span></div>
               <p class="price-note">{{ card.note }}</p>
               <ul>{% for feat in card.features %}<li>{{ feat }}</li>{% endfor %}</ul>
               <button type="button" class="pricing-btn">{{ cms.pricing.cta_label }}</button>

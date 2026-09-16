@@ -5,14 +5,34 @@ services:
     plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
+    # Persistent disk. Without it the service's filesystem is ephemeral and the
+    # SQLite database is recreated empty on every deploy, restart and env var
+    # change. Requires a paid instance type; the disk and the plan go together.
+    disk:
+      name: asa-oz-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: "3.12"
       - key: FLASK_ENV
         value: production
+      # The public site URL. Drives emailed links, Stripe return URLs, OG tags
+      # and the sitemap. Never point this at the *.onrender.com host.
+      - key: APP_URL
+        value: https://asa-oz.com
+      # Everything the app writes must live under the disk mount, or it is lost
+      # on the next deploy. That is the database and the uploads directory.
+      - key: DATABASE
+        value: /var/data/asaoz.sqlite3
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
       - key: SECRET_KEY
         sync: false
+      # Required. init_db() refuses to boot on an empty database without it, so
+      # a deploy that resets the database with this unset crash-loops the
+      # service. Set it before the first deploy that attaches the disk.
       - key: ADMIN_PASSWORD
         sync: false
       # Optional — see DEPLOY.md for the full list of supported env vars
-      # (STRIPE_*, SMTP_*, GOOGLE_DRIVE_*, ADSENSE_PUBLISHER_ID, APP_URL).
+      # (STRIPE_*, SMTP_*, GOOGLE_DRIVE_*, ADSENSE_PUBLISHER_ID).

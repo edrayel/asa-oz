@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block details %}
+<tr>
+  <td style="padding:6px 34px 0;">
+    {{ m.rows([
+      ("Name", booking.name),
+      ("Date", booking.date),
+      ("Time", booking.time),
+      ("Phone", booking.phone or "Not provided"),
+    ]) }}
+  </td>
+</tr>
+{% endblock %}

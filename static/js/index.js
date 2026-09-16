@@ -1,119 +1,9 @@
 /* Asa-OZ homepage behaviors (countdown, cookie bar, testimonial rotator,
- * founder carousel, gallery arch-deck, pricing toggle). Server-driven forms
- * and cart/booking chrome live in site.js.
+ * founder carousel). Server-driven forms and cart/booking chrome live in
+ * site.js.
  */
 (function () {
   'use strict';
-
-  // ---- Gallery: Arch Deck ----
-  (function () {
-    var track = document.getElementById('galleryTrack');
-    var prevBtn = document.getElementById('galleryPrev');
-    var nextBtn = document.getElementById('galleryNext');
-    var captionEl = document.getElementById('galleryCaption');
-    var stageEl = document.getElementById('galleryStage');
-    if (!track) return;
-    var images = [
-      { src: 'https://picsum.photos/seed/asaoz-culture/600/800', alt: 'Cultural gathering and storytelling' },
-      { src: 'https://picsum.photos/seed/asaoz-travel/600/800', alt: 'Meaningful travel and exploration' },
-      { src: 'https://picsum.photos/seed/asaoz-community/600/800', alt: 'Community connection and belonging' },
-      { src: 'https://picsum.photos/seed/asaoz-nature/600/800', alt: 'Nature and reflection' },
-      { src: 'https://picsum.photos/seed/asaoz-heritage/600/800', alt: 'Heritage and identity' }
-    ];
-    var currentIndex = 0;
-    var isAnimating = false;
-    var cards = [];
-    var isMobile = window.innerWidth <= 560;
-    var isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var hasFinePointer = window.matchMedia('(pointer: fine)').matches;
-
-    function archPose(index, total) {
-      var mid = Math.floor(total / 2);
-      var offset = index - mid;
-      var dir = offset === 0 ? 0 : offset / Math.abs(offset);
-      var dist = Math.abs(offset);
-      var depth = isMobile ? 0 : (hasFinePointer ? 1 : 0.5);
-      var scale = Math.max(0.72, 1 - dist * 0.08 * depth);
-      var translateY = dist * 30 * depth;
-      var rotate = dir * dist * 2.5 * depth;
-      return { scale: scale, translateY: translateY, rotate: rotate };
-    }
-
-    function applyMobileClass() {
-      if (stageEl) stageEl.classList.toggle('is-mobile', isMobile && !isReducedMotion);
-    }
-
-    function render() {
-      var total = images.length;
-      cards.forEach(function (card, i) {
-        var pose = archPose(i, total);
-        var isActive = i === currentIndex;
-        card.classList.toggle('active', isActive);
-        if (!isMobile && !isReducedMotion) {
-          card.style.transform = 'translateY(' + pose.translateY + 'px) scale(' + pose.scale + ') rotate(' + pose.rotate + 'deg)';
-        }
-        card.style.zIndex = isActive ? 3 : (total - Math.abs(i - currentIndex));
-      });
-      captionEl.textContent = images[currentIndex].alt;
-      applyMobileClass();
-    }
-
-    function goTo(index) {
-      if (isAnimating) return;
-      isAnimating = true;
-      currentIndex = (index + images.length) % images.length;
-      render();
-      setTimeout(function () { isAnimating = false; }, 700);
-    }
-
-    images.forEach(function (img, i) {
-      var card = document.createElement('div');
-      card.className = 'gallery-card reveal';
-      var image = document.createElement('img');
-      image.src = img.src;
-      image.alt = img.alt;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      card.appendChild(image);
-      track.appendChild(card);
-      cards.push(card);
-    });
-
-    render();
-    prevBtn.addEventListener('click', function () { goTo(currentIndex - 1); });
-    nextBtn.addEventListener('click', function () { goTo(currentIndex + 1); });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
-      if (e.key === 'ArrowRight') goTo(currentIndex + 1);
-    });
-    var startX = 0;
-    if (track) {
-      track.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
-      track.addEventListener('touchend', function (e) {
-        var diff = e.changedTouches[0].clientX - startX;
-        if (Math.abs(diff) > 40) { diff > 0 ? goTo(currentIndex - 1) : goTo(currentIndex + 1); }
-      });
-    }
-    window.addEventListener('resize', function () {
-      isMobile = window.innerWidth <= 560;
-      render();
-    });
-    if (hasFinePointer && !isReducedMotion && stageEl) {
-      stageEl.addEventListener('mousemove', function (e) {
-        var rect = stageEl.getBoundingClientRect();
-        var x = e.clientX - rect.left;
-        var y = e.clientY - rect.top;
-        var centerX = rect.width / 2;
-        var centerY = rect.height / 2;
-        var rotateY = ((x - centerX) / centerX) * 4;
-        var rotateX = ((centerY - y) / centerY) * 2;
-        track.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
-      });
-      stageEl.addEventListener('mouseleave', function () {
-        track.style.transform = 'rotateX(0deg) rotateY(0deg)';
-      });
-    }
-  })();
 
   // ---- Testimonial ribbon rotator ----
   (function () {
@@ -122,9 +12,9 @@
     var testimonialPhotoEl = document.getElementById('testimonialPhoto');
     if (!quoteEl || !authorEl) return;
     var testimonials = [
-      { text: 'Asa-OZ helped me reconnect with a part of myself I thought was lost forever. The journey was more than travel — it was a return.', name: 'Margaret', location: 'Ireland', role: 'Community Member', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80' },
-      { text: 'I arrived alone, unsure of what to expect. I left with friendships that feel like home and a sense of belonging I haven\'t felt in years.', name: 'Thomas', location: 'Ireland', role: 'Journey Participant', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80' },
-      { text: 'The cultural storytelling sessions reminded me that my heritage has something to say. I felt seen, heard, and valued for the first time in a long while.', name: 'Eileen', location: 'Co. Clare', role: 'Identity Circle Member', photo: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?w=200&q=80' }
+      { text: 'I booked one trip and came home with a crowd I would travel with again. No awkward introductions, just good company from day one.', name: 'Margaret', location: 'Ireland', role: 'Club Member', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80' },
+      { text: 'I arrived on my own and left with people I now plan trips with. The WhatsApp group made it easy before we had even met.', name: 'Thomas', location: 'Ireland', role: 'Group Trip Member', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80' },
+      { text: 'The culture nights are the best part. Food, music and stories, and I always leave with a new place on my list.', name: 'Eileen', location: 'Co. Clare', role: 'Regular Member', photo: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?w=200&q=80' }
     ];
     var tIndex = 0;
     var tInterval;
@@ -227,7 +117,7 @@
       var diff = TARGET - Date.now();
       if (diff <= 0) {
         cd.bar.classList.add('is-past');
-        cd.bar.querySelector('.cd-label').innerHTML = 'The Asa-OZ website is live. Welcome — you don’t have to begin again alone.';
+        cd.bar.querySelector('.cd-label').innerHTML = 'The Asa-OZ website is live. Welcome to the club.';
         clearInterval(timer);
         return;
       }
@@ -244,25 +134,6 @@
   }
 
   // Cookie consent now lives in site.js (shared across all pages)
-
-  // ---- Pricing toggle ----
-  (function () {
-    var pricingSection = document.querySelector('.pricing-section');
-    var pricingToggle = document.getElementById('pricingToggle');
-    if (!pricingToggle || !pricingSection) return;
-    pricingToggle.addEventListener('click', function (e) {
-      if (e.target.tagName !== 'BUTTON') return;
-      var period = e.target.getAttribute('data-period');
-      pricingToggle.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
-      e.target.classList.add('active');
-      var prices = pricingSection.querySelectorAll('.price');
-      prices.forEach(function (p) {
-        var text = p.getAttribute('data-' + period);
-        var suffix = period === 'monthly' ? '<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/mo</span>' : '<span style="font-size:0.9rem; font-weight:400; color:var(--muted);">/yr</span>';
-        p.innerHTML = text + suffix;
-      });
-    });
-  })();
 
   // ---- Wall of Moments (lazy Three.js easter egg) ----
   // Faithful port of the original: a full 360° ring of community photos you can

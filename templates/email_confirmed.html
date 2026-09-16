@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Newsletter confirmed | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        {% if confirmed %}
+        <p class="eyebrow reveal">Confirmed</p>
+        <h1 class="reveal">You are on the list</h1>
+        <p class="lede reveal">Thanks for confirming. We will email you when new member offers and group trips are ready. Every email we send has an unsubscribe link, so you can leave whenever you like.</p>
+        {% else %}
+        <p class="eyebrow reveal">Link not valid</p>
+        <h1 class="reveal">We could not confirm that link</h1>
+        <p class="lede reveal">The link may have already been used, or it may have expired. You can add your email again from the home page.</p>
+        {% endif %}
+      </section>
+
+      <section class="page-section narrow">
+        <div class="page-cta reveal" style="justify-content:center; text-align:center;">
+          {% if confirmed %}
+          <a href="{{ url_for('blog') }}" class="page-btn">Read the stories</a>
+          <a href="{{ url_for('index') }}" class="page-btn page-btn-ghost">Back to the home page</a>
+          {% else %}
+          <a href="{{ url_for('index') }}#signup" class="page-btn">Join the list</a>
+          {% endif %}
+        </div>
+      </section>
+{% endblock %}

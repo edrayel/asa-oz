@@ -19,6 +19,11 @@ dist/
 # MCP config (contains API keys — never commit)
 .mcp.json
 
+# Mail / SMTP credentials (never commit — see DEPLOY.md)
+zoho-mail-cred-info-*.txt
+*cred-info*.txt
+*credentials*.txt
+
 # Python
 __pycache__/
 *.pyc

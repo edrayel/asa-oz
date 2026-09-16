@@ -8,6 +8,22 @@
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // ---- Phone (assembled here so the number is not in the raw HTML) ----
+  (function () {
+    var nodes = document.querySelectorAll('.phone-obf[data-tel]');
+    if (!nodes.length) return;
+    nodes.forEach(function (el) {
+      var pretty = '';
+      try { pretty = decodeURIComponent(escape(window.atob(el.getAttribute('data-tel')))); } catch (e) {}
+      if (!pretty) { if (el.parentNode) el.parentNode.removeChild(el); return; }
+      var a = document.createElement('a');
+      a.href = 'tel:' + pretty.replace(/[^0-9+]/g, '');
+      a.textContent = pretty;
+      a.rel = 'nofollow';
+      el.appendChild(a);
+    });
+  })();
+
   // ---- Back to top ----
   (function () {
     var btn = document.getElementById('backToTop');
@@ -265,8 +281,8 @@
           io.unobserve(el);
         }
       });
-    }, { threshold: 0.15 });
-    items.forEach(function (el, i) { el.dataset.delay = (i % 6) * 90; io.observe(el); });
+    }, { threshold: 0.01, rootMargin: '0px 0px 80px 0px' });
+    items.forEach(function (el) { io.observe(el); });
   } else {
     items.forEach(function (el) { el.classList.add('in'); });
   }

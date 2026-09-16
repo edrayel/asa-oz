@@ -10,9 +10,11 @@ privacy/contact/admin) into a server-rendered, dynamic app:
     recorded as enquiries.
 """
 import json
+import logging
 import mimetypes
 import os
 import uuid
+import base64
 import csv
 import io
 import re
@@ -31,6 +33,7 @@ import db
 import cms
 import csrf
 import drive
+import mailer
 import notify
 import nh3
 
@@ -38,8 +41,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 ADSENSE_PUBLISHER_ID = os.environ.get("ADSENSE_PUBLISHER_ID", "").strip()
-APP_URL = (os.environ.get("APP_URL") or os.environ.get("RENDER_EXTERNAL_URL") or "http://localhost:5000").rstrip("/")
-BASE_URL = APP_URL
+# Canonical public URL, resolved in one place so emailed links, Stripe return
+# URLs, OG tags and the sitemap can never disagree.
+BASE_URL = mailer.base_url()
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
@@ -50,12 +54,19 @@ if not SECRET_KEY:
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+# Surface INFO-level app logs (boot diagnostics, "email sent" / "email failed").
+# Without this the stdlib default hides them, since nothing else configures
+# logging and the root logger sits at WARNING.
+app.logger.setLevel(logging.INFO)
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
     MAX_CONTENT_LENGTH=int(os.environ.get("MAX_UPLOAD_MB", "20")) * 1024 * 1024,
     SEND_FILE_MAX_AGE_DEFAULT=60 * 60 * 24 * 7,  # 1 week for /images, /static
+    # Pick up template edits without a restart outside production, so the CMS
+    # chrome can be changed while the dev server is running.
+    TEMPLATES_AUTO_RELOAD=os.environ.get("FLASK_ENV") != "production",
 )
 
 
@@ -80,6 +91,15 @@ def _url_for(endpoint, **values):
 
 
 app.jinja_env.globals["url_for"] = _url_for
+
+
+def _b64(value):
+    """Base64-encode a value so it never sits in the HTML in plain text."""
+    return base64.b64encode(str(value).encode("utf-8")).decode("ascii")
+
+
+# Templates use this to keep the phone number out of the raw markup.
+app.jinja_env.filters["b64"] = _b64
 
 
 ENDPOINT_PAGE = {
@@ -370,7 +390,79 @@ def _og_image_url(request_path):
 # ------------------ public pages ------------------
 @app.route("/")
 def index():
-    return render_template("index.html", products=db.list_products(active_only=True))
+    return render_template("index.html",
+                           products=db.list_products(active_only=True),
+                           blog_posts=db.list_blog_posts(status="published", limit=3))
+
+
+# -------------------- Blog --------------------
+
+@app.route("/blog")
+def blog():
+    posts = db.list_blog_posts(status="published", limit=12)
+    blog_cms = cms.resolve("blog", db.get_page_sections("blog"))
+    return render_template("blog.html", posts=posts, blog_cms=blog_cms,
+                           category=request.args.get("category"),
+                           categories=db.list_blog_categories())
+
+
+@app.route("/blog/<slug>")
+def blog_post(slug):
+    post = db.get_blog_post(slug=slug)
+    if not post or post["status"] != "published":
+        abort(404)
+    others = [p for p in db.list_blog_posts(status="published", limit=4) if p["id"] != post["id"]]
+    return render_template("blog_post.html", post=post, others=others[:3])
+
+
+@app.route("/blog/submit", methods=["GET", "POST"])
+def blog_submit():
+    """Public endpoint for members to submit a story for review."""
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        if not request.form.get("title", "").strip() or not request.form.get("body", "").strip():
+            return render_template("blog_submit.html", error="Title and story are required.",
+                                   form=request.form), 400
+        author_email = (request.form.get("author_email") or "").strip()
+        db.save_blog_post({
+            "title": request.form["title"],
+            "summary": request.form.get("summary", ""),
+            "body": request.form["body"],
+            "author": request.form.get("author", "").strip() or "Anonymous member",
+            "author_email": author_email,
+            "image": request.form.get("image", ""),
+            "category": request.form.get("category", "Member stories"),
+            "status": "draft",
+        })
+        notify.notify_story(request.form["title"], request.form.get("author", ""), author_email)
+        if author_email and db.setting_bool("email_story_ack", "1"):
+            mailer.send("story_ack", author_email, {"story_title": request.form["title"]})
+        return render_template("blog_submitted.html")
+    return render_template("blog_submit.html", form={})
+
+
+@app.route("/confirm/<token>")
+def email_confirm(token):
+    """Double opt-in landing page: confirm a newsletter subscription."""
+    existing = db.get_subscriber_by_token(token)
+    first_time = bool(existing) and existing["status"] != "confirmed"
+    sub = db.confirm_subscriber(token) if existing else None
+    if sub and first_time and db.setting_bool("email_welcome", "1"):
+        mailer.send("newsletter_welcome", sub["email"], {
+            "unsubscribe_url": BASE_URL + url_for("email_unsubscribe", token=sub["token"]),
+        })
+    return render_template("email_confirmed.html", subscriber=sub, confirmed=bool(sub))
+
+
+@app.route("/unsubscribe/<token>", methods=["GET", "POST"])
+def email_unsubscribe(token):
+    """Unsubscribe landing page. POST also serves one-click unsubscribe."""
+    sub = db.unsubscribe_by_token(token)
+    if request.method == "POST":
+        # One-click unsubscribe must not render a page.
+        return ("", 200) if sub else ("", 404)
+    return render_template("email_unsubscribed.html", subscriber=sub, done=bool(sub))
 
 
 @app.route("/api/wall")
@@ -475,6 +567,8 @@ def sitemap():
 
 @app.route("/store")
 def store():
+    if db.get_settings().get("show_store", "1") == "0":
+        return redirect(url_for("index"))
     type_filter = request.args.get("type", "all")
     products = db.list_products(active_only=True)
     return render_template("store.html", products=products, type_filter=type_filter)
@@ -482,6 +576,8 @@ def store():
 
 @app.route("/store/partial")
 def store_partial():
+    if db.get_settings().get("show_store", "1") == "0":
+        return redirect(url_for("index"))
     type_filter = request.args.get("type", "all")
     products = db.list_products(active_only=True)
     return render_template("partials/store_grid.html", products=products, type_filter=type_filter)
@@ -489,6 +585,8 @@ def store_partial():
 
 @app.route("/product/<product_id>")
 def product(product_id):
+    if db.get_settings().get("show_store", "1") == "0":
+        return redirect(url_for("index"))
     product = db.get_product(product_id)
     if not product:
         abort(404)
@@ -552,7 +650,7 @@ def waitlist():
     ok = db.add_waitlist(email, request.form.get("source", ""))
     if ok:
         notify.notify_waitlist(email, request.form.get("source", ""))
-        return '<p class="msg" role="status">Thank you. You&rsquo;ll be among the first to return to yourself.</p>'
+        return '<p class="msg" role="status">Thank you. You&rsquo;ll be among the first to hear about new offers and trips.</p>'
     return '<p class="msg" style="color:#b5482c;" role="status">You&rsquo;re already on the list — we&rsquo;ll be in touch.</p>'
 
 
@@ -583,12 +681,15 @@ def booking():
         "time": time,
         "message": (request.form.get("message") or "").strip(),
     })
-    notify.notify_booking({
+    notice = {
         "name": name, "email": email,
         "phone": (request.form.get("phone") or "").strip(),
         "date": date, "time": time,
         "message": (request.form.get("message") or "").strip(),
-    })
+    }
+    notify.notify_booking(notice)
+    if db.setting_bool("email_booking_confirm", "1"):
+        mailer.send("booking_confirm", email, {"booking": notice})
     return render_template("partials/booking_confirm.html")
 
 
@@ -614,6 +715,8 @@ def contact_msg():
         return '<p class="form-msg" style="color:#b5482c;" role="status">Please fill in every field.</p>'
     db.add_contact(name, email, message)
     notify.notify_contact(name, email, message)
+    if db.setting_bool("email_contact_ack", "1"):
+        mailer.send("contact_ack", email, {"name": name, "message": message})
     return '<p class="form-msg" role="status">Thank you — your message has been saved. We&rsquo;ll reply to you shortly.</p>'
 
 
@@ -626,8 +729,19 @@ def journey_subscribe():
     source = (request.form.get("source") or "").strip()
     if not email or "@" not in email:
         return '<p class="msg" style="color:#b5482c;" role="status">Please enter a valid email address.</p>'
-    db.add_journey_subscriber(email, name, journey_stage, source)
-    return '<p class="msg" role="status">Welcome to the journey. We\'ll be in touch soon.</p>'
+
+    sub = db.subscribe_journey(email, name, journey_stage, source)
+    if sub["is_new"]:
+        notify.notify_subscriber(sub["email"], name, source)
+
+    if sub["status"] == "pending":
+        if db.setting_bool("email_confirm", "1"):
+            mailer.send("newsletter_confirm", sub["email"], {
+                "confirm_url": BASE_URL + url_for("email_confirm", token=sub["token"]),
+            })
+        return '<p class="msg" role="status">Nearly there. Check your inbox and click the link to confirm your email.</p>'
+
+    return '<p class="msg" role="status">You are already on the list. We&rsquo;ll be in touch.</p>'
 
 
 # ------------------ cart (HTMX) ------------------
@@ -669,13 +783,26 @@ def cart_remove():
     return cart_drawer()
 
 
-def cart_drawer():
+def cart_drawer(checkout_email="", error=""):
     return render_template(
         "partials/cart_drawer.html",
         cart_items=cart_contents(),
         cart_count=cart_count(),
         cart_total=cart_total(),
+        checkout_email=checkout_email,
+        error=error,
     )
+
+
+def _send_order_confirm(order_id, items, total, email):
+    """Confirmation for an order that is complete as an enquiry (nothing to pay)."""
+    if not db.setting_bool("email_order_confirm", "1"):
+        return False
+    return mailer.send("order_confirm", email, {
+        "order_items": items,
+        "order_total": total,
+        "order_ref": "A-%d" % order_id,
+    })
 
 
 # ------------------ checkout ------------------
@@ -687,9 +814,17 @@ def checkout():
         abort(400)
     total = cart_total()
 
+    email = (request.form.get("email") or "").strip()
+    if not email or "@" not in email:
+        return cart_drawer(
+            checkout_email=email,
+            error="Please add an email address so we can confirm your order.",
+        ), 400
+
     if not STRIPE_SECRET:
-        order_id = db.add_order(items, total)
-        notify.notify_order(items, total)
+        order_id = db.add_order(items, total, customer_email=email)
+        notify.notify_order(items, total, customer_email=email)
+        _send_order_confirm(order_id, items, total, email)
         return redirect(url_for("checkout_success", order_id=order_id))
 
     stripe.api_key = STRIPE_SECRET
@@ -706,12 +841,16 @@ def checkout():
         if it["price"] > 0
     ]
     if not line_items:
-        order_id = db.add_order(items, total)
-        notify.notify_order(items, total)
+        order_id = db.add_order(items, total, customer_email=email)
+        notify.notify_order(items, total, customer_email=email)
+        _send_order_confirm(order_id, items, total, email)
         return redirect(url_for("checkout_success", order_id=order_id))
 
-    order_id = db.add_order(items, total, status="pending")
-    notify.notify_order(items, total)
+    # Priced items go to Stripe, so payment is not complete yet. No confirmation
+    # is sent here: mailing "order confirmed" for an unpaid cart would be wrong.
+    # A receipt belongs on the payment webhook, which is still to be built.
+    order_id = db.add_order(items, total, customer_email=email, status="pending")
+    notify.notify_order(items, total, customer_email=email)
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -919,6 +1058,67 @@ def admin_file_delete(file_id):
     return redirect(url_for("admin_files"))
 
 
+# ------------------ admin: blog ------------------
+
+@app.route("/admin/blog")
+@admin_required
+def admin_blog():
+    status = request.args.get("status")
+    status_filter = status if status in ("draft", "published") else None
+    posts = db.list_blog_posts(status=status_filter)
+    return render_template("admin/blog.html", posts=posts, status_filter=status_filter)
+
+
+@app.route("/admin/blog/new", methods=["GET", "POST"])
+@admin_required
+@csrf.require_csrf
+def admin_blog_new():
+    if request.method == "POST":
+        post_id = db.save_blog_post({
+            "title": request.form.get("title", ""),
+            "slug": request.form.get("slug", ""),
+            "summary": request.form.get("summary", ""),
+            "body": request.form.get("body", ""),
+            "author": request.form.get("author", ""),
+            "image": request.form.get("image", ""),
+            "category": request.form.get("category", ""),
+            "status": request.form.get("status", "draft"),
+        }, publish=("publish" in request.form))
+        return redirect(url_for("admin_blog_edit", post_id=post_id))
+    return render_template("admin/blog_edit.html", post=None, form={})
+
+
+@app.route("/admin/blog/<int:post_id>", methods=["GET", "POST"])
+@admin_required
+@csrf.require_csrf
+def admin_blog_edit(post_id):
+    post = db.get_blog_post(post_id=post_id)
+    if not post:
+        abort(404)
+    if request.method == "POST":
+        db.save_blog_post({
+            "id": post_id,
+            "title": request.form.get("title", post["title"]),
+            "slug": request.form.get("slug", post["slug"]),
+            "summary": request.form.get("summary", post["summary"]),
+            "body": request.form.get("body", post["body"]),
+            "author": request.form.get("author", post["author"]),
+            "image": request.form.get("image", post["image"]),
+            "category": request.form.get("category", post["category"]),
+            "status": request.form.get("status", post["status"]),
+        }, publish=("publish" in request.form))
+        return redirect(url_for("admin_blog_edit", post_id=post_id))
+    return render_template("admin/blog_edit.html", post=post, form=post)
+
+
+@app.route("/admin/blog/<int:post_id>/delete", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_blog_delete(post_id):
+    db.delete_blog_post(post_id)
+    return redirect(url_for("admin_blog"))
+
+
 # ------------------ admin: Google Drive ------------------
 
 @app.route("/admin/drive")
@@ -1032,10 +1232,58 @@ def admin_feedback_delete(feedback_id):
     return redirect(url_for("admin_feedback"))
 
 
+@app.route("/admin/import", methods=["GET", "POST"])
+@admin_required
+@csrf.require_csrf
+def admin_import():
+    """Restore a /admin/export payload. Admin only, idempotent on row id."""
+    if request.method == "POST":
+        upload = request.files.get("payload")
+        raw = upload.read().decode("utf-8", "replace") if upload else request.form.get("payload", "")
+        if not raw.strip():
+            flash("Choose a backup file or paste its contents first.", "error")
+            return redirect(url_for("admin_import"))
+        try:
+            payload = json.loads(raw)
+        except ValueError as exc:
+            flash("That file is not valid JSON: %s" % exc, "error")
+            return redirect(url_for("admin_import"))
+        if not isinstance(payload, dict):
+            flash("Expected a JSON object at the top level.", "error")
+            return redirect(url_for("admin_import"))
+        report = db.import_backup(payload)
+        summary = ", ".join("%s %d" % (k, v) for k, v in report.items() if v)
+        flash("Imported: %s" % (summary or "nothing new, every row already present"))
+        return redirect(url_for("admin_import"))
+    counts = {
+        "feedback": len(db.list_feedback()),
+        "bookings": len(db.list_bookings()),
+        "contacts": len(db.list_contacts()),
+        "journey": len(db.list_journey_subscribers()),
+        "waitlist": len(db.list_waitlist()),
+        "orders": len(db.list_orders()),
+        "products": len(db.list_products()),
+        "cms": len(db.list_page_section_keys()),
+    }
+    return render_template("admin/import.html", counts=counts)
+
+
 @app.route("/admin/waitlist")
 @admin_required
 def admin_waitlist():
     return render_template("admin/waitlist.html", items=db.list_waitlist())
+
+
+@app.route("/admin/emails")
+@admin_required
+def admin_emails():
+    return render_template(
+        "admin/emails.html",
+        items=db.list_email_log(300),
+        configured=mailer.is_configured(),
+        host=os.environ.get("SMTP_HOST", ""),
+        sender=os.environ.get("FROM_EMAIL") or os.environ.get("SMTP_USERNAME", ""),
+    )
 
 
 @app.route("/admin/bookings")
@@ -1313,12 +1561,8 @@ def _form_indexes(form, prefix):
 @csrf.require_csrf
 def admin_settings():
     if request.method == "POST":
-        boolean_keys = [k for k, _ in db.DEFAULT_SETTINGS.items()
-                        if k not in ("price_public", "price_free_first", "price_commitment")]
+        boolean_keys = list(db.DEFAULT_SETTINGS.keys())
         mapping = {k: ("1" if k in request.form else "0") for k in boolean_keys}
-        mapping["price_public"] = request.form.get("price_public", "0")
-        mapping["price_free_first"] = request.form.get("price_free_first", "0")
-        mapping["price_commitment"] = request.form.get("price_commitment", "0")
         db.set_settings(mapping)
         db.prune_settings(db.DEFAULT_SETTINGS.keys())
         flash("Settings saved.")
@@ -1618,6 +1862,7 @@ def server_error(e):
 with app.app_context():
     _seed_home_marquee()
     app.logger.info("boot: drive configured=%s", drive.is_configured())
+    app.logger.info("boot: email configured=%s host=%s", notify.is_configured(), os.environ.get("SMTP_HOST", "-"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=os.environ.get("PORT", 5000), debug=False)

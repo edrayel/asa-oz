@@ -13,9 +13,11 @@
       </button>
     </div>
     <nav class="mobile-menu-nav" aria-label="Mobile">
-      {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('faq','FAQ'), ('contact','Contact')] %}
+      {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('blog','Stories'), ('faq','FAQ'), ('contact','Contact')] %}
       {% for endpoint, label in items %}
+        {% if not (settings.get('show_store', '1') == '0' and endpoint == 'store') %}
         <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active"{% endif %}>{{ label }}</a>
+        {% endif %}
       {% endfor %}
     </nav>
     <div class="mobile-menu-social">{{ social_links(20) }}</div>

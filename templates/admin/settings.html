@@ -28,7 +28,7 @@
         ('show_signup','Hero email signup form','Show the email signup under the hero headline'),
         ('show_supporting','Supporting hero copy','Show the second hero paragraph'),
         ('show_faq_section','FAQ section','Show the short FAQ section'),
-        ('show_store','Store / tools section','Show the “Tools for the journey” product section'),
+        ('show_store','Store','Show the store: the home section, the Store link and the store pages'),
         ('show_testimonials','Testimonials','Show the testimonials section'),
         ('show_pricing','Membership pricing','Show the pricing table'),
         ('show_not_this','“What this is not” note','Show the disclaimer note in the hero'),
@@ -45,23 +45,8 @@
     <div class="card">
       <h2>Store &amp; pricing</h2>
       <div class="control-row">
-        <div class="control-label">Show prices<small>Show prices on store listings and product pages</small></div>
+        <div class="control-label">Show prices<small>Show prices on the home teaser, store listings and product pages. Turn off to show “Pricing on request” instead</small></div>
         <input type="checkbox" name="show_prices" value="1" {% if settings.get('show_prices', '1') == '1' %}checked{% endif %} />
-      </div>
-      <div class="control-row">
-        <div class="control-label">Price display<small>Values: member-only, free-first, etc.</small></div>
-        <select name="price_public" style="border:1px solid rgba(111,90,63,0.25);border-radius:8px;padding:0.35rem 0.6rem;">
-          <option value="1" {% if settings.get('price_public','1') == '1' %}selected{% endif %}>Public</option>
-          <option value="0" {% if settings.get('price_public','0') == '0' %}selected{% endif %}>Hidden</option>
-        </select>
-      </div>
-      <div class="control-row">
-        <div class="control-label">Free first experience<small>Making the first circle free</small></div>
-        <input type="checkbox" name="price_free_first" value="1" {% if settings.get('price_free_first','0') == '1' %}checked{% endif %} />
-      </div>
-      <div class="control-row">
-        <div class="control-label">Commitment pricing<small>Show commitment note</small></div>
-        <input type="checkbox" name="price_commitment" value="1" {% if settings.get('price_commitment','0') == '1' %}checked{% endif %} />
       </div>
     </div>
 
@@ -71,6 +56,29 @@
         <div class="control-label">Show ads<small>Render AdSense ad slots (requires ADSENSE_PUBLISHER_ID env var)</small></div>
         <input type="checkbox" name="show_ads" value="1" {% if settings.get('show_ads', '1') == '1' %}checked{% endif %} />
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Email</h2>
+      <p class="sub" style="margin-bottom:0.8rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+        Which automatic emails get sent. The wording lives under <a href="{{ url_for('admin_page', page='emails') }}">Pages &rarr; Emails</a>,
+        and delivery is listed under <a href="{{ url_for('admin_emails') }}">Emails</a>.
+      </p>
+      {% set email_toggles = [
+        ('email_confirm','Newsletter: confirm your email','The double opt-in email sent when someone joins the list'),
+        ('email_welcome','Newsletter: welcome','Sent once an address is confirmed'),
+        ('email_contact_ack','Contact form acknowledgement','Sent to whoever writes through the contact form'),
+        ('email_booking_confirm','Discovery call confirmation','Sent with the date and time they booked'),
+        ('email_order_confirm','Order confirmation','Sent to the buyer once an order is recorded'),
+        ('email_story_ack','Story submission acknowledgement','Sent to a member who sends in a story'),
+        ('email_admin_alerts','Admin alerts','Send the internal notification for bookings, orders, contact messages, feedback, newsletter signups and stories'),
+      ] %}
+      {% for key, label, hint in email_toggles %}
+      <div class="control-row">
+        <div class="control-label">{{ label }}<small>{{ hint }}</small></div>
+        <input type="checkbox" name="{{ key }}" value="1" {% if settings.get(key, '1') == '1' %}checked{% endif %} />
+      </div>
+      {% endfor %}
     </div>
 
     <div class="card">

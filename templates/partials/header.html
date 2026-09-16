@@ -16,14 +16,19 @@
       </a>
     </div>
     <nav class="main-nav" aria-label="Main">
+      {% set store_hidden = settings.get('show_store', '1') == '0' %}
       {% if nav_items %}
       {% for item in nav_items %}
+        {% if not (store_hidden and item.url == '/store') %}
         <a href="{{ item.url }}"{% if request.path == item.url %} class="active"{% endif %}>{{ item.label }}</a>
+        {% endif %}
       {% endfor %}
       {% else %}
-      {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('faq','FAQ'), ('contact','Contact')] %}
+      {% set items = [('index','Home'), ('about','About'), ('store','Store'), ('blog','Stories'), ('faq','FAQ'), ('contact','Contact')] %}
       {% for endpoint, label in items %}
+        {% if not (store_hidden and endpoint == 'store') %}
         <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active"{% endif %}>{{ label }}</a>
+        {% endif %}
       {% endfor %}
       {% endif %}
     </nav>

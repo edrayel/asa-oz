@@ -9,14 +9,18 @@
   {% include "admin/_nav.html" %}
   <div class="card">
     <h2>{{ items|length }} subscribers</h2>
+    <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      Signups confirm their address by email before they count as subscribed. Wording for that email lives under <a href="{{ url_for('admin_page', page='emails') }}">Pages &rarr; Emails</a>.
+    </p>
     {% if items %}
     <table>
-      <thead><tr><th>Name</th><th>Email</th><th>Journey Stage</th><th>Source</th><th>Date</th><th></th></tr></thead>
+      <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Journey Stage</th><th>Source</th><th>Date</th><th></th></tr></thead>
       <tbody>
         {% for j in items %}
         <tr>
           <td>{{ j.name }}</td>
           <td>{{ j.email }}</td>
+          <td>{{ j.status or 'pending' }}{% if j.unsubscribed_at %}<br /><small>{{ j.unsubscribed_at }}</small>{% endif %}</td>
           <td>{{ j.journey_stage }}</td>
           <td>{{ j.source }}</td>
           <td>{{ j.created_at }}</td>

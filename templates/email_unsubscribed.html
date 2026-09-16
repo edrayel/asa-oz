@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Unsubscribed | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        {% if done %}
+        <p class="eyebrow reveal">Unsubscribed</p>
+        <h1 class="reveal">You have been removed from the list</h1>
+        <p class="lede reveal">We will not email you again. If you change your mind, you can join the list again at any time from the home page.</p>
+        {% else %}
+        <p class="eyebrow reveal">Link not valid</p>
+        <h1 class="reveal">We could not find that subscription</h1>
+        <p class="lede reveal">The link may have already been used. If you are still receiving emails from us, reply to one of them and we will remove you by hand.</p>
+        {% endif %}
+      </section>
+
+      <section class="page-section narrow">
+        <div class="page-cta reveal" style="justify-content:center; text-align:center;">
+          <a href="{{ url_for('index') }}" class="page-btn page-btn-ghost">Back to the home page</a>
+          {% if done %}<a href="{{ url_for('index') }}#signup" class="page-btn">Join the list again</a>{% endif %}
+        </div>
+      </section>
+{% endblock %}

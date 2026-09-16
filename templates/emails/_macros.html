@@ -1,0 +1,35 @@
+{% macro button(url, label) %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:4px auto 20px;">
+  <tr>
+    <td align="center" style="background-color:#2b2118; border-radius:100px;">
+      <a href="{{ url }}" style="display:inline-block; padding:14px 30px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:#faf5ec; text-decoration:none;">{{ label }}</a>
+    </td>
+  </tr>
+</table>
+{% endmacro %}
+
+{% macro rows(items) %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px; border-collapse:collapse;">
+  {% for label, value in items %}
+  <tr>
+    <td style="padding:9px 0; border-bottom:1px solid rgba(111,90,63,0.18); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#7d6e5b; width:40%;">{{ label }}</td>
+    <td style="padding:9px 0; border-bottom:1px solid rgba(111,90,63,0.18); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; color:#3a2f22;">{{ value }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro lines(items, total) %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 18px; border-collapse:collapse;">
+  {% for it in items %}
+  <tr>
+    <td style="padding:9px 0; border-bottom:1px solid rgba(111,90,63,0.18); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; color:#3a2f22;">{{ it.qty }} &times; {{ it.name }}</td>
+    <td align="right" style="padding:9px 0; border-bottom:1px solid rgba(111,90,63,0.18); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; color:#7d6e5b; white-space:nowrap;">{% if it.price == 0 %}Free{% else %}&euro;{{ it.price }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  <tr>
+    <td style="padding:11px 0 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; font-weight:600; color:#2b2118;">Total</td>
+    <td align="right" style="padding:11px 0 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; font-weight:600; color:#2b2118; white-space:nowrap;">&euro;{{ total }}</td>
+  </tr>
+</table>
+{% endmacro %}

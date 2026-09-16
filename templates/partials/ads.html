@@ -2,7 +2,7 @@
    from your AdSense account). Renders nothing if show_ads is off or if no
    AdSense publisher ID is configured. Slot IDs and the publisher ID are
    configured via the env (ADSENSE_PUBLISHER_ID) and the admin's per-page
-   ad settings — see DEPLOY.md. #}
+   ad settings. See DEPLOY.md. #}
 {% if settings.get('show_ads', '1') == '1' and adsense_publisher_id %}
 <div class="ad-slot ad-slot-{{ name|default('default') }}" data-ad-slot-name="{{ name|default('default') }}">
   <ins class="adsbygoogle"

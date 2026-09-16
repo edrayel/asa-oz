@@ -5,6 +5,7 @@ instance/asaoz.sqlite3) and is auto-created + seeded on first import.
 """
 import json
 import os
+import secrets
 import sqlite3
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -71,6 +72,10 @@ CREATE TABLE IF NOT EXISTS journey_subscribers (
   name TEXT NOT NULL DEFAULT '',
   journey_stage TEXT NOT NULL DEFAULT 'interest',
   source TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending',
+  token TEXT NOT NULL DEFAULT '',
+  confirmed_at TEXT NOT NULL DEFAULT '',
+  unsubscribed_at TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -128,6 +133,32 @@ CREATE TABLE IF NOT EXISTS navigation (
   position INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1
 );
+
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  summary TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL DEFAULT '',
+  author TEXT NOT NULL DEFAULT '',
+  author_email TEXT NOT NULL DEFAULT '',
+  image TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'draft',
+  published_at TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS email_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL,
+  recipient TEXT NOT NULL,
+  subject TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'sent',
+  error TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 """
 
 DEFAULT_SETTINGS = {
@@ -140,31 +171,37 @@ DEFAULT_SETTINGS = {
     "show_not_this": "0",
     "show_testimonials": "0",
     "show_pricing": "1",
-    "price_public": "1",
-    "price_free_first": "0",
-    "price_commitment": "0",
     "show_ads": "1",
+    # Automatic email. These keys must stay in this dict: admin_settings calls
+    # prune_settings(DEFAULT_SETTINGS), which deletes any stored key not listed.
+    "email_confirm": "1",
+    "email_welcome": "1",
+    "email_contact_ack": "1",
+    "email_booking_confirm": "1",
+    "email_order_confirm": "1",
+    "email_story_ack": "1",
+    "email_admin_alerts": "1",
 }
 
 DEFAULT_PRODUCTS = [
-    {"id": "journal", "name": "Reflection Journal", "type": "physical", "price": 24,
+    {"id": "journal", "name": "Travel Journal", "type": "physical", "price": 24,
      "img": "https://picsum.photos/seed/asaoz-journal/600/450",
-     "desc": "A guided journal for identity reflection and rediscovery."},
+     "desc": "A guided journal for the trips you take, with room for notes, maps and sketches."},
     {"id": "print", "name": "Heritage Print", "type": "physical", "price": 18,
      "img": "https://picsum.photos/seed/asaoz-print/600/450",
-     "desc": "A keepsake art print rooted in heritage and memory."},
-    {"id": "session", "name": "Identity Circle Session", "type": "virtual", "price": 12,
+     "desc": "A keepsake art print celebrating the places we travel between."},
+    {"id": "session", "name": "Culture Night", "type": "virtual", "price": 12,
      "img": "https://picsum.photos/seed/asaoz-circle/600/450",
-     "desc": "Join an online guided circle to share and be seen."},
-    {"id": "story", "name": "Cultural Storytelling Access", "type": "virtual", "price": 8,
+     "desc": "An online evening of food, music and stories from home and away."},
+    {"id": "story", "name": "Story Archive", "type": "virtual", "price": 8,
      "img": "https://picsum.photos/seed/asaoz-story/600/450",
-     "desc": "Digital collection of stories that remember you."},
-    {"id": "kit", "name": "Journey Kit", "type": "physical", "price": 35,
+     "desc": "A digital collection of stories, recipes and travel notes from our trips."},
+    {"id": "kit", "name": "Trip Kit", "type": "physical", "price": 35,
      "img": "https://picsum.photos/seed/asaoz-kit/600/450",
-     "desc": "Pre-trip materials to prepare mind and heart for travel."},
+     "desc": "Pre-trip materials: packing lists, city guides and tips for the road."},
     {"id": "letter", "name": "Welcome Letter", "type": "virtual", "price": 0,
      "img": "https://picsum.photos/seed/asaoz-letter/600/450",
-     "desc": "A welcome letter and printable reflection guide."},
+     "desc": "A welcome letter and a printable guide to member offers and trips."},
 ]
 
 
@@ -192,6 +229,37 @@ def init_db():
     # Google Drive integration existed.
     _ensure_column(conn, "files", "drive_id", "TEXT NOT NULL DEFAULT ''")
 
+    # Migrate: double opt-in state for existing newsletter lists. Rows that
+    # predate this feature are treated as confirmed, since they signed up when
+    # the site promised a single-step join.
+    _ensure_column(conn, "journey_subscribers", "status", "TEXT NOT NULL DEFAULT 'pending'")
+    _ensure_column(conn, "journey_subscribers", "token", "TEXT NOT NULL DEFAULT ''")
+    _ensure_column(conn, "journey_subscribers", "confirmed_at", "TEXT NOT NULL DEFAULT ''")
+    _ensure_column(conn, "journey_subscribers", "unsubscribed_at", "TEXT NOT NULL DEFAULT ''")
+    _ensure_column(conn, "blog_posts", "author_email", "TEXT NOT NULL DEFAULT ''")
+    conn.execute(
+        "UPDATE journey_subscribers SET status = 'confirmed', "
+        "confirmed_at = created_at WHERE status = 'pending' AND token = ''"
+    )
+
+    # Migrate: collapse duplicate newsletter addresses (the old insert path had
+    # no uniqueness check), keeping the oldest row per address.
+    conn.execute(
+        "DELETE FROM journey_subscribers WHERE id NOT IN "
+        "(SELECT MIN(id) FROM journey_subscribers GROUP BY lower(email))"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_journey_email "
+        "ON journey_subscribers(lower(email))"
+    )
+    # Every subscriber needs a token so marketing mail can carry an unsubscribe
+    # link, including rows that predate double opt-in.
+    for row in conn.execute("SELECT id FROM journey_subscribers WHERE token = ''").fetchall():
+        conn.execute(
+            "UPDATE journey_subscribers SET token = ? WHERE id = ?",
+            (new_token(), row["id"]),
+        )
+
     seed = conn.execute("SELECT COUNT(*) AS c FROM products").fetchone()["c"]
     if seed == 0:
         conn.executemany(
@@ -202,6 +270,18 @@ def init_db():
 
     for key, value in DEFAULT_SETTINGS.items():
         conn.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, value))
+
+    # Retired settings: price_public duplicated show_prices, and price_free_first /
+    # price_commitment were never wired to anything. Fold the price_public choice
+    # into show_prices, then drop all three keys.
+    legacy = conn.execute("SELECT value FROM settings WHERE key = 'price_public'").fetchone()
+    if legacy is not None and str(legacy["value"]) == "0":
+        conn.execute("UPDATE settings SET value = '0' WHERE key = 'show_prices'")
+    conn.execute(
+        "DELETE FROM settings WHERE key IN "
+        "('price_public', 'price_free_first', 'price_commitment')"
+    )
+    conn.commit()
 
     if conn.execute("SELECT COUNT(*) AS c FROM admins").fetchone()["c"] == 0:
         pw = os.environ.get("ADMIN_PASSWORD")
@@ -435,15 +515,100 @@ def list_contacts():
 
 # ---------- Journey Subscribers ----------
 
-def add_journey_subscriber(email, name="", journey_stage="interest", source=""):
+def new_token():
+    """Opaque single-purpose token for confirm / unsubscribe links."""
+    return secrets.token_urlsafe(24)
+
+
+def subscribe_journey(email, name="", journey_stage="interest", source=""):
+    """Add or refresh a newsletter subscriber and return the stored row.
+
+    An address that already exists is refreshed, never duplicated. A confirmed
+    address keeps its state (a repeat submit must not resend anything), while an
+    unsubscribed address is put back into double opt-in with a fresh token,
+    because re-submitting the form is an explicit request to rejoin.
+    """
+    email = (email or "").strip().lower()
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM journey_subscribers WHERE lower(email) = ?", (email,)
+    ).fetchone()
+    if row is None:
+        conn.execute(
+            "INSERT INTO journey_subscribers (email, name, journey_stage, source, status, token) "
+            "VALUES (?, ?, ?, ?, 'pending', ?)",
+            (email, name, journey_stage, source, new_token()),
+        )
+    elif row["status"] == "unsubscribed":
+        conn.execute(
+            "UPDATE journey_subscribers SET status = 'pending', token = ?, "
+            "confirmed_at = '', unsubscribed_at = '', name = ?, journey_stage = ?, source = ? "
+            "WHERE id = ?",
+            (new_token(), name or row["name"], journey_stage, source, row["id"]),
+        )
+    conn.commit()
+    out = dict(conn.execute(
+        "SELECT * FROM journey_subscribers WHERE lower(email) = ?", (email,)
+    ).fetchone())
+    conn.close()
+    out["is_new"] = row is None
+    return out
+
+
+def get_subscriber(email):
+    if not email:
+        return None
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM journey_subscribers WHERE lower(email) = ?", ((email or "").strip().lower(),)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_subscriber_by_token(token):
+    if not token:
+        return None
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM journey_subscribers WHERE token = ?", (token,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def confirm_subscriber(token):
+    """Mark a pending subscriber confirmed. Returns the row, or None if unknown.
+
+    The token is kept afterwards so the same link can also unsubscribe.
+    """
+    sub = get_subscriber_by_token(token)
+    if not sub:
+        return None
     conn = get_conn()
     conn.execute(
-        "INSERT INTO journey_subscribers (email, name, journey_stage, source) VALUES (?, ?, ?, ?)",
-        (email, name, journey_stage, source),
+        "UPDATE journey_subscribers SET status = 'confirmed', confirmed_at = datetime('now'), "
+        "unsubscribed_at = '' WHERE id = ?",
+        (sub["id"],),
     )
     conn.commit()
     conn.close()
-    return True
+    return get_subscriber_by_token(token)
+
+
+def unsubscribe_by_token(token):
+    sub = get_subscriber_by_token(token)
+    if not sub:
+        return None
+    conn = get_conn()
+    conn.execute(
+        "UPDATE journey_subscribers SET status = 'unsubscribed', "
+        "unsubscribed_at = datetime('now') WHERE id = ?",
+        (sub["id"],),
+    )
+    conn.commit()
+    conn.close()
+    return get_subscriber_by_token(token)
 
 
 def list_journey_subscribers():
@@ -455,9 +620,142 @@ def list_journey_subscribers():
 
 def delete_journey_subscriber(subscriber_id):
     conn = get_conn()
-    conn.execute("DELETE FROM journey_subscribers WHERE id = ?", (subscriber_id,))
+    conn.execute("DELETE FROM journey_subscribers WHERE id = ?", (int(subscriber_id),))
     conn.commit()
     conn.close()
+
+
+# ---------- Email log ----------
+
+def log_email(kind, recipient, subject="", status="sent", error=""):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO email_log (kind, recipient, subject, status, error) VALUES (?, ?, ?, ?, ?)",
+        (kind, recipient, subject, status, error),
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_email_log(limit=200):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM email_log ORDER BY id DESC LIMIT ?", (int(limit),)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- Backup restore ----------
+
+# Whitelist of importable tables and their columns. Anything not listed here is
+# ignored, so a crafted payload cannot reach an arbitrary table or column.
+BACKUP_TABLES = {
+    "feedback": ("feedback_items", [
+        "id", "category", "text", "status", "note", "created_at"]),
+    "waitlist": ("waitlist", [
+        "id", "email", "source", "created_at"]),
+    "bookings": ("bookings", [
+        "id", "name", "email", "phone", "date", "time", "message", "status", "created_at"]),
+    "contacts": ("contacts", [
+        "id", "name", "email", "message", "created_at"]),
+    "orders": ("orders", [
+        "id", "customer_email", "items", "total", "status", "stripe_session_id", "created_at"]),
+    "journey_subscribers": ("journey_subscribers", [
+        "id", "email", "name", "journey_stage", "source", "status", "token",
+        "confirmed_at", "unsubscribed_at", "created_at"]),
+    "files": ("files", [
+        "id", "path", "name", "kind", "size", "mime", "source", "drive_id", "created_at"]),
+}
+
+
+def import_backup(payload):
+    """Restore rows from a /admin/export style payload.
+
+    Only the whitelisted columns above are ever written, and only those a row
+    actually carries. Rows that include their id are idempotent via OR IGNORE;
+    rows without one fall back to whatever unique key the table has (the
+    newsletter list is unique on lower(email)). Running the same payload twice
+    therefore adds nothing the second time.
+
+    Returns a {label: count} report of rows actually written.
+    """
+    report = {}
+    conn = get_conn()
+    try:
+        for key, (table, allowed) in BACKUP_TABLES.items():
+            written = 0
+            for row in payload.get(key) or []:
+                if not isinstance(row, dict):
+                    continue
+                cols = [c for c in allowed if c in row and row[c] is not None]
+                if not cols:
+                    continue
+                cur = conn.execute(
+                    "INSERT OR IGNORE INTO %s (%s) VALUES (%s)"
+                    % (table, ", ".join(cols), ", ".join("?" for _ in cols)),
+                    [row[c] for c in cols],
+                )
+                written += max(cur.rowcount, 0)
+            report[key] = written
+
+        products = payload.get("products") or []
+        written = 0
+        for row in products:
+            if not isinstance(row, dict) or not row.get("id"):
+                continue
+            cur = conn.execute(
+                "INSERT OR IGNORE INTO products (id, name, type, price, img, desc, active, sort) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (row.get("id"), row.get("name", ""), row.get("type", ""),
+                 row.get("price", 0), row.get("img", ""), row.get("desc", ""),
+                 row.get("active", 1), row.get("sort", 0)),
+            )
+            written += cur.rowcount if cur.rowcount > 0 else 0
+        report["products"] = written
+
+        settings = payload.get("settings") or {}
+        written = 0
+        for key, value in settings.items():
+            if not isinstance(key, str):
+                continue
+            conn.execute(
+                "INSERT INTO settings (key, value) VALUES (?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (key, "" if value is None else str(value)),
+            )
+            written += 1
+        report["settings"] = written
+
+        # CMS content: {page: {section: {field: value}}}
+        cms_data = payload.get("cms") or {}
+        written = 0
+        for page, sections in cms_data.items():
+            if not isinstance(sections, dict):
+                continue
+            for section, content in sections.items():
+                if not isinstance(content, dict) or not content:
+                    continue
+                existing = conn.execute(
+                    "SELECT content FROM page_sections WHERE page = ? AND section = ?",
+                    (page, section),
+                ).fetchone()
+                merged = dict(json.loads(existing["content"])) if existing else {}
+                merged.update(content)
+                conn.execute(
+                    "INSERT INTO page_sections (page, section, content, active, updated_at) "
+                    "VALUES (?, ?, ?, 1, datetime('now')) "
+                    "ON CONFLICT(page, section) DO UPDATE SET "
+                    "content = excluded.content, updated_at = excluded.updated_at",
+                    (page, section, json.dumps(merged)),
+                )
+                written += 1
+        report["cms_sections"] = written
+
+        conn.commit()
+    finally:
+        conn.close()
+    return report
 
 
 # ---------- Orders ----------
@@ -674,6 +972,136 @@ def reorder_navigation(ordered_ids):
         conn.execute("UPDATE navigation SET position = ? WHERE id = ?", (pos, item_id))
     conn.commit()
     conn.close()
+
+
+# ---------- Blog ----------
+
+def slugify(text):
+    """URL-safe slug from a title."""
+    import re, unicodedata
+    text = unicodedata.normalize('NFKD', text or 'post').encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
+    return text or 'post'
+
+
+def list_blog_posts(status=None, limit=None, newest_first=True):
+    conn = get_conn()
+    sql = "SELECT * FROM blog_posts"
+    args = []
+    if status is not None:
+        sql += " WHERE status = ?"
+        args.append(status)
+    sql += " ORDER BY " + ("published_at DESC, created_at DESC" if newest_first else "created_at ASC")
+    if limit:
+        sql += " LIMIT %d" % int(limit)
+    rows = conn.execute(sql, args).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_blog_post(post_id=None, slug=None):
+    conn = get_conn()
+    if slug is not None:
+        row = conn.execute("SELECT * FROM blog_posts WHERE slug = ?", (slug,)).fetchone()
+    else:
+        row = conn.execute("SELECT * FROM blog_posts WHERE id = ?", (int(post_id),)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def _unique_slug(conn, base, exclude_id=None):
+    """Ensure slug is unique, appending -2, -3, ... as needed."""
+    slug = base
+    n = 1
+    while True:
+        q = "SELECT id FROM blog_posts WHERE slug = ?"
+        params = [slug]
+        if exclude_id is not None:
+            q += " AND id != ?"
+            params.append(int(exclude_id))
+        if not conn.execute(q, params).fetchone():
+            return slug
+        n += 1
+        slug = "%s-%d" % (base, n)
+
+
+def save_blog_post(post, publish=False):
+    """Insert or update a blog post.
+
+    post dict may contain: id (omit to create), slug, title, summary, body,
+    author, image, category, status. When publish=True and status is 'draft',
+    flips to 'published' and stamps published_at.
+    """
+    conn = get_conn()
+    is_new = not post.get("id")
+    base_slug = slugify(post.get("slug") or post.get("title") or "post")
+    ts = __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    data = {
+        "slug": base_slug,
+        "title": post.get("title", "").strip(),
+        "summary": post.get("summary", ""),
+        "body": post.get("body", ""),
+        "author": post.get("author", "").strip(),
+        "author_email": (post.get("author_email") or "").strip(),
+        "image": post.get("image", ""),
+        "category": post.get("category", ""),
+        "status": post.get("status", "draft"),
+        "published_at": "",
+    }
+
+    if is_new:
+        data["slug"] = _unique_slug(conn, base_slug)
+        status = data["status"]
+        if publish and status == "draft":
+            data["status"] = "published"
+            data["published_at"] = ts
+        conn.execute(
+            """INSERT INTO blog_posts
+               (slug, title, summary, body, author, author_email, image, category, status, published_at, created_at, updated_at)
+               VALUES (:slug, :title, :summary, :body, :author, :author_email, :image, :category, :status, :published_at, :created_at, :updated_at)""",
+            {**data, "created_at": ts, "updated_at": ts},
+        )
+        post_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    else:
+        post_id = int(post["id"])
+        existing = conn.execute("SELECT status FROM blog_posts WHERE id = ?", (post_id,)).fetchone()
+        old_status = existing["status"] if existing else "draft"
+        if publish and old_status == "draft":
+            data["status"] = "published"
+            data["published_at"] = ts
+        else:
+            # preserve existing published_at
+            cur = conn.execute("SELECT published_at FROM blog_posts WHERE id = ?", (post_id,)).fetchone()
+            data["published_at"] = cur["published_at"] if cur else ""
+        data["slug"] = _unique_slug(conn, base_slug, exclude_id=post_id)
+        data["id"] = post_id
+        conn.execute(
+            """UPDATE blog_posts SET
+               slug=:slug, title=:title, summary=:summary, body=:body, author=:author,
+               author_email=:author_email, image=:image, category=:category, status=:status,
+               published_at=:published_at, updated_at=:updated_at
+               WHERE id=:id""",
+            {**data, "updated_at": ts},
+        )
+    conn.commit()
+    conn.close()
+    return post_id
+
+
+def delete_blog_post(post_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM blog_posts WHERE id = ?", (int(post_id),))
+    conn.commit()
+    conn.close()
+
+
+def list_blog_categories():
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT DISTINCT category FROM blog_posts WHERE status='published' AND category != '' ORDER BY category"
+    ).fetchall()
+    conn.close()
+    return [r["category"] for r in rows]
 
 
 init_db()

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Contact — Asa-OZ{% endblock %}
+{% block title %}Contact | Asa-OZ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">{% endblock %}
 {% block main %}
       <section class="store-hero">
@@ -15,6 +15,7 @@
           <div class="contact-card reveal">
             <h3>{{ cms.info.heading }}</h3>
             <p><strong>{{ cms.info.email_label }}</strong> <a href="mailto:{{ cms.info.email }}">{{ cms.info.email }}</a></p>
+            <p><strong>{{ cms.info.phone_label }}</strong> <span class="phone-obf" data-tel="{{ cms_site.phone | b64 }}"></span></p>
             <p><strong>{{ cms.info.call_label }}</strong></p>
             <p><strong>{{ cms.info.location_label }}</strong> {{ cms.info.location }}</p>
             <p>{{ cms.info.legal_line }}</p>
