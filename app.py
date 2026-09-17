@@ -392,7 +392,9 @@ def _og_image_url(request_path):
 def index():
     return render_template("index.html",
                            products=db.list_products(active_only=True),
-                           blog_posts=db.list_blog_posts(status="published", limit=3))
+                           # More than three keeps the stories band useful: the
+                           # template turns four or more into a scrollable rail.
+                           blog_posts=db.list_blog_posts(status="published", limit=8))
 
 
 # -------------------- Blog --------------------
@@ -529,12 +531,13 @@ def sitemap():
     static_routes = [
         ("/", 1.0, today),
         ("/about", 0.8, today),
-        ("/store", 0.7, today),
         ("/faq", 0.7, today),
         ("/terms", 0.5, today),
         ("/privacy", 0.5, today),
         ("/contact", 0.8, today),
     ]
+    if db.get_settings().get("show_store", "0") == "1":
+        static_routes.insert(2, ("/store", 0.7, today))
     urls = []
     for path, priority, lastmod in static_routes:
         urls.append({
@@ -567,8 +570,8 @@ def sitemap():
 
 @app.route("/store")
 def store():
-    if db.get_settings().get("show_store", "1") == "0":
-        return redirect(url_for("index"))
+    if _store_off():
+        abort(404)
     type_filter = request.args.get("type", "all")
     products = db.list_products(active_only=True)
     return render_template("store.html", products=products, type_filter=type_filter)
@@ -576,8 +579,8 @@ def store():
 
 @app.route("/store/partial")
 def store_partial():
-    if db.get_settings().get("show_store", "1") == "0":
-        return redirect(url_for("index"))
+    if _store_off():
+        abort(404)
     type_filter = request.args.get("type", "all")
     products = db.list_products(active_only=True)
     return render_template("partials/store_grid.html", products=products, type_filter=type_filter)
@@ -585,8 +588,8 @@ def store_partial():
 
 @app.route("/product/<product_id>")
 def product(product_id):
-    if db.get_settings().get("show_store", "1") == "0":
-        return redirect(url_for("index"))
+    if _store_off():
+        abort(404)
     product = db.get_product(product_id)
     if not product:
         abort(404)
@@ -597,7 +600,9 @@ def product(product_id):
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    return render_template("about.html",
+                           products=db.list_products(active_only=True),
+                           home_cms=cms.resolve("home", db.get_page_sections("home")))
 
 
 @app.route("/faq")
@@ -745,14 +750,24 @@ def journey_subscribe():
 
 
 # ------------------ cart (HTMX) ------------------
+# Cart and checkout are store surfaces: when the store is hidden they 404,
+# so nobody can order a shop that is not open yet.
+def _store_off():
+    return db.get_settings().get("show_store", "0") == "0"
+
+
 @app.route("/cart/drawer")
 def cart_drawer_view():
+    if _store_off():
+        abort(404)
     return cart_drawer()
 
 
 @app.route("/cart/add", methods=["POST"])
 @csrf.require_csrf
 def cart_add():
+    if _store_off():
+        abort(404)
     product_id = request.form.get("id")
     p = db.get_product(product_id)
     if not p:
@@ -766,6 +781,8 @@ def cart_add():
 @app.route("/cart/qty", methods=["POST"])
 @csrf.require_csrf
 def cart_qty():
+    if _store_off():
+        abort(404)
     product_id, delta = request.form.get("id"), int(request.form.get("delta", 0))
     cart = session.get("cart", {})
     cart[product_id] = max(0, cart.get(product_id, 0) + delta)
@@ -776,6 +793,8 @@ def cart_qty():
 @app.route("/cart/remove", methods=["POST"])
 @csrf.require_csrf
 def cart_remove():
+    if _store_off():
+        abort(404)
     product_id = request.form.get("id")
     cart = session.get("cart", {})
     cart.pop(product_id, None)
@@ -809,6 +828,8 @@ def _send_order_confirm(order_id, items, total, email):
 @app.route("/checkout", methods=["POST"])
 @csrf.require_csrf
 def checkout():
+    if _store_off():
+        abort(404)
     items = cart_contents()
     if not items:
         abort(400)

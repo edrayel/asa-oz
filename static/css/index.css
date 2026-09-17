@@ -590,7 +590,8 @@
       letter-spacing: 0.34em;
       text-transform: uppercase;
       color: var(--cafe-ink);
-      margin-bottom: 1.6rem;
+      margin-top: clamp(1.4rem, 3vw, 2.2rem);
+      margin-bottom: 0;
     }
     .hero h1 {
       font-family: var(--serif);
@@ -601,6 +602,7 @@
       color: var(--espresso);
       max-width: 19ch;
       margin-inline: auto;
+      margin-bottom: clamp(1.4rem, 3vw, 2rem);
     }
     .hero h1 em {
       font-style: italic;
@@ -1235,7 +1237,9 @@
        .steps { grid-template-columns: 1fr; }
      }
 
-     /* ---------- Who Asa-OZ Is For ---------- */
+     /* ---------- Who Asa-OZ Is For ----------
+       Kept for reference. The who-for block was removed from the landing
+       page in favour of the about page's "Who it is for" section. */
      .who-for {
        position: relative;
        z-index: 2;
@@ -1291,24 +1295,52 @@
        .who-for-list { gap: 0.7rem; }
      }
 
-      /* ---------- Ethos strip ---------- */
-      .ethos {
-       position: relative;
-       z-index: 2;
-       padding: clamp(3rem, 8vh, 5.5rem) 0;
-       border-top: 1px solid rgba(111, 90, 63, 0.18);
-       display: grid;
-       grid-template-columns: 0.9fr 1.1fr;
-       gap: clamp(2.5rem, 6vw, 5rem);
-       align-items: start;
-     }
-     .ethos > .reveal:first-child {
-       position: sticky;
-       top: clamp(2rem, 5vh, 4rem);
-       align-self: start;
-       padding-right: clamp(1.5rem, 3vw, 2.5rem);
-       border-right: 1px solid rgba(111, 90, 63, 0.18);
-     }
+    /* ---------- Ethos strip ----------
+       Single centred column. The founder panel moved to the about page, so this
+       block stands alone as the club's promise, with a small round portrait
+       above it and one button below. */
+    .ethos {
+      position: relative;
+      z-index: 2;
+      padding: clamp(3rem, 8vh, 5.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+      max-width: 760px;
+      margin-inline: auto;
+      text-align: center;
+    }
+    .ethos-avatar {
+      display: block;
+      width: clamp(56px, 7vw, 68px);
+      height: clamp(56px, 7vw, 68px);
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top center;
+      margin: 0 auto 1.5rem;
+      border: 2px solid rgba(111, 90, 63, 0.18);
+      box-shadow: 0 10px 26px -14px rgba(43, 33, 24, 0.45);
+    }
+    .ethos .not-list { justify-content: center; }
+    .ethos .ethos-more { margin: 1.8rem 0 0; }
+    .ethos .ethos-more a {
+      display: inline-block;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--espresso);
+      text-decoration: none;
+      border: 1px solid rgba(111, 90, 63, 0.3);
+      padding: 0.7rem 1.4rem;
+      border-radius: 100px;
+      line-height: 1;
+      transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .ethos .ethos-more a:hover {
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
+    }
     .ethos blockquote {
       font-family: var(--serif);
       font-weight: 400;
@@ -1328,12 +1360,9 @@
       font-family: var(--sans);
       font-style: normal;
     }
-    .ethos .founder p {
-      font-size: 1rem;
-      color: var(--ink);
-      margin-bottom: 1.1rem;
-    }
-    .ethos .founder p:last-child { margin-bottom: 24px; }
+    /* Founder-panel styles kept for reference. The home founder block was
+       removed in favour of the about page, and the home carousel markup is
+       gone, so nothing below here matches any home element. */
     .ethos .founder .founder-more { margin: 1.2rem 0 0; }
     .ethos .founder .founder-more a {
       display: inline-block;
@@ -1362,25 +1391,9 @@
         text-transform: uppercase;
         color: var(--ink);
       }
-      .founder-photo {
-        position: relative;
-        margin-bottom: 1.1rem;
-        aspect-ratio: 4/5;
-        border-radius: 18px;
-        overflow: hidden;
-        background: linear-gradient(140deg, var(--cream) 0%, var(--paper) 100%);
-        box-shadow: 0 12px 40px -18px rgba(43,33,24,0.24);
-      }
-      .founder-photo img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: top center;
-        display: block;
-      }
-      /* Founder photo carousel */
+      /* Founder photo + carousel styles kept for reference. The home founder
+         panel was removed in favour of the about page, so these selectors
+         no longer match any home element. */
       .founder-carousel {
         position: absolute;
         inset: 0;
@@ -1461,25 +1474,7 @@
         gap: 0.5rem;
         margin-bottom: 0;
       }
-      .founder-credential {
-        font-size: 0.68rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--paper);
-        border: 1px solid rgba(255,255,255,0.35);
-        border-radius: 100px;
-        padding: 0.35rem 0.75rem;
-        background: rgba(43,33,24,0.45);
-        backdrop-filter: blur(6px);
-      }
-     .founder-signature {
-       font-family: var(--serif);
-       font-style: italic;
-       font-size: 1.15rem;
-       color: var(--espresso);
-       margin-top: 0.6rem;
-     }
-
+      /* --- end of founder reference styles --- */
      .not-list {
       display: flex;
       flex-wrap: wrap;
@@ -1496,6 +1491,19 @@
       padding: 0.4rem 0.85rem;
     }
     .not-list span s { color: var(--cafe-ink); }
+    /* The line that is not crossed out is the punchline, so it carries the
+       weight the negations do not: solid espresso, paper text, real 600.
+       It is a label, not a control, so it gets no hover or pointer state. */
+    .not-list .not-list-yes {
+      font-weight: 600;
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      color: var(--paper);
+      background: var(--espresso);
+      border-color: var(--espresso);
+      padding: 0.5rem 1.05rem;
+      box-shadow: 0 10px 24px -14px rgba(43, 33, 24, 0.55);
+    }
 
      /* ---------- Footer ---------- */
       footer {
@@ -1682,13 +1690,21 @@
        .expect-grid { grid-template-columns: 1fr; }
      }
 
-     /* ---------- FAQ ---------- */
-     .faq {
+    /* ---------- FAQ ----------
+       The neighbours (ethos above, feedback below) are centred columns, so
+       this follows suit: a 760px centred column with a centred heading. The
+       accordion itself stays left-aligned inside, ruled dividers and all, so
+       the questions keep their familiar shape. */
+    .faq {
       position: relative;
       z-index: 2;
       padding: clamp(3rem, 8vh, 5.5rem) 0;
       border-top: 1px solid rgba(111, 90, 63, 0.18);
+      max-width: 760px;
+      margin-inline: auto;
+      text-align: center;
     }
+    .faq .faq-short { text-align: left; }
     .faq h2 {
       font-family: var(--serif);
       font-weight: 400;
@@ -1697,7 +1713,30 @@
       letter-spacing: -0.01em;
       color: var(--espresso);
       max-width: 18ch;
-      margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+      margin: 0 auto clamp(1.8rem, 4vw, 2.6rem);
+    }
+    .faq .faq-more {
+      margin: 1.8rem 0 0;
+    }
+    .faq .faq-more a {
+      display: inline-block;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--espresso);
+      text-decoration: none;
+      border: 1px solid rgba(111, 90, 63, 0.3);
+      padding: 0.7rem 1.4rem;
+      border-radius: 100px;
+      line-height: 1;
+      transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .faq .faq-more a:hover {
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
     }
     .faq details {
       border-bottom: 1px solid rgba(111, 90, 63, 0.2);
@@ -1746,23 +1785,27 @@
     .faq details .answer p:last-child { margin-bottom: 0; }
     .faq details .answer em { color: var(--sage-deep); font-style: italic; }
     .faq .faq-more {
-      margin-top: 1.2rem;
-      font-size: 0.98rem;
+      margin: 1.8rem 0 0;
     }
     .faq .faq-more a {
       display: inline-block;
-      padding: 0.55rem 1.2rem;
-      border: 1px solid var(--sage-deep);
-      border-radius: 999px;
-      color: var(--sage-deep);
-      font-family: var(--serif);
-      font-size: 0.98rem;
-      letter-spacing: 0.02em;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--espresso);
+      text-decoration: none;
+      border: 1px solid rgba(111, 90, 63, 0.3);
+      padding: 0.7rem 1.4rem;
+      border-radius: 100px;
+      line-height: 1;
       transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
     }
     .faq .faq-more a:hover {
-      background: var(--sage-deep);
-      color: var(--cream);
+      background: var(--espresso);
+      color: var(--paper);
+      border-color: var(--espresso);
     }
 
     /* ---------- Pricing ---------- */
@@ -1986,27 +2029,95 @@
        text-align: center;
        margin: 0 auto clamp(1.8rem, 4vw, 2.6rem);
      }
+     /* Grows with the number of posts: one entry fills the row, two split it,
+        three sit side by side. auto-fit collapses the unused tracks, so a
+        short blog never leaves a card stranded in the first of three columns. */
      .stories-grid {
        display: grid;
-       grid-template-columns: repeat(3, 1fr);
+       grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
        gap: clamp(1.2rem, 2.8vw, 2.4rem);
      }
-     .blog-card {
+     /* One story: side by side so a full-width card does not become a banner. */
+     .stories-grid--single { grid-template-columns: 1fr; }
+     .stories-grid--single .blog-card-link { flex-direction: row; align-items: stretch; }
+     .stories-grid--single .blog-card-img {
+       flex: 0 0 clamp(240px, 42%, 460px);
+       aspect-ratio: 4 / 3;
+       height: auto;
+     }
+     .stories-grid--single .blog-card-body { justify-content: center; padding: clamp(1.4rem, 3vw, 2.4rem); }
+     .stories-grid--single .blog-card-title { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+     .stories-grid--single .blog-card-summary { font-size: 1rem; max-width: 52ch; }
+     /* Four or more: a scrollable rail. Cards keep a fixed basis so they
+        overflow, and scroll-snap keeps them tidy without any JS. */
+     .stories-rail { position: relative; }
+     .stories-grid--rail {
        display: flex;
-       flex-direction: column;
+       gap: clamp(1rem, 2.5vw, 1.6rem);
+       overflow-x: auto;
+       scroll-snap-type: x mandatory;
+       scroll-behavior: smooth;
+       padding-bottom: 0.4rem;
+       scrollbar-width: none;
+     }
+     .stories-grid--rail::-webkit-scrollbar { display: none; }
+     .stories-grid--rail .blog-card {
+       flex: 0 0 clamp(248px, 30%, 330px);
+       scroll-snap-align: start;
+     }
+     .stories-nav {
+       position: absolute;
+       top: 50%;
+       transform: translateY(-50%);
+       width: 42px;
+       height: 42px;
+       display: grid;
+       place-items: center;
+       border-radius: 100px;
+       border: 1px solid rgba(111, 90, 63, 0.22);
+       background: rgba(255, 255, 255, 0.72);
+       backdrop-filter: blur(8px);
+       color: var(--espresso);
+       font-size: 1rem;
+       line-height: 1;
+       cursor: pointer;
+       z-index: 3;
+       transition: background 0.3s var(--ease), border-color 0.3s var(--ease), opacity 0.3s var(--ease);
+     }
+     .stories-nav:hover { background: rgba(255, 255, 255, 0.95); border-color: var(--cafe); }
+     .stories-nav:focus-visible { outline: 2px solid var(--sage-deep); outline-offset: 3px; }
+     .stories-nav.prev { left: 0; }
+     .stories-nav.next { right: 0; }
+     .stories-nav[disabled] { opacity: 0.35; cursor: default; }
+     /* The card is a container and the anchor sits inside it, because the share
+        control must be a sibling of the link rather than nested in it. The
+        anchor fills the card, so the whole card still reads as one target. */
+     .blog-card {
+       position: relative;
+       display: flex;
        background: rgba(255, 255, 255, 0.55);
        border: 1px solid rgba(111, 90, 63, 0.14);
        border-radius: 18px;
        overflow: hidden;
        color: inherit;
-       text-decoration: none;
        transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.3s var(--ease);
      }
-     .blog-card:hover {
+     .blog-card-link {
+       flex: 1;
+       min-width: 0;
+       display: flex;
+       flex-direction: column;
+       color: inherit;
+       text-decoration: none;
+     }
+     .blog-card-link:focus-visible { outline: 2px solid var(--espresso); outline-offset: -3px; }
+     .blog-card:hover,
+     .blog-card:focus-within {
        transform: translateY(-4px);
        box-shadow: 0 16px 40px -24px rgba(43, 33, 24, 0.3);
        border-color: rgba(111, 90, 63, 0.28);
      }
+     .blog-card:focus-within .blog-card-title { text-decoration: underline; text-underline-offset: 3px; }
      .blog-card-img { aspect-ratio: 16/10; background-size: cover; background-position: center; background-color: var(--cream); }
      .blog-card-body { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; padding: clamp(1rem, 2vw, 1.4rem); }
      .blog-card-cat { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage-deep); font-weight: 500; }
@@ -2071,10 +2182,17 @@
 
      /* ---------- Responsive stories tweaks ---------- */
      @media (max-width: 860px) {
-       .stories-grid { grid-template-columns: repeat(2, 1fr); }
+       .stories-grid,
+       .stories-grid--pair { grid-template-columns: repeat(2, 1fr); }
+       /* A lone story keeps the whole row, stacked. Without this it inherits the
+          two-column rule above and sits in half a grid with an empty column. */
+       .stories-grid--single { grid-template-columns: 1fr; }
+       .stories-grid--single .blog-card-link { flex-direction: column; }
+       .stories-grid--single .blog-card-img { flex: none; width: 100%; aspect-ratio: 16/10; }
      }
      @media (max-width: 560px) {
-       .stories-grid { grid-template-columns: 1fr; }
+       .stories-grid,
+       .stories-grid--pair { grid-template-columns: 1fr; }
        .blog-card-img { aspect-ratio: 16/11; }
        .testimonial-ribbon blockquote { font-size: 1.25rem; }
      }

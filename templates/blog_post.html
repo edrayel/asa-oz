@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "partials/macros.html" import story_card with context %}
 {% block title %}{{ post.title }} | Asa-OZ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}" />{% endblock %}
 
@@ -22,15 +23,7 @@
       <section class="blog-more page-section" aria-label="More stories">
         <h2 class="blog-more-heading">More stories</h2>
         <div class="blog-grid">
-          {% for o in others %}
-            <a href="{{ url_for('blog_post', slug=o.slug) }}" class="blog-card">
-              {% if o.image %}<div class="blog-card-img" style="background-image:url('{{ o.image }}')"></div>{% endif %}
-              <div class="blog-card-body">
-                {% if o.category %}<span class="blog-card-cat">{{ o.category }}</span>{% endif %}
-                <h3 class="blog-card-title">{{ o.title }}</h3>
-              </div>
-            </a>
-          {% endfor %}
+          {% for o in others %}{{ story_card(o) }}{% endfor %}
         </div>
       </section>
       {% endif %}

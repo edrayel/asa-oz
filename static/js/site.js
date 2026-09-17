@@ -287,6 +287,84 @@
     items.forEach(function (el) { el.classList.add('in'); });
   }
 
+  // ---- Story card share / copy link ----
+  (function () {
+    var buttons = document.querySelectorAll('.blog-share');
+    if (!buttons.length) return;
+    var status = document.getElementById('shareStatus');
+    var timers = new WeakMap();
+
+    function announce(message) {
+      if (!status) return;
+      // Clear first so a repeat of the same message is still read out.
+      status.textContent = '';
+      window.setTimeout(function () { status.textContent = message; }, 60);
+    }
+
+    function markCopied(btn, label) {
+      btn.classList.add('is-copied');
+      btn.setAttribute('aria-label', 'Link copied');
+      var pending = timers.get(btn);
+      if (pending) window.clearTimeout(pending);
+      timers.set(btn, window.setTimeout(function () {
+        btn.classList.remove('is-copied');
+        btn.setAttribute('aria-label', label);
+      }, 2400));
+    }
+
+    function legacyCopy(url) {
+      var field = document.createElement('textarea');
+      field.value = url;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.appendChild(field);
+      field.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(field);
+      return ok;
+    }
+
+    function copy(url, title, btn, label) {
+      function done() {
+        markCopied(btn, label);
+        announce('Link to ' + title + ' copied to clipboard');
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done, function () {
+          if (legacyCopy(url)) done();
+          else announce('Could not copy the link. Please copy it from the address bar.');
+        });
+        return;
+      }
+      if (legacyCopy(url)) done();
+      else announce('Could not copy the link. Please copy it from the address bar.');
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var url = btn.getAttribute('data-share-url');
+        if (!url) return;
+        var title = btn.getAttribute('data-share-title') || document.title;
+        var label = btn.getAttribute('data-share-label') || 'Copy link';
+
+        // Native share sheet where it exists (mobile, and Safari on desktop),
+        // clipboard everywhere else.
+        if (navigator.share) {
+          navigator.share({ title: title, url: url }).catch(function (err) {
+            if (err && err.name === 'AbortError') return;
+            copy(url, title, btn, label);
+          });
+          return;
+        }
+        copy(url, title, btn, label);
+      });
+    });
+  })();
+
   // ---- Waitlist / feedback / contact forms (server-driven) ----
   function wireAjaxForm(formId, msgId) {
     var form = document.getElementById(formId);

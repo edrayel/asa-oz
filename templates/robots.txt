@@ -3,5 +3,7 @@ Allow: /
 Disallow: /admin/
 Disallow: /cart/
 Disallow: /media/
-
+{% if settings.get('show_store', '0') == '0' %}Disallow: /store
+Disallow: /product/
+{% endif %}
 Sitemap: {{ base_url }}/sitemap.xml

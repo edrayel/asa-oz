@@ -59,7 +59,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
   {% block styles %}{% endblock %}
   <script src="{{ url_for('static', filename='js/htmx.min.js') }}" defer></script>
@@ -68,6 +68,7 @@
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
+  <p class="sr-only" id="shareStatus" role="status" aria-live="polite"></p>
   {% block ambience %}
   <div class="ambience" aria-hidden="true">
     <span class="blob b1"></span>

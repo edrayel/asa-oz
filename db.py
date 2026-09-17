@@ -10,6 +10,8 @@ import sqlite3
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import cms
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.environ.get("DATABASE", os.path.join(BASE_DIR, "instance", "asaoz.sqlite3"))
 
@@ -163,13 +165,16 @@ CREATE TABLE IF NOT EXISTS email_log (
 
 DEFAULT_SETTINGS = {
     # Prices are not final, so they are hidden unless an admin turns them on.
-    # Reads as "Pricing on request" on the home teaser, store listings and
-    # product pages. Applies to every fresh database, including production.
+    # "1" exposes the numeric price on the store, product pages, the home
+    # teaser and the "Things to take with you" section. "0" hides the price
+    # element entirely. Applies to every fresh database, including production.
     "show_prices": "0",
     "show_signup": "1",
     "show_supporting": "1",
     "show_faq_section": "1",
-    "show_store": "1",
+    # Store is hidden until the shop is ready. "1" shows the store section, the
+    # Store link and the store pages. Applies to every fresh database.
+    "show_store": "0",
     "simple_mode": "0",
     "show_not_this": "0",
     "show_testimonials": "0",
@@ -208,6 +213,30 @@ DEFAULT_PRODUCTS = [
      "img": "https://picsum.photos/seed/asaoz-letter/600/450",
      "desc": "A welcome letter and a printable guide to member offers and trips."},
 ]
+
+
+# The founder's own account of why Asa-OZ exists, in her voice. This is the
+# long-form companion to the shorter founder excerpt on the about page, which
+# links here. Wording is the founder's, with the site's no-dashes rule applied.
+FOUNDER_STORY_BODY = """
+<p>My name is Ifeoma Adaora, and for almost 30 years I have travelled the world searching for meaning, connection, and the quiet places where a woman can hear her own voice again. I didn\u2019t always know these journeys were shaping a calling. I only knew that every time I stepped into a new culture, something inside me softened, opened, and remembered itself.</p>
+
+<p>I created Asa-OZ because I know what it feels like to reach a stage in life where you have given so much, to family, to work, to survival, that you begin to lose sight of who you are becoming. I know what it feels like to carry strength on the outside while your inner world is asking for gentleness, clarity, and renewal. And I know the quiet ache of wanting to start a new chapter, but not knowing where to begin.</p>
+
+<p>Travel changed that for me. Not the kind of travel that rushes from one attraction to the next, but the kind that slows you down, roots you in culture, and reminds you of your own dignity. The kind that heals you in motion. The kind that restores identity.</p>
+
+<p>Across continents, I met countless adults, especially women, who felt unseen, lonely, stuck, or unsure how to begin again. Women who had spent years holding families together, navigating transitions, surviving heartbreak, or rebuilding after life shifted unexpectedly. Women who were ready for joy but didn\u2019t know how to access it.</p>
+
+<p>Asa-OZ was born from them. From us. From the truth that healing is not a luxury. It is a return to self.</p>
+
+<p>This is not a travel company. It is a cultural wellness space. A place where identity is restored, confidence is rebuilt, and belonging is rediscovered. A place where adults can breathe, reconnect, and rise into the next chapter with dignity and purpose.</p>
+
+<p>Every retreat, every circle, every cultural experience is designed with intention, to help you remember who you are, reclaim what life tried to silence, and step forward with clarity, strength, and joy.</p>
+
+<p>You don\u2019t have to start over alone. You don\u2019t have to carry everything by yourself. You don\u2019t have to shrink to fit the life you\u2019ve outgrown.</p>
+
+<p>Asa-OZ is your invitation to return to yourself. To travel with purpose. To heal with dignity. To rediscover the person you are becoming.</p>
+""".strip()
 
 
 def get_conn():
@@ -273,6 +302,28 @@ def init_db():
             [{**p, "sort": i} for i, p in enumerate(DEFAULT_PRODUCTS)],
         )
 
+    # The founder story is a page the about section links to, so it is seeded
+    # like a default rather than as content: present whenever its slug is
+    # missing, including on a database that already has other posts. Clear the
+    # about "Read-more link" field to hide the link, or unpublish the post.
+    conn.execute(
+        """INSERT OR IGNORE INTO blog_posts
+           (slug, title, summary, body, author, author_email, image, category,
+            status, published_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, '', ?, ?, 'published',
+                   datetime('now'), datetime('now'), datetime('now'))""",
+        (
+            "the-story-behind-asa-oz",
+            "The story behind Asa-OZ",
+            "Our founder on almost 30 years of travel, and why she built a club "
+            "for people who want to see the world with good company.",
+            FOUNDER_STORY_BODY,
+            "Ifeoma Adaora",
+            "/images/founder/WhatsApp%20Image%202026-08-04%20at%2017.17.33.jpeg",
+            "From the team",
+        ),
+    )
+
     for key, value in DEFAULT_SETTINGS.items():
         conn.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, value))
 
@@ -286,6 +337,24 @@ def init_db():
         "DELETE FROM settings WHERE key IN "
         "('price_public', 'price_free_first', 'price_commitment')"
     )
+
+    # Copy refresh: the footer tagline was rewritten from a three-word line to a
+    # full sentence. Stored CMS content wins over the schema default, so the old
+    # text has to be replaced here too. Only a row still holding the previous
+    # default is touched, so a tagline the owner has edited is never lost.
+    old_tagline = "Culture, community and travel."
+    row = conn.execute(
+        "SELECT content FROM page_sections WHERE page = 'sitewide' AND section = 'site'"
+    ).fetchone()
+    if row:
+        content = json.loads(row["content"] or "{}")
+        if content.get("tagline") == old_tagline:
+            content["tagline"] = cms.SITE_TAGLINE
+            conn.execute(
+                "UPDATE page_sections SET content = ?, updated_at = datetime('now') "
+                "WHERE page = 'sitewide' AND section = 'site'",
+                (json.dumps(content),),
+            )
     conn.commit()
 
     if conn.execute("SELECT COUNT(*) AS c FROM admins").fetchone()["c"] == 0:

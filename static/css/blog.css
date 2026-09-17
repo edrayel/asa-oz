@@ -923,15 +923,26 @@ input:focus-visible {
   margin-left: auto;
   margin-right: auto;
 }
+/* End-of-page call to action. Centred as a block, matching the about page. */
 .page-cta {
-  margin-top: 2rem;
-  padding-top: 2rem;
+  margin-top: clamp(2rem, 4vh, 3rem);
+  padding-top: clamp(1.8rem, 4vh, 2.6rem);
   display: flex;
-  gap: 0.8rem;
   flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
+  gap: 0.9rem;
+  text-align: center;
 }
-.page-cta p { margin: 0; width: 100%; }
+.page-cta p {
+  flex: 0 0 100%;
+  margin: 0;
+  /* Constrain the text, not the box, so a button cannot share its line. */
+  padding-inline: clamp(0rem, 7vw, 5rem);
+  color: var(--ink);
+  font-size: clamp(1rem, 1.6vw, 1.1rem);
+  line-height: 1.6;
+}
 .page-btn {
   display: inline-block;
   border-radius: 100px;
@@ -986,24 +997,52 @@ input:focus-visible {
 .blog-filter:hover { border-color: var(--espresso); color: var(--espresso); }
 .blog-filter.is-active { background: var(--espresso); color: var(--paper); border-color: var(--espresso); }
 
+/* Listing grid. Three columns is the structure and it stays that way however
+   many posts there are. One or two entries adopt the same adaptive treatment as
+   the landing page's "Latest stories" band, so a lone story reads as a
+   full-width feature rather than one oversized card. */
 .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1.2rem, 2.8vw, 2.4rem); }
+.blog-grid--pair { grid-template-columns: repeat(2, 1fr); }
+.blog-grid--single { grid-template-columns: 1fr; }
+.blog-grid--single .blog-card-link { flex-direction: row; align-items: stretch; }
+.blog-grid--single .blog-card-img {
+  flex: 0 0 clamp(240px, 42%, 460px);
+  aspect-ratio: 4 / 3;
+  height: auto;
+}
+.blog-grid--single .blog-card-body { justify-content: center; padding: clamp(1.4rem, 3vw, 2.4rem); }
+.blog-grid--single .blog-card-title { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.blog-grid--single .blog-card-summary { font-size: 1rem; max-width: 52ch; }
 
+/* The card is a container and the anchor sits inside it, because the share
+   control must be a sibling of the link rather than nested in it. The anchor
+   fills the card, so the whole card still reads as one target. */
 .blog-card {
+  position: relative;
   display: flex;
-  flex-direction: column;
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(111, 90, 63, 0.14);
   border-radius: 18px;
   overflow: hidden;
   color: inherit;
-  text-decoration: none;
   transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.3s var(--ease);
 }
-.blog-card:hover {
+.blog-card-link {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+.blog-card-link:focus-visible { outline: 2px solid var(--espresso); outline-offset: -3px; }
+.blog-card:hover,
+.blog-card:focus-within {
   transform: translateY(-4px);
   box-shadow: 0 16px 40px -24px rgba(43, 33, 24, 0.3);
   border-color: rgba(111, 90, 63, 0.28);
 }
+.blog-card:focus-within .blog-card-title { text-decoration: underline; text-underline-offset: 3px; }
 
 .blog-card-img { aspect-ratio: 16/10; background-size: cover; background-position: center; background-color: var(--cream); }
 .blog-card-body { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; padding: clamp(1rem, 2vw, 1.4rem); }
@@ -1049,10 +1088,17 @@ input:focus-visible {
 .form-error { background: #fce8e6; color: #8a2c20; padding: 0.6rem 0.9rem; border-radius: 10px; margin-bottom: 1rem; }
 
 @media (max-width: 860px) {
-  .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  .blog-grid,
+  .blog-grid--pair { grid-template-columns: repeat(2, 1fr); }
+  /* A lone story keeps the whole row, stacked. Without this it inherits the
+     two-column rule above and sits in half a grid with an empty column. */
+  .blog-grid--single { grid-template-columns: 1fr; }
+  .blog-grid--single .blog-card-link { flex-direction: column; }
+  .blog-grid--single .blog-card-img { flex: none; width: 100%; aspect-ratio: 16/10; }
 }
 @media (max-width: 560px) {
-  .blog-grid { grid-template-columns: 1fr; }
+  .blog-grid,
+  .blog-grid--pair { grid-template-columns: 1fr; }
   .blog-card-img { aspect-ratio: 16/11; }
   .blog-single-body { font-size: 1rem; }
 }

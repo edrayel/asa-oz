@@ -57,41 +57,32 @@
     if (!reducedMotion) startAuto();
   })();
 
-  // ---- Founder photo carousel ----
+  // ---- Stories rail (four or more posts) ----
   (function () {
-    var carousel = document.getElementById('founderCarousel');
-    if (!carousel) return;
-    var slides = document.getElementById('founderSlides');
-    var prev = document.getElementById('founderPrev');
-    var next = document.getElementById('founderNext');
-    var dotsWrap = document.getElementById('founderDots');
-    var imgs = slides ? slides.children : [];
-    var index = 0;
-    var total = imgs.length;
-    if (!dotsWrap || total < 2) return;
+    var rail = document.getElementById('storiesRail');
+    var prev = document.getElementById('storiesPrev');
+    var next = document.getElementById('storiesNext');
+    if (!rail || !prev || !next) return;
 
-    for (var i = 0; i < total; i++) {
-      var dot = document.createElement('button');
-      dot.type = 'button';
-      dot.setAttribute('aria-label', 'Go to photo ' + (i + 1));
-      dot.addEventListener('click', (function (i) { return function () { go(i); }; })(i));
-      dotsWrap.appendChild(dot);
-    }
-    var dots = dotsWrap.children;
-
-    function go(i) {
-      index = (i + total) % total;
-      slides.style.transform = 'translateX(-' + (index * 100) + '%)';
-      for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('active', d === index);
+    function step() {
+      var card = rail.querySelector('.blog-card');
+      if (!card) return rail.clientWidth * 0.9;
+      var gap = parseFloat(getComputedStyle(rail).columnGap) || 16;
+      return card.getBoundingClientRect().width + gap;
     }
 
-    prev.addEventListener('click', function () { go(index - 1); });
-    next.addEventListener('click', function () { go(index + 1); });
-    carousel.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1); }
-    });
-    go(0);
+    function sync() {
+      var max = rail.scrollWidth - rail.clientWidth;
+      // A couple of pixels of slack, because sub-pixel widths never hit exactly.
+      prev.disabled = rail.scrollLeft <= 2;
+      next.disabled = rail.scrollLeft >= max - 2;
+    }
+
+    prev.addEventListener('click', function () { rail.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    next.addEventListener('click', function () { rail.scrollBy({ left: step(), behavior: 'smooth' }); });
+    rail.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
   })();
 
   // ---- Launch countdown ----

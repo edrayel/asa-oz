@@ -1,0 +1,39 @@
+{# Shared "learn more" sections: How it works, What to expect, Things to take
+   with you. Rendered on the about page under "The longer story".
+   Expects `home_cms` (resolved home CMS) and `products` in context. #}
+<section class="how-it-works" aria-label="How Asa-OZ works">
+  <h2 class="reveal">{{ home_cms.how.title }}</h2>
+  {% if home_cms.how.lede %}<p class="how-lede reveal">{{ home_cms.how.lede }}</p>{% endif %}
+  <div class="steps">
+    {% for step in home_cms.how.steps %}
+    <div class="step reveal"><h3>{{ step.title }}</h3><p>{{ step.body }}</p></div>
+    {% endfor %}
+  </div>
+  {% if home_cms.how.note %}<p class="how-note reveal">{{ home_cms.how.note }}</p>{% endif %}
+</section>
+
+{% if settings.get('simple_mode', '0') == '0' %}<section class="expect" aria-label="What to expect">
+  <h2 class="reveal">{{ home_cms.expect.title }}</h2>
+  <div class="expect-grid">
+    {% for item in home_cms.expect.entries %}
+    <div class="expect-item reveal"><span class="num">0{{ loop.index }}</span><h3>{{ item.title }}</h3><p>{{ item.body }}</p></div>
+    {% endfor %}
+  </div>
+</section>{% endif %}
+
+{# When the store is hidden the whole section is skipped server-side, so no
+   "Things to take with you" markup, heading or store link reaches crawlers or
+   readers. The style attribute is gone: visibility is no longer CSS-only. #}
+{% if settings.get('show_store', '0') == '1' %}<section class="tools" aria-label="Things to take with you">
+  <h2 class="reveal">{{ home_cms.storeteaser.heading }}</h2>
+  <div class="tools-grid" id="toolsGrid">
+  {% for tool in products[:3] %}
+    <div class="tool-item reveal">
+      <h3>{{ tool.name }}</h3>
+      <p>{{ tool.desc }}</p>
+      {% if settings.get('show_prices', '0') == '1' %}<div class="tool-price">{% if tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>{% endif %}
+    </div>
+  {% endfor %}
+  </div>
+  <p class="tools-cta reveal"><a href="{{ url_for('store') }}">{{ home_cms.tools_products.visit_store_label }}</a></p>
+</section>{% endif %}

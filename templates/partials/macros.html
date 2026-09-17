@@ -12,3 +12,36 @@
     <a href="{{ href }}" target="_blank" rel="noopener" aria-label="{{ name }}">{{ icon_svg(svg, size) }}</a>
   {% endfor %}
 {% endmacro %}
+
+{# A story card. The share control sits outside the link on purpose: a button
+   nested inside an anchor is invalid, and its clicks would navigate. The link
+   still covers the whole card, so the card behaves as it always did.
+   The share URL is built from base_url so a shared link is always the canonical
+   domain, never whatever host the page happens to be served from. #}
+{% macro story_card(post, tag='h3', meta=false, reveal=true) %}
+<article class="blog-card{% if reveal %} reveal{% endif %}">
+  <a href="{{ url_for('blog_post', slug=post.slug) }}" class="blog-card-link">
+    {% if post.image %}<div class="blog-card-img" style="background-image:url('{{ post.image }}')"></div>{% endif %}
+    <div class="blog-card-body">
+      {% if post.category %}<span class="blog-card-cat">{{ post.category }}</span>{% endif %}
+      <{{ tag }} class="blog-card-title">{{ post.title }}</{{ tag }}>
+      {% if post.summary %}<p class="blog-card-summary">{{ post.summary }}</p>{% endif %}
+      {% if meta %}
+      <div class="blog-card-meta">
+        {% if post.author %}<span>{{ post.author }}</span>{% endif %}
+        {% if post.published_at %}<span>{{ post.published_at[:10] }}</span>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </a>
+  <button type="button" class="blog-share"
+          data-share-url="{{ base_url }}{{ url_for('blog_post', slug=post.slug) }}"
+          data-share-title="{{ post.title }}"
+          data-share-label="Copy link to {{ post.title }}"
+          title="Copy link"
+          aria-label="Copy link to {{ post.title }}">
+    <svg class="blog-share-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    <svg class="blog-share-done" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+  </button>
+</article>
+{% endmacro %}

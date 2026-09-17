@@ -1,7 +1,7 @@
 <div class="faq-short" id="faqShort">
   {% for item in cms.faq.entries %}
   <details class="faq-item">
-    <summary>{{ item.q }}</summary>
+    <summary>{{ item.q }}<span class="sign" aria-hidden="true"></span></summary>
     <p>{{ item.a }}</p>
   </details>
   {% endfor %}

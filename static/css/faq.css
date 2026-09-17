@@ -973,15 +973,26 @@
       color: var(--ink);
       line-height: 1.7;
     }
+    /* End-of-page call to action. Centred as a block, matching the about page. */
     .page-cta {
-      margin-top: 2rem;
-      padding-top: 2rem;
+      margin-top: clamp(2rem, 4vh, 3rem);
+      padding-top: clamp(1.8rem, 4vh, 2.6rem);
       display: flex;
-      gap: 0.8rem;
       flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
+      gap: 0.9rem;
+      text-align: center;
     }
-    .page-cta p { margin: 0; width: 100%; }
+    .page-cta p {
+      flex: 0 0 100%;
+      margin: 0;
+      /* Constrain the text, not the box, so a button cannot share its line. */
+      padding-inline: clamp(0rem, 7vw, 5rem);
+      color: var(--ink);
+      font-size: clamp(1rem, 1.6vw, 1.1rem);
+      line-height: 1.6;
+    }
     .page-btn {
       display: inline-block;
       border-radius: 100px;

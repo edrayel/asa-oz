@@ -16,7 +16,7 @@
       </a>
     </div>
     <nav class="main-nav" aria-label="Main">
-      {% set store_hidden = settings.get('show_store', '1') == '0' %}
+      {% set store_hidden = settings.get('show_store', '0') == '0' %}
       {% if nav_items %}
       {% for item in nav_items %}
         {% if not (store_hidden and item.url == '/store') %}

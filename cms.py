@@ -21,6 +21,14 @@ keeps working with an empty database.
 # Schema
 # --------------------------------------------------------------------------
 
+# Owned here so the schema default and the db copy-refresh that replaces the
+# previous wording cannot drift apart.
+SITE_TAGLINE = (
+    "Asa-OZ is a members' ONLY club bringing together adults who want to "
+    "explore the world with like-minded people who feel instantly familiar, "
+    "like old friends."
+)
+
 def _lt(key, label, **kw):
     return dict(key=key, label=label, type="text", **kw)
 
@@ -150,10 +158,10 @@ PAGES = {
                 "key": "hero",
                 "label": "Hero",
                 "fields": [
-                    _lt("eyebrow", "Eyebrow", default="Culture • Community • Travel"),
-                    _lt("title", "Headline", default="Travel with your people."),
-                    _rt("lede", "Intro paragraph", default="Asa-OZ is a members' club for culture, community and travel. Join to receive hand-picked offers and group trips, and explore the world with people who feel like old friends."),
-                    _rt("supporting", "Supporting copy", default="Connect with like-minded people who share your interests and curiosity, then travel together."),
+                    _lt("eyebrow", "Eyebrow", default="Culture • Community • Connection • Asa-OZ"),
+                    _lt("title", "Headline", default="Travel with people who feel like old friends"),
+                    _rt("lede", "Intro paragraph", default="AsaOZ is a members’ ONLY club bringing together adults who want to explore the world with like-minded people who feel instantly familiar, like old friends."),
+                    _rt("supporting", "Supporting copy", default="Join to access hand-picked travel offers, curated group trips, and a welcoming community of curious, open-hearted adults who share your interests and your desire to begin again."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
                     _rt("not_this_body", "“What this is not” body", default="Asa-OZ is a members' travel club, not a tour operator. We bring the offers, the group and the culture. You book your own tickets and travel on your own terms."),
                 ],
@@ -276,9 +284,9 @@ PAGES = {
             },
             {
                 "key": "gallery",
-                "label": "Stories (From the road)",
+                "label": "Stories (blog teaser)",
                 "fields": [
-                    _lt("title", "Heading", default="From the road"),
+                    _lt("title", "Heading", default="Latest stories"),
                     _lt("cta_label", "Stories link label", default="See more stories"),
                     _lt("wall_button", "Wall button label", default="View the wall of moments"),
                 ],
@@ -318,6 +326,14 @@ PAGES = {
                 "key": "ethos",
                 "label": "Ethos (promise block)",
                 "fields": [
+                    {
+                        "key": "avatar",
+                        "label": "Avatar (URL or media library)",
+                        "type": "image",
+                        "default": "/images/founder/WhatsApp%20Image%202026-08-08%20at%2010.57.48.jpeg",
+                        "hint": "Small round portrait shown above the promise line. Clear it to hide the avatar.",
+                    },
+                    _lt("avatar_alt", "Avatar alt text", default="Ifeoma Adaora, founder of Asa-OZ"),
                     _rt("quote", "Quote", default="The best trips start with"),
                     _rt("quote_highlight", "Quote highlight", default="your people"),
                     _lt("from", "Attribution", default="The Asa-OZ Promise"),
@@ -590,16 +606,28 @@ PAGES = {
                         "label": "Paragraphs",
                         "type": "listlines",
                         "default": [
-                            "My name is Ifeoma Adaora. For more than 25 years I have travelled between Ireland and Nigeria, and I have seen what travel does for people: it opens doors, builds friendships and changes how you see your own life.",
-                            "Along the way I met plenty of people who wanted to travel more but had nobody to go with. That is why Asa-OZ exists: a club that finds the offers, plans the trips and brings the group together, so you are never the only one travelling alone.",
+                            "My name is Ifeoma Adaora, and for almost 30 years I have travelled between Ireland, Nigeria and further afield. I have learned that the kind of travel that matters is not the kind that rushes from one attraction to the next, but the kind that slows you down and roots you in a place and its people.",
+                            "Along the way I met a lot of adults who wanted to see more of the world but had nobody to go with, many of them after years of looking after everyone else. Asa-OZ is what I built for them: a club that finds the offers, plans the trips and brings the group together, so nobody has to work out who to travel with.",
                         ],
                     },
+                    _lt("story_label", "Read-more label", default="Read the full story"),
+                    _lt("story_url", "Read-more link",
+                        default="/blog/the-story-behind-asa-oz",
+                        hint="Where the full founder story lives. Leave blank to hide the link."),
                     _vid("video", "Featured video",
                          hint="Paste a YouTube or Vimeo URL to embed a video."),
                     _cb("video_enabled", "Show the video", default=False,
                         hint="Off by default. The video appears only when a URL is set above and this is switched on."),
                     _lt("name", "Name", default="Ifeoma Adaora"),
                     _lt("role", "Role", default="Founder & Cultural Guide"),
+                    {
+                        "key": "photo",
+                        "label": "Portrait (sits right of the story)",
+                        "type": "image",
+                        "default": "/images/founder/WhatsApp%20Image%202026-08-08%20at%2010.59.58%20(1).jpeg",
+                        "hint": "Shown to the right of the story on wide screens, below it on small ones. Clear it to hide the portrait.",
+                    },
+                    _lt("photo_alt", "Portrait alt text", default="Ifeoma Adaora, founder of Asa-OZ"),
                 ],
             },
             {
@@ -832,7 +860,7 @@ PAGES = {
                 "key": "site",
                 "label": "Site-wide copy",
                 "fields": [
-                    _lt("tagline", "Footer tagline", default="Culture, community and travel."),
+                    _lt("tagline", "Footer tagline", default=SITE_TAGLINE),
                     _lt("email", "Contact email", default="info@asa-oz.com"),
                     _lt("phone", "Contact phone", default="+353 87 258 9943"),
                     _lt("legal", "Legal line (footer)", default="Sole Trader: Ifeoma t/a Asa-OZ · Ireland"),

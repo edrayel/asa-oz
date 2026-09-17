@@ -122,8 +122,7 @@
         </section>
 
         <div class="page-block reveal">
-          <h2>{{ cms.founder.heading }}</h2>
-          <section class="founder">
+          <section class="founder{% if cms.founder.photo %} founder--portrait{% endif %}">
             {% if cms.founder.video_enabled and cms.founder.video %}
             <div class="founder-media">
               <div class="founder-frame">
@@ -137,16 +136,30 @@
                 {% for p in cms.founder.paragraphs %}<p>{{ p }}</p>{% endfor %}
               </div>
               <div class="founder-foot">
-                <p class="founder-name">{{ cms.founder.name }}</p>
-                <p class="founder-role">{{ cms.founder.role }}</p>
+                <div class="founder-ident">
+                  <p class="founder-name">{{ cms.founder.name }}</p>
+                  <p class="founder-role">{{ cms.founder.role }}</p>
+                </div>
+                {% if cms.founder.story_url %}
+                <a class="page-btn page-btn-ghost founder-story" href="{{ cms.founder.story_url }}">{{ cms.founder.story_label }}</a>
+                {% endif %}
               </div>
             </div>
+            {% if cms.founder.photo %}
+            <figure class="founder-photo">
+              <img src="{{ cms.founder.photo }}" alt="{{ cms.founder.photo_alt or cms.founder.name }}" loading="lazy" decoding="async" />
+            </figure>
+            {% endif %}
           </section>
         </div>
 
         <div class="page-block reveal">
           <h2>{{ cms.not.heading }}</h2>
           {% for p in cms.not.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </div>
+
+        <div class="learn-more reveal">
+          {% include "partials/learn_more.html" %}
         </div>
 
         <div class="page-cta reveal">

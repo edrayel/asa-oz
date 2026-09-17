@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "partials/macros.html" import story_card with context %}
 {% block title %}Asa-OZ | Travel with your people{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">{% endblock %}
 
@@ -17,10 +18,10 @@
 {% block main %}
       <section class="hero">
         <div class="hero-content">
-          <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
           <h1 class="reveal">{{ cms.hero.title }}</h1>
           <p class="lede reveal">{{ cms.hero.lede | safe }}</p>
           <p class="supporting reveal"{% if settings.get('show_supporting', '1') == '0' %} style="display:none;"{% endif %}>{{ cms.hero.supporting | safe }}</p>
+          <p class="eyebrow reveal">{{ cms.hero.eyebrow }}</p>
           <div id="notThisNote"{% if settings.get('show_not_this', '0') == '1' %} style="display:block;"{% else %} style="display:none;"{% endif %}>
             <p style="font-size:0.88rem; color:var(--ink); margin:0; line-height:1.6;"><strong style="color:var(--espresso);">{{ cms.hero.not_this_title }}</strong> {{ cms.hero.not_this_body | safe }}</p>
           </div>
@@ -88,64 +89,34 @@
 
       {% with name='home-top', slot_id='1234567890' %}{% include "partials/ads.html" %}{% endwith %}
 
-      <section class="how-it-works" aria-label="How Asa-OZ works">
-        <h2 class="reveal">{{ cms.how.title }}</h2>
-        {% if cms.how.lede %}<p class="how-lede reveal">{{ cms.how.lede }}</p>{% endif %}
-        <div class="steps">
-          {% for step in cms.how.steps %}
-          <div class="step reveal"><span class="num">0{{ loop.index }}</span><h3>{{ step.title }}</h3><p>{{ step.body }}</p></div>
-          {% endfor %}
-        </div>
-        {% if cms.how.note %}<p class="how-note reveal">{{ cms.how.note }}</p>{% endif %}
-      </section>
-
-      {% if settings.get('simple_mode', '0') == '0' %}<section class="pillars" aria-label="What Asa-OZ offers">
-        {% if cms.pillars.title %}<h2 class="reveal">{{ cms.pillars.title }}</h2>{% endif %}
-        {% for pillar in cms.pillars.entries %}
-        <div class="pillar reveal"><span class="num">0{{ loop.index }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.body }}</p></div>
-        {% endfor %}
-      </section>{% endif %}
-
-      {% if settings.get('simple_mode', '0') == '0' %}<section class="expect" aria-label="What to expect">
-        <h2 class="reveal">{{ cms.expect.title }}</h2>
-        <div class="expect-grid">
-          {% for item in cms.expect.entries %}
-          <div class="expect-item reveal"><span class="num">0{{ loop.index }}</span><h3>{{ item.title }}</h3><p>{{ item.body }}</p></div>
-          {% endfor %}
-        </div>
-      </section>{% endif %}
-
       {% with name='home-mid', slot_id='2345678901' %}{% include "partials/ads.html" %}{% endwith %}
 
-      <section class="tools" aria-label="Things to take with you"{% if settings.get('show_store', '1') == '0' %} style="display:none;"{% endif %}>
-        <h2 class="reveal">{{ cms.storeteaser.heading }}</h2>
-        <div class="tools-grid" id="toolsGrid">
-        {% for tool in products[:3] %}
-          <div class="tool-item reveal">
-            <span class="tool-num">0{{ loop.index }}</span>
-            <h3>{{ tool.name }}</h3>
-            <p>{{ tool.desc }}</p>
-            <div class="tool-price">{% if settings.get('show_prices', '0') == '0' %}Pricing on request{% elif tool.price == 0 %}Free{% else %}€{{ tool.price }}{% endif %}</div>
-          </div>
-        {% endfor %}
-        </div>
-        <p class="tools-cta reveal"><a href="{{ url_for('store') }}">{{ cms.tools_products.visit_store_label }}</a></p>
-      </section>
-
-      {% if settings.get('simple_mode', '0') == '0' and blog_posts %}<section class="stories-band" aria-label="Stories from the road">
+      {% if settings.get('simple_mode', '0') == '0' and blog_posts %}
+      {% set posts = blog_posts %}
+      <section class="stories-band" aria-label="Latest stories">
         <h2 class="reveal">{{ cms.gallery.title }}</h2>
-        <div class="stories-grid">
-          {% for post in blog_posts[:3] %}
-          <a href="{{ url_for('blog_post', slug=post.slug) }}" class="blog-card reveal">
-            {% if post.image %}<div class="blog-card-img" style="background-image:url('{{ post.image }}')"></div>{% endif %}
-            <div class="blog-card-body">
-              {% if post.category %}<span class="blog-card-cat">{{ post.category }}</span>{% endif %}
-              <h3 class="blog-card-title">{{ post.title }}</h3>
-              {% if post.summary %}<p class="blog-card-summary">{{ post.summary }}</p>{% endif %}
-            </div>
-          </a>
-          {% endfor %}
+        {% if posts | length > 3 %}
+        {# Four or more: a scrollable rail, so every story is reachable without
+           pushing the rest of the page down. Native scroll plus arrow buttons,
+           so it still works by swipe on touch and by keyboard otherwise. #}
+        <div class="stories-rail">
+          <div class="stories-grid stories-grid--rail" id="storiesRail" tabindex="0" role="region" aria-label="Latest stories, scrollable">
+            {% for post in posts %}{{ story_card(post) }}{% endfor %}
+          </div>
+          <button type="button" class="stories-nav prev" id="storiesPrev" aria-label="Previous stories">&#8592;</button>
+          <button type="button" class="stories-nav next" id="storiesNext" aria-label="More stories">&#8594;</button>
         </div>
+        {% elif posts | length == 1 %}
+        {# A single story takes the full width and flips to a side-by-side card,
+           so one entry never sits marooned in the first of three columns. #}
+        <div class="stories-grid stories-grid--single">
+          {% for post in posts %}{{ story_card(post) }}{% endfor %}
+        </div>
+        {% else %}
+        <div class="stories-grid">
+          {% for post in posts %}{{ story_card(post) }}{% endfor %}
+        </div>
+        {% endif %}
         <p class="tools-cta reveal"><a href="{{ url_for('blog') }}">{{ cms.gallery.cta_label }}</a></p>
       </section>{% endif %}
 
@@ -160,50 +131,17 @@
         <div class="ribbon-rule reveal"></div>
       </section>{% endif %}
 
-      <section class="who-for" aria-label="Who Asa-OZ is for">
-        <h2 class="reveal">{{ cms.who.title }}</h2>
-        <p class="who-for-intro reveal">{{ cms.who.intro }}</p>
-        <ul class="who-for-list">
-          {% for item in cms.who.points %}
-          <li class="reveal">{{ item }}</li>
-          {% endfor %}
-        </ul>
-        <p class="who-for-tagline reveal">{{ cms.who.tagline | safe }}</p>
-      </section>
-
       <section class="ethos" id="ethos">
         <div class="reveal">
+          {% if cms.ethos.avatar %}<img class="ethos-avatar" src="{{ cms.ethos.avatar }}" alt="{{ cms.ethos.avatar_alt or cms.ethos.from }}" loading="lazy" />{% endif %}
           <blockquote>{{ cms.ethos.quote | safe }} <span>{{ cms.ethos.quote_highlight | safe }}</span></blockquote>
           <p class="from">{{ cms.ethos.from }}</p>
           <div class="not-list">
             {% for item in cms.ethos.not %}
-            <span>{% if item.struck %}<s>{{ item.text }}</s>{% else %}{{ item.text }}{% endif %}</span>
+            <span{% if not item.struck %} class="not-list-yes"{% endif %}>{% if item.struck %}<s>{{ item.text }}</s>{% else %}{{ item.text }}{% endif %}</span>
             {% endfor %}
           </div>
-        </div>
-
-        <div class="founder reveal">
-          <div class="founder-photo reveal">
-            <div class="founder-carousel" id="founderCarousel">
-              <div class="founder-slides" id="founderSlides">
-                {% for src in founder_photos %}
-                <img src="{{ url_for('images', filename=src) }}" alt="Ifeoma Adaora of Asa-OZ" loading="lazy" />
-                {% endfor %}
-              </div>
-              <button class="founder-carousel-arrow prev" id="founderPrev" type="button" aria-label="Previous photo">&#8592;</button>
-              <button class="founder-carousel-arrow next" id="founderNext" type="button" aria-label="Next photo">&#8594;</button>
-              <div class="founder-carousel-dots" id="founderDots" role="tablist" aria-label="Founder photos"></div>
-            </div>
-            <p class="founder-credentials">
-              {% for cred in cms.founder.credentials %}<span class="founder-credential">{{ cred }}</span>{% endfor %}
-            </p>
-          </div>
-          <p>{{ cms.founder.quote1 | safe }}</p>
-          <p>{{ cms.founder.quote2 | safe }}</p>
-          <p class="founder-signature">&ldquo;{{ cms.founder.signature }}&rdquo;</p>
-          {% if cms.founder.video %}<div class="founder-video reveal">{{ _video_embed(cms.founder.video) | safe }}</div>{% endif %}
-          <p><span class="name">{{ cms.founder.name }}</span><br /><span class="role">{{ cms.founder.role }}</span></p>
-          <p class="founder-more"><a href="{{ url_for('about') }}">{{ cms.founder.more }} &rarr;</a></p>
+          <p class="ethos-more"><a href="{{ url_for('about') }}">How it works, what to expect &rarr;</a></p>
         </div>
       </section>
 

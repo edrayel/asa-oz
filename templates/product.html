@@ -10,7 +10,7 @@
             <span class="product-badge {{ product.type }}">{{ product.type | capitalize }}</span>
             <h1>{{ product.name }}</h1>
             <p class="product-desc">{{ product.desc }}</p>
-            <p class="product-price">{% if settings.get('show_prices', '0') == '0' %}Pricing on request{% elif product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}</p>
+            {% if settings.get('show_prices', '0') == '1' %}<p class="product-price">{% if product.price == 0 %}Free{% else %}€{{ product.price }}{% endif %}</p>{% endif %}
             <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
               {{ csrf_input() }}
               <input type="hidden" name="id" value="{{ product.id }}" />
@@ -29,16 +29,16 @@
               <span class="badge {{ p.type }}">{{ p.type | capitalize }}</span>
               <h3>{{ p.name }}</h3>
               <p style="font-size:0.9rem;color:var(--ink);line-height:1.55;">{{ p.desc }}</p>
-              <div class="price">{% if settings.get('show_prices', '0') == '0' %}Pricing on request{% elif p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>
-              <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
-                {{ csrf_input() }}
-                <input type="hidden" name="id" value="{{ p.id }}" />
-                <button type="submit" class="add-btn">Add to cart</button>
-              </form>
-              <a class="view-link" href="{{ url_for('product', product_id=p.id) }}">View details</a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </section>{% endif %}
+               {% if settings.get('show_prices', '0') == '1' %}<div class="price">{% if p.price == 0 %}Free{% else %}€{{ p.price }}{% endif %}</div>{% endif %}
+                <form hx-post="{{ url_for('cart_add') }}" hx-target="#cartBody" hx-swap="innerHTML" style="margin:0;">
+                 {{ csrf_input() }}
+                 <input type="hidden" name="id" value="{{ p.id }}" />
+                 <button type="submit" class="add-btn">Add to cart</button>
+               </form>
+               <a class="view-link" href="{{ url_for('product', product_id=p.id) }}">View details</a>
+             </div>
+           </div>
+           {% endfor %}
+         </div>
+       </section>{% endif %}
 {% endblock %}

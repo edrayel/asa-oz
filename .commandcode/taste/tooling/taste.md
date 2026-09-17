@@ -42,7 +42,12 @@
 
 - Runs the local dev server themselves in a separate terminal and expects the agent to keep that in mind — don't assume the server is down or broken, and don't kill/restart the user's running instance. When verification would otherwise interfere, work around it (e.g., a second instance on another port, or the Flask test client) and leave the user's server untouched. Confidence: 0.6
 
+- Expects changes verified against the database and site the user is actually running (their real, already-populated content DB), not only an isolated fresh/empty test database — a clean-slate verification creates a blind spot, and the user will come back reporting they still see old content. Reproduce the result on the real database/served instance before declaring done, and check that the user's assumed server is genuinely listening rather than trusting their report of which port it is on. Confidence: 0.65
+
 - When a change has accidentally removed or overwritten existing functionality/design (e.g. a section the agent replaced while adding a new one, wiping the wall-of-moments marquee), expects the agent to consult git history to recover and restore the original implementation verbatim ("Restore it back. Check the git history.") instead of reinventing a replacement. Treats unintentional deletion of shipped work as a regression to be reverted to the previously intended state. Confidence: 0.7
 
 - Maintains secrets as one-file-per-credential under `~/.config/opencode/keys/` (e.g. `render_asa-oz_api_key`) and expects env vars to be populated from those files — e.g. shell rc exports like `export X="$(cat ~/.config/opencode/keys/<name> 2>/dev/null)"` — so rotating a credential is a one-file change instead of editing it in multiple places. Points the agent at the key file path so it can wire the env var up itself. Confidence: 0.7
+- Requires absolute links to use the canonical custom domain (`asa-oz.com`) and never the platform default host (`*.onrender.com`), even when `RENDER_EXTERNAL_URL` is available — applies to emailed links, logos, Stripe return URLs, OG tags and sitemaps. Confidence: 0.85
+
+(`*.onrender.com`), even when `RENDER_EXTERNAL_URL` is available — applies to emailed links, logos, Stripe return URLs, OG tags and sitemaps. Confidence: 0.8
 

@@ -32,7 +32,7 @@
         ('show_testimonials','Testimonials','Show the testimonials section'),
         ('show_pricing','Membership pricing','Show the pricing table'),
         ('show_not_this','“What this is not” note','Show the disclaimer note in the hero'),
-        ('simple_mode','Simple mode','Hides the pillars, expectations and gallery sections'),
+        ('simple_mode','Simple mode','Hides the pillars section on the landing page and the how/expect panels on the about page'),
       ] %}
       {% for key, label, hint in toggles %}
       <div class="control-row">
@@ -45,7 +45,7 @@
     <div class="card">
       <h2>Store &amp; pricing</h2>
       <div class="control-row">
-        <div class="control-label">Show prices<small>Show prices on the home teaser, store listings and product pages. Turn off to show “Pricing on request” instead</small></div>
+        <div class="control-label">Show prices<small>Show prices on the home teaser, store listings and product pages. Turn off to hide prices entirely</small></div>
         <input type="checkbox" name="show_prices" value="1" {% if settings.get('show_prices', '0') == '1' %}checked{% endif %} />
       </div>
     </div>
