@@ -110,6 +110,7 @@ ENDPOINT_PAGE = {
     "faq": "faq",
     "terms": "terms",
     "privacy": "privacy",
+    "policies": "policies",
     "contact": "contact",
     "store": "home",
     "product": "home",
@@ -554,6 +555,7 @@ def sitemap():
         ("/faq", 0.7, today),
         ("/terms", 0.5, today),
         ("/privacy", 0.5, today),
+        ("/policies", 0.5, today),
         ("/contact", 0.8, today),
     ]
     if db.get_settings().get("show_store", "0") == "1":
@@ -638,6 +640,11 @@ def terms():
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
+
+
+@app.route("/policies")
+def policies():
+    return render_template("policies.html")
 
 
 @app.route("/contact")

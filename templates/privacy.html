@@ -15,9 +15,17 @@
 
         {% for sec in cms.body.sections %}
         <h2>{{ sec.heading }}</h2>
+        {% set ns = namespace(inlist=false) %}
         {% for line in sec.body.split('\n') %}
-        {% if line.startswith('• ') %}<ul><li>{{ line[2:] }}</li></ul>{% else %}<p>{{ line }}</p>{% endif %}
+          {% if line.startswith('• ') %}
+            {% if not ns.inlist %}<ul>{% set ns.inlist = true %}{% endif %}
+            <li>{{ line[2:] }}</li>
+          {% else %}
+            {% if ns.inlist %}</ul>{% set ns.inlist = false %}{% endif %}
+            <p>{{ line }}</p>
+          {% endif %}
         {% endfor %}
+        {% if ns.inlist %}</ul>{% endif %}
         {% endfor %}
       </article>
 {% endblock %}

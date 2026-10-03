@@ -47,6 +47,10 @@ NAV_ENDPOINTS = [
     "admin_emails", "admin_import", "admin_settings", "admin_password",
 ]
 
+# Public legal and editorial pages. These render from CMS defaults rather than
+# hardcoded templates, so a bad default is invisible until the page is requested.
+PUBLIC_ENDPOINTS = ["index", "about", "faq", "terms", "privacy", "policies", "contact"]
+
 URL_FOR_RE = re.compile(r"url_for\(\s*['\"]([A-Za-z_][A-Za-z0-9_]*)['\"]")
 
 # The complete block vocabulary of the admin shell (admin/base.html plus the
@@ -182,6 +186,69 @@ class PhotosTemplateContract(unittest.TestCase):
     def test_api_error_is_surfaced(self):
         html = self._stub(error="token refresh failed: invalid_grant")
         self.assertIn("token refresh failed", html)
+
+
+class PublicPagesRender(unittest.TestCase):
+    """Every public page renders for a visitor.
+
+    The legal pages resolve their copy from CMS defaults, so a malformed default
+    (a stray placeholder, a broken bullet list) only shows up when the template
+    is actually rendered.
+    """
+
+    def test_public_pages_return_200(self):
+        client = flask_app.test_client()
+        for endpoint in PUBLIC_ENDPOINTS:
+            with self.subTest(endpoint=endpoint):
+                rule = next(
+                    r for r in flask_app.url_map.iter_rules()
+                    if r.endpoint == endpoint and "GET" in r.methods
+                )
+                response = client.get(rule.rule)
+                self.assertEqual(
+                    response.status_code, 200,
+                    "%s (%s) returned %s" % (endpoint, rule.rule, response.status_code),
+                )
+
+    def test_legal_pages_have_no_editor_directives(self):
+        """Source-document instructions must never reach a visitor."""
+        for endpoint in ("terms", "privacy", "policies"):
+            with self.subTest(endpoint=endpoint):
+                rule = next(
+                    r for r in flask_app.url_map.iter_rules()
+                    if r.endpoint == endpoint and "GET" in r.methods
+                )
+                body = flask_app.test_client().get(rule.rule).get_data(as_text=True)
+                self.assertNotIn("Expand:", body, "%s leaks a source directive" % endpoint)
+
+    def test_legal_pages_group_bullets_into_one_list(self):
+        """Three consecutive bullets must render as one list, not three.
+
+        Counting <ul> against <li> cannot catch this: a per-bullet template emits
+        exactly as many lists as bullets, so the ratio looks healthy. The only
+        reliable signal is a body with a known run of bullets, rendered through the
+        real route, so this drives /policies with a synthetic CMS payload.
+        """
+        payload = {"blocks": {"content": {"sections": [
+            {"heading": "Grouping probe", "body": "Intro line\n• one\n• two\n• three\nOutro line"},
+        ]}, "active": True}}
+
+        original = application.db.get_page_sections
+        application.db.get_page_sections = lambda page: payload if page == "policies" else original(page)
+        self.addCleanup(lambda: setattr(application.db, "get_page_sections", original))
+
+        body = flask_app.test_client().get("/policies").get_data(as_text=True)
+        lists = len(re.findall(r"<ul>", body))
+        bullets = body.count("<li>")
+        self.assertEqual(
+            bullets, 3, "expected the three probe bullets to render, got %d" % bullets
+        )
+        self.assertEqual(
+            lists, 1,
+            "three consecutive bullets produced %d lists, so each bullet opened its own"
+            % lists,
+        )
+        self.assertNotIn("<ul></ul>", body, "an empty list was rendered")
 
 
 class TemplateIntegrity(unittest.TestCase):
