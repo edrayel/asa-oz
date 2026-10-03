@@ -1,21 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Settings - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Settings</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+{% block page_title %}Settings{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <p class="sub" style="margin-bottom:1.2rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
     Behaviour and visibility settings only — copy and content live under <a href="{{ url_for('admin_pages') }}">Pages</a>.
   </p>
@@ -85,5 +72,4 @@
       <button class="btn" type="submit">Save settings</button>
     </div>
   </form>
-</div>
 {% endblock %}

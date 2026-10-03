@@ -1,21 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Products - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Products</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+{% block page_title %}Products{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <datalist id="productTypesList">
     {% for t in product_types %}<option value="{{ t }}"></option>{% endfor %}
   </datalist>
@@ -86,23 +73,19 @@
     </details>
     {% endfor %}
   </div>
-</div>
 
 <script>
 (function () {
-  function wire(scope) {
-    scope.querySelectorAll('[data-media-picker]').forEach(function (sel) {
-      var input = sel.closest('form').querySelector('[name="' + sel.getAttribute('data-media-picker') + '"]');
-      var preview = sel.closest('.media-picker').querySelector('[data-media-preview]');
-      sel.addEventListener('change', function () {
-        if (input && sel.value) input.value = sel.value;
-        if (preview) {
-          preview.innerHTML = sel.value ? '<img src="' + sel.value + '" alt="Preview" loading="lazy" />' : '';
-        }
-      });
+  document.querySelectorAll('[data-media-picker]').forEach(function (sel) {
+    var input = sel.closest('form').querySelector('[name="' + sel.getAttribute('data-media-picker') + '"]');
+    var preview = sel.closest('.media-picker').querySelector('[data-media-preview]');
+    sel.addEventListener('change', function () {
+      if (input && sel.value) input.value = sel.value;
+      if (preview) {
+        preview.innerHTML = sel.value ? '<img src="' + sel.value + '" alt="Preview" loading="lazy" />' : '';
+      }
     });
-  }
-  wire(document);
+  });
 })();
 </script>
 {% endblock %}

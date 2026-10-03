@@ -14,25 +14,31 @@ Two ways files reach the frontend:
 Configuration (environment variables):
 
   GOOGLE_DRIVE_CREDENTIALS
-      Path to a service-account or installed-app JSON file, or the JSON payload
-      itself. Service accounts are recommended for server use: enable the Drive
-      API in the Google Cloud project, create a service account, download its
-      JSON key, and share the target folder with the service account's email.
-      Scopes used: ``drive.readonly``.
+      Path to a JSON file, or the JSON payload itself. Normally the
+      authorized-user token written by ``authorize_google.py``, which acts as
+      the Google account that granted consent. A service-account key is also
+      accepted here (unlike the Photos integration, the Drive API supports
+      them); share the target folder with the service account's email.
+      Scope used: ``drive.readonly``.
 
   GOOGLE_DRIVE_FOLDER_ID
       Id of the Drive folder shown in the admin browser (optional; defaults to
       the account's My Drive).
 
+A bare OAuth *client* file from the Cloud console is not sufficient on its own:
+it proves which app is asking but carries no refresh token. ``google_creds``
+detects that case and the error tells the operator to run the consent helper.
+
 The app degrades gracefully: without credentials the admin Drive page explains
 the setup and every other feature keeps working.
 """
-import json
 import logging
 import os
 from urllib.parse import quote
 
 import requests
+
+import google_creds
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +61,13 @@ GOOGLE_NATIVE_MIMES = {
     "application/vnd.google-apps.drive-sdk",
 }
 
-SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
+# ``drive.readonly`` browses and links files that already exist; ``drive.file``
+# is the narrow write scope — it permits creating folders and uploading files
+# the app owns, while still leaving the rest of the account untouched.
+SCOPES = [
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/drive.file",
+]
 
 _CREDS = None
 _SERVICE = None
@@ -75,49 +87,28 @@ def root_folder_id():
     return (os.environ.get("GOOGLE_DRIVE_FOLDER_ID") or "").strip() or None
 
 
-def _load_info():
-    raw = os.environ.get("GOOGLE_DRIVE_CREDENTIALS", "")
-    if not raw:
-        raise DriveError("GOOGLE_DRIVE_CREDENTIALS is not set")
-    if os.path.isfile(raw):
-        try:
-            with open(raw, "r", encoding="utf-8") as fh:
-                payload = fh.read()
-        except OSError as exc:
-            raise DriveError("cannot read credentials file: %s" % exc)
-    else:
-        payload = raw
-    try:
-        return json.loads(payload)
-    except ValueError as exc:
-        raise DriveError("GOOGLE_DRIVE_CREDENTIALS is not valid JSON: %s" % exc)
-
-
 def _credentials():
     """Load (and cache) google-auth credentials from the environment."""
     global _CREDS
-    if _CREDS is not None:
-        return _CREDS
-    info = _load_info()
-    if info.get("type") == "service_account" or "client_email" in info:
-        from google.oauth2 import service_account
-        _CREDS = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
-    elif info.get("type") == "authorized_user" or ("refresh_token" in info and "client_id" in info):
-        from google.oauth2.credentials import Credentials as OAuthCredentials
-        _CREDS = OAuthCredentials.from_authorized_user_info(info)
-    else:
-        raise DriveError(
-            "GOOGLE_DRIVE_CREDENTIALS must be a service-account or authorized-user JSON file"
-        )
+    if _CREDS is None:
+        try:
+            _CREDS = google_creds.load(
+                "GOOGLE_DRIVE_CREDENTIALS", SCOPES, allow_service_account=True
+            )
+        except google_creds.CredentialError as exc:
+            raise DriveError(str(exc))
     return _CREDS
 
 
 def _access_token():
-    creds = _credentials()
-    if not creds.valid:
-        from google.auth.transport.requests import Request
-        creds.refresh(Request())
-    return creds.token
+    try:
+        return google_creds.access_token(_credentials())
+    except DriveError:
+        # Already a clear configuration message; don't bury it in a wrapper.
+        raise
+    except Exception as exc:  # google.auth RefreshError and friends
+        logger.warning("drive: token refresh failed: %s", _exc_text(exc))
+        raise DriveError("Drive token refresh failed: %s" % _exc_text(exc))
 
 
 def _service():
@@ -125,7 +116,10 @@ def _service():
     global _SERVICE
     if _SERVICE is None:
         from googleapiclient.discovery import build
-        _SERVICE = build("drive", "v3", credentials=_credentials(), cache_discovery=False)
+        try:
+            _SERVICE = build("drive", "v3", credentials=_credentials(), cache_discovery=False)
+        except google_creds.CredentialError as exc:
+            raise DriveError(str(exc))
     return _SERVICE
 
 

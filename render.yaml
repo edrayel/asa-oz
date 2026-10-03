@@ -35,4 +35,4 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       # Optional — see DEPLOY.md for the full list of supported env vars
-      # (STRIPE_*, SMTP_*, GOOGLE_DRIVE_*, ADSENSE_PUBLISHER_ID).
+      # (STRIPE_*, SMTP_*, GOOGLE_DRIVE_*, GOOGLE_PHOTOS_*, ADSENSE_PUBLISHER_ID).

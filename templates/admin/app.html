@@ -1,0 +1,33 @@
+{# Authenticated admin shell: left sidebar, sticky appbar, page head.
+
+   Every signed-in page extends this instead of base.html, so the chrome lives
+   in exactly one place. Pages provide their own title and action buttons, and
+   put their content in the `content` block. #}
+{% extends "admin/base.html" %}
+{% block body %}
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    {% include "admin/_nav.html" %}
+  </aside>
+  <div class="admin-scrim" id="adminScrim"></div>
+  <div class="admin-main">
+    {% include "admin/_appbar.html" %}
+    <main class="admin-content">
+      <div class="admin-wrap">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="admin-pagehead">
+          <h1>{% block page_title %}{% endblock %}</h1>
+          <div class="actions">{% block page_actions %}{% endblock %}</div>
+        </div>
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

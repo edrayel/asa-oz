@@ -1,21 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Files - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Files</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+{% block page_title %}Files{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <div class="card">
     <h2>Upload files</h2>
     <p class="sub">Files are stored outside the database (see <code>UPLOAD_DIR</code>); the DB keeps only the paths and the public URLs below are ready to paste into products or the hero carousel.</p>
@@ -63,7 +50,6 @@
     <p class="empty-state">No files uploaded yet.</p>
     {% endif %}
   </div>
-</div>
 
 <script>
 (function () {

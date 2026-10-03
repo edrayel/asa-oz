@@ -1,27 +1,10 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Stories | Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header">
-    <h1>Stories</h1>
-    <div class="actions">
-      <a class="btn" href="{{ url_for('admin_blog_new') }}">New story</a>
+{% block page_title %}Stories{% endblock %}
+{% block page_actions %}<a class="btn" href="{{ url_for('admin_blog_new') }}">New story</a>
       <a class="btn btn-ghost" href="{{ url_for('blog') }}" target="_blank">View on site</a>
-      <a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>
-      <form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form>
-    </div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+      <a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <div class="card">
     <h2>
       {% if status_filter == 'draft' %}Drafts
@@ -66,5 +49,4 @@
     <p class="empty-state">No stories yet. <a href="{{ url_for('admin_blog_new') }}">Write one</a>.</p>
     {% endif %}
   </div>
-</div>
 {% endblock %}

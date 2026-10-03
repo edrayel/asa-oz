@@ -161,12 +161,116 @@ Two things to know:
 - `MAIL_SYNC=1` makes sends synchronous. It exists for tests; leave it unset
   in production or every form POST waits on SMTP.
 
-### 2.3 Google Drive (admin media library)
+### 2.3 Google Drive and Google Photos (admin media library)
+
+Both integrations act as the Google account that granted consent, each from a
+refresh token. Drive can browse, import and link; Photos can only import.
 
 | Var | Purpose |
 |---|---|
-| `GOOGLE_DRIVE_CREDENTIALS` | Service-account JSON, either a path to a file or the raw JSON string. `drive.readonly` scope only. |
-| `GOOGLE_DRIVE_FOLDER_ID` | Drive folder to browse by default. Optional. |
+| `GOOGLE_DRIVE_CREDENTIALS` | An authorized-user token (a path or the raw JSON) written by `authorize_google.py`. A service-account key also works here. Scope: `drive.readonly`. |
+| `GOOGLE_DRIVE_FOLDER_ID` | Drive folder to browse by default. Optional; defaults to My Drive. |
+| `GOOGLE_PHOTOS_CREDENTIALS` | An authorized-user token for the Photos Picker. Scope: `photospicker.mediaitems.readonly`. |
+
+#### One-time authorisation
+
+The credential stored in the Cloud project is a **Web OAuth client**. It is not
+enough on its own: it identifies the application, but carries no user consent
+and no refresh token. Pointing `GOOGLE_DRIVE_CREDENTIALS` straight at
+`client_secret_*.json` fails with an error saying exactly that.
+
+One consent run mints the refresh token both integrations use:
+
+```bash
+.venv/bin/python authorize_google.py                 # Drive + Photos scopes
+.venv/bin/python authorize_google.py --scopes drive  # Drive only
+```
+
+The script listens on an already-registered redirect
+(`http://localhost:5000/auth/callback`), prints the consent URL, and writes the
+token to `~/.config/opencode/keys/asa-oz_google_oauth_token.json` (mode `600`,
+outside the repo). It uses PKCE, never prints a secret, and explains the usual
+Google error codes (`invalid_scope`, `redirect_uri_mismatch`, `access_denied`)
+rather than failing silently. Pass `--no-browser` to print the URL instead of
+opening one. Rotating is a one-file change; re-run the script with `--out`.
+
+Then export, following this repo's one-file-per-secret convention:
+
+```sh
+export GOOGLE_DRIVE_CREDENTIALS="$HOME/.config/opencode/keys/asa-oz_google_oauth_token.json"
+export GOOGLE_PHOTOS_CREDENTIALS="$GOOGLE_DRIVE_CREDENTIALS"
+```
+
+In production set both in the Render dashboard. Saving env vars restarts the
+service.
+
+#### Refresh tokens expire after 7 days in Testing
+
+While the OAuth consent screen's publishing status is **Testing** and the user
+type is **External**, Google issues a refresh token that expires in 7 days — a
+documented behaviour, not a bug here. The symptom is Drive and Photos suddenly
+returning `invalid_grant` and `/health` reporting `drive: false`.
+
+Either re-run `authorize_google.py` weekly, or publish the consent screen
+(**Publish app**) so tokens stop expiring. Publishing is the real fix; both
+`drive.readonly` and `photospicker.mediaitems.readonly` are sensitive scopes, so
+Google may require verification before it applies to accounts other than test
+users. For a single-owner admin tool, staying in Testing with the owner listed
+under **Test users** is the lowest-friction option.
+
+#### Google Drive
+
+Browse a folder in `/admin/drive`, then **import** a file (bytes are copied into
+`UPLOAD_DIR`, `source='drive-import'`, served by the normal `/media/<path>`
+route) or **link** it (`source='drive'`, streamed live through
+`/media/drive/<id>/<name>` from a stable file id). Google-native files (Docs,
+Sheets, Slides) have no raw bytes and are hidden. Drive is read-only
+throughout.
+
+If the browser cannot list anything, check the account that consented can
+actually see the folder: consent grants access to *that account's* Drive, so a
+folder shared with a different Google account is invisible.
+
+#### Google Photos
+
+**The Library API can no longer read an existing library.** On 31 March 2025
+Google removed the `photoslibrary.readonly`, `photoslibrary.sharing` and
+`photoslibrary` scopes; the Library API now only reads media the app itself
+uploaded. Any older integration that browsed a whole library is dead. The
+**Picker API** is the only supported replacement, and it is interactive by
+design:
+
+1. `/admin/photos` → **Start picking session**
+2. open the picker link and select photos inside Google Photos
+3. the page polls itself and, once Google reports the selection, lists what was picked
+4. **Import** copies the bytes into the media library (`source='photos'`)
+
+Consequences worth knowing before promising the feature to anyone:
+
+- **There is no unattended sync.** A human has to pick, every time. Nothing can
+  list your library in the background.
+- **Picks are always imported, never linked.** A picked item's `baseUrl` expires
+  within minutes, so there is nothing stable to stream from — unlike Drive,
+  which links by file id.
+- **Service accounts are not supported** by the Photos APIs at all.
+- **Phone originals are often HEIC**, which browsers cannot render. Those items
+  are skipped and reported rather than imported as broken images.
+- A pick's id is stable across sessions, so re-picking the same photo is
+  recognised and not imported twice.
+- The scope is sensitive: publishing the app publicly triggers Google's
+  verification review, and the Photos APIs have their own separate policy
+  review on top of OAuth verification.
+
+Health check note: `/health` exercises the database and Drive but deliberately
+not Photos. A Picker session is a limited resource per user and creating one as
+a probe would burn it; Drive is a cheap read that genuinely proves the
+credential works.
+
+Sources (verified against these, not written from memory):
+- [Updates to the Google Photos APIs](https://developers.google.com/photos/support/updates)
+- [Google Photos Picker API: get started](https://developers.google.com/photos/picker/guides/get-started-picker)
+- [Google Photos APIs: authorization scopes](https://developers.google.com/photos/overview/authorization)
+- [Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/oauth2)
 
 ### 2.4 App
 
@@ -339,6 +443,11 @@ python3 -m venv .venv
 export SECRET_KEY=$(.venv/bin/python -c 'import secrets;print(secrets.token_urlsafe(48))')
 export ADMIN_PASSWORD=$(.venv/bin/python -c 'import secrets;print(secrets.token_urlsafe(16))')
 
+# Optional: Google Drive / Photos (see § 2.3). Run once, approve in the browser.
+.venv/bin/python authorize_google.py
+export GOOGLE_DRIVE_CREDENTIALS="$HOME/.config/opencode/keys/asa-oz_google_oauth_token.json"
+export GOOGLE_PHOTOS_CREDENTIALS="$GOOGLE_DRIVE_CREDENTIALS"
+
 .venv/bin/python app.py    # dev server, http://localhost:5000
 ```
 
@@ -355,9 +464,13 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
       (otherwise the site runs in enquiry-only mode)
 - [ ] `SMTP_*` set with Zoho Mail credentials (use an app password if 2FA
       is enabled on the Zoho account)
-- [ ] `GOOGLE_DRIVE_CREDENTIALS` set if you want the admin Drive browser
+- [ ] `authorize_google.py` run once, with `GOOGLE_DRIVE_CREDENTIALS` (and
+      optionally `GOOGLE_PHOTOS_CREDENTIALS`) pointing at the token file, if you
+      want the admin Drive browser and Photos import
+- [ ] OAuth consent screen published, or a weekly `authorize_google.py` re-run
+      scheduled — Testing-mode refresh tokens expire after 7 days
 - [ ] First boot logs `boot: drive configured=True` (or `False` if
-      intentionally skipped)
+      intentionally skipped) and `boot: photos configured=…`
 - [ ] First boot logs `boot: email configured=True host=smtppro.zoho.eu`
       (or `False` if mail is intentionally off)
 - [ ] `GET /health` returns 200 with all subsystems `true`
@@ -375,5 +488,8 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
 - **Admin password** is hashed with `werkzeug.security` (pbkdf2:sha256).
 - **`MAX_CONTENT_LENGTH`** rejects oversize uploads at the Werkzeug
   level (HTTP 413) before they reach the view code.
-- **Google Drive credentials** never touch the database and are never
-  logged. The Drive integration has read-only scope.
+- **Google credentials** (Drive and Photos) never touch the database and are
+  never logged. Both integrations are read-only: `drive.readonly` and
+  `photospicker.mediaitems.readonly`. The refresh token lives outside the repo
+  under `~/.config/opencode/keys/` and is loaded via
+  `GOOGLE_DRIVE_CREDENTIALS` / `GOOGLE_PHOTOS_CREDENTIALS`.

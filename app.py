@@ -13,6 +13,7 @@ import json
 import logging
 import mimetypes
 import os
+import sqlite3
 import uuid
 import base64
 import csv
@@ -35,6 +36,7 @@ import csrf
 import drive
 import mailer
 import notify
+import photos
 import nh3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -310,17 +312,35 @@ def _save_stream(stream, rel):
     dest = _upload_abs(rel)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     size = 0
-    with open(dest, "wb") as f:
-        while True:
-            chunk = stream.read(1024 * 1024)
-            if not chunk:
-                break
-            size += len(chunk)
-            if size > MAX_UPLOAD_MB * 1024 * 1024:
-                os.remove(dest)
-                raise ValueError("file exceeds %d MB" % MAX_UPLOAD_MB)
-            f.write(chunk)
+    try:
+        with open(dest, "wb") as f:
+            while True:
+                chunk = stream.read(1024 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > MAX_UPLOAD_MB * 1024 * 1024:
+                    raise ValueError("file exceeds %d MB" % MAX_UPLOAD_MB)
+                f.write(chunk)
+    except ValueError:
+        _discard_partial(rel)
+        raise
+    except OSError as exc:
+        # A full disk or a broken connection must not leave a truncated file
+        # that looks like a complete upload to the media library.
+        _discard_partial(rel)
+        raise OSError("could not write %s: %s" % (rel, exc))
     return size
+
+
+def _discard_partial(rel):
+    """Remove a half-written upload; a missing file is not an error."""
+    if not rel:
+        return
+    try:
+        os.remove(_upload_abs(rel))
+    except OSError:
+        pass
 
 
 def _store_upload(file_storage):
@@ -1053,6 +1073,9 @@ def admin_files_upload():
             added += 1
         except ValueError as exc:
             errors.append("%s: %s" % (fs.filename, exc))
+        except (OSError, sqlite3.Error) as exc:
+            # One bad file must not fail the whole batch.
+            errors.append("%s: %s" % (fs.filename, exc))
     if errors:
         flash("; ".join(errors), "error")
     if added:
@@ -1178,6 +1201,7 @@ def admin_drive_import():
         flash("Missing Drive file id.", "error")
         return redirect(back)
     resp = None
+    rel = None
     try:
         meta = drive.get_metadata(file_id)
         if meta.get("is_folder") or not meta.get("is_binary"):
@@ -1195,6 +1219,10 @@ def admin_drive_import():
         flash("Imported “%s” from Drive." % (meta.get("name") or "file"))
     except (drive.DriveError, ValueError) as exc:
         flash("Import failed: %s" % exc, "error")
+        _discard_partial(rel)
+    except sqlite3.Error as exc:
+        flash("Import failed: could not record file (%s)" % exc, "error")
+        _discard_partial(rel)
     finally:
         if resp is not None:
             resp.close()
@@ -1229,6 +1257,202 @@ def admin_drive_link():
     except (drive.DriveError, ValueError) as exc:
         flash("Link failed: %s" % exc, "error")
     return redirect(back)
+
+
+# ------------------ admin: Google Photos ------------------
+# Picks are always *imported*, never linked: a picked item's baseUrl expires,
+# so unlike a Drive link there is nothing stable to stream from afterwards.
+
+PHOTOS_SESSION_KEY = "photos_picker_session"
+# Fallback extensions for items whose filename carries nothing usable. HEIC is
+# deliberately absent: Google returns phone originals, browsers cannot render
+# them, and importing one would put a broken image in the media library.
+PHOTOS_MIME_EXT = {
+    "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp",
+    "image/gif": "gif", "image/avif": "avif",
+    "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
+}
+# Types no browser can render, whatever the filename claims. A phone original
+# is reported as one of these, so they are checked before the filename: a mislabelled
+# item must be skipped rather than stored under an extension that implies it works.
+PHOTOS_UNRENDERABLE_MIME = {
+    "image/heic", "image/heic-sequence", "image/heif", "image/heif-sequence",
+}
+# The same formats by extension, for the reverse mislabelling: a .heic name whose
+# MIME claims JPEG still holds HEIC bytes, and renaming it .jpg would import a
+# broken image rather than prevent one.
+PHOTOS_UNRENDERABLE_EXT = {"heic", "heic-sequence", "heif", "heif-sequence"}
+
+
+def _photos_extension(media):
+    """A serveable extension for a picked item, or "" when none applies."""
+    mime = (media.get("mimeType") or "").split(";")[0].strip().lower()
+    if mime in PHOTOS_UNRENDERABLE_MIME:
+        return ""
+    ext = _ext_of(media.get("filename") or "")
+    if ext in PHOTOS_UNRENDERABLE_EXT:
+        return ""
+    if ext in ALLOWED_EXT:
+        return ext
+    return PHOTOS_MIME_EXT.get(mime, "")
+
+
+@app.route("/admin/photos")
+@admin_required
+def admin_photos():
+    ctx = {"photos_ok": photos.is_configured(), "picker": "", "items": [],
+           "poll_seconds": 5, "error": ""}
+    if not ctx["photos_ok"]:
+        return render_template("admin/photos.html", **ctx)
+    session_id = session.get(PHOTOS_SESSION_KEY)
+    if session_id:
+        try:
+            live = photos.get_session(session_id)
+        except photos.PhotosError as exc:
+            # A session that expired or was deleted is dropped rather than left
+            # to fail on every page load.
+            session.pop(PHOTOS_SESSION_KEY, None)
+            ctx["error"] = str(exc)
+            return render_template("admin/photos.html", **ctx)
+        ctx["poll_seconds"] = photos.poll_hint(live)
+        if live.get("mediaItemsSet"):
+            try:
+                # Paged fully, so the count on screen matches what an import of
+                # this session will actually fetch.
+                ctx["items"] = photos.all_media_items(session_id)
+            except photos.PhotosError as exc:
+                ctx["error"] = str(exc)
+        else:
+            ctx["picker"] = photos.picker_url(live)
+    return render_template("admin/photos.html", **ctx)
+
+
+@app.route("/admin/photos/session", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_photos_session():
+    if not photos.is_configured():
+        abort(404)
+    # One open session at a time: Google rate-limits them per user, and an
+    # abandoned one is dead the moment the user taps Done anyway.
+    previous = session.pop(PHOTOS_SESSION_KEY, None)
+    if previous:
+        photos.delete_session(previous)
+    try:
+        created = photos.create_session()
+    except photos.PhotosError as exc:
+        flash("Could not start a Google Photos session: %s" % exc, "error")
+        return redirect(url_for("admin_photos"))
+    new_id = (created.get("id") or "").strip()
+    if not new_id:
+        # create_session only guarantees a picker URI; a response without an id
+        # would be unusable, so it is treated as a failure rather than stored.
+        app.logger.warning("photos: create_session returned no session id")
+        flash("Google Photos returned a session without an id — try again.", "error")
+        return redirect(url_for("admin_photos"))
+    session[PHOTOS_SESSION_KEY] = new_id
+    return redirect(url_for("admin_photos"))
+
+
+@app.route("/admin/photos/cancel", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_photos_cancel():
+    session_id = session.pop(PHOTOS_SESSION_KEY, None)
+    if session_id:
+        photos.delete_session(session_id)
+        flash("Picking session discarded.")
+    return redirect(url_for("admin_photos"))
+
+
+@app.route("/admin/photos/import", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_photos_import():
+    if not photos.is_configured():
+        abort(404)
+    session_id = session.get(PHOTOS_SESSION_KEY)
+    if not session_id:
+        flash("No Google Photos session is open — start one first.", "error")
+        return redirect(url_for("admin_photos"))
+    try:
+        live = photos.get_session(session_id)
+        if not live.get("mediaItemsSet"):
+            flash("Nothing picked yet — finish selecting in Google Photos, then check again.", "error")
+            return redirect(url_for("admin_photos"))
+        items = photos.all_media_items(session_id)
+    except photos.PhotosError as exc:
+        # An expired or deleted session must not be retried against; drop it so
+        # the next page load offers a fresh one instead of erroring again.
+        session.pop(PHOTOS_SESSION_KEY, None)
+        flash("Google Photos error: %s" % exc, "error")
+        return redirect(url_for("admin_photos"))
+
+    added, duplicates, skipped, errors = 0, 0, 0, []
+    for item in items:
+        media = item.get("mediaFile") or {}
+        # PickedMediaItem.id is stable across sessions, so a re-pick of the same
+        # photo is recognised instead of imported twice.
+        media_id = (item.get("id") or "").strip()
+        if media_id and db.get_file_by_photos_id(media_id):
+            duplicates += 1
+            continue
+        ext = _photos_extension(media)
+        if not ext or not media.get("baseUrl"):
+            skipped += 1
+            app.logger.warning(
+                "photos import: skipped %s (type %s not serveable)",
+                media.get("filename") or media_id or "unknown item",
+                media.get("mimeType") or "unknown",
+            )
+            continue
+        name = media.get("filename") or "photo.%s" % ext
+        resp = None
+        rel = None
+        try:
+            rel = _new_rel_path(name)
+            resp = photos.download(media["baseUrl"])
+            size = _save_stream(resp.raw, rel)
+            # Inside the guard: a failed insert would otherwise 500 with the
+            # bytes already on disk and no row pointing at them.
+            db.add_file(path=rel, name=name,
+                        kind="image" if ext in IMAGE_EXT else "document",
+                        size=size, mime=media.get("mimeType") or "",
+                        source="photos", photos_id=media_id)
+        except (photos.PhotosError, ValueError) as exc:
+            errors.append("%s: %s" % (name, exc))
+            _discard_partial(rel)
+            continue
+        except sqlite3.IntegrityError:
+            # The partial unique index on photos_id means a concurrent import of
+            # the same photo lost the race. The other copy is already stored, so
+            # treat this as the duplicate it is rather than a failure.
+            duplicates += 1
+            _discard_partial(rel)
+            continue
+        except sqlite3.Error as exc:
+            errors.append("%s: could not record file (%s)" % (name, exc))
+            _discard_partial(rel)
+            continue
+        finally:
+            if resp is not None:
+                resp.close()
+        added += 1
+
+    if errors:
+        # Keep the session so a failed item can be retried; otherwise consume it.
+        flash("Some items could not be imported: %s" % "; ".join(errors[:5]), "error")
+    else:
+        photos.delete_session(session_id)
+        session.pop(PHOTOS_SESSION_KEY, None)
+
+    summary = "Imported %d item(s) from Google Photos." % added
+    if duplicates:
+        summary += " %d already in the library." % duplicates
+    if skipped:
+        summary += " %d skipped as unserveable." % skipped
+    flash(summary, "error" if errors else "success")
+    return redirect(url_for("admin_photos"))
 
 
 @app.route("/admin/feedback")
@@ -1883,6 +2107,7 @@ def server_error(e):
 with app.app_context():
     _seed_home_marquee()
     app.logger.info("boot: drive configured=%s", drive.is_configured())
+    app.logger.info("boot: photos configured=%s", photos.is_configured())
     app.logger.info("boot: email configured=%s host=%s", notify.is_configured(), os.environ.get("SMTP_HOST", "-"))
 
 if __name__ == "__main__":

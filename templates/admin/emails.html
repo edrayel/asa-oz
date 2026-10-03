@@ -1,13 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Emails - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Emails</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
-
+{% block page_title %}Emails{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <div class="card">
     <h2>Delivery</h2>
     <table>
@@ -43,5 +38,4 @@
     </table>
     {% else %}<p class="empty-state">No emails have been sent yet.</p>{% endif %}
   </div>
-</div>
 {% endblock %}

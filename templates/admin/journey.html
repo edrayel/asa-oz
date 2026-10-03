@@ -1,12 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Journey Subscribers - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Journey Subscribers</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
+{% block page_title %}Journey Subscribers{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <div class="card">
     <h2>{{ items|length }} subscribers</h2>
     <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
@@ -32,5 +28,4 @@
     </table>
     {% else %}<p class="empty-state">No journey subscribers yet.</p>{% endif %}
   </div>
-</div>
 {% endblock %}

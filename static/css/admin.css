@@ -1,22 +1,28 @@
-:root{--espresso:#2b2118;--cafe:#6f5a3f;--cafe-ink:#4a3a28;--paper:#faf6ef;--cream:#f3ecdf;--sage-deep:#4a6650;--muted:#8a7d6d;--ink:#2b2118;--serif:'Fraunces',Georgia,serif;--sans:'Jost',system-ui,sans-serif;}
+:root{--espresso:#2b2118;--cafe:#6f5a3f;--cafe-ink:#4a3a28;--paper:#faf6ef;--cream:#f3ecdf;--sage-deep:#4a6650;--muted:#8a7d6d;--ink:#2b2118;--serif:'Fraunces',Georgia,serif;--sans:'Jost',system-ui,sans-serif;--admin-sidebar-w:248px;--admin-appbar-h:60px;}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body.admin-body{background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
 a{color:var(--sage-deep)}
-.admin-wrap{max-width:1060px;margin:0 auto;padding:2rem 1.25rem}
-.admin-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem}
-.admin-header h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0;color:var(--espresso)}
-.admin-header .actions{display:flex;gap:0.5rem;align-items:center}
-.admin-header .actions a,.admin-header .actions form{display:inline-block}
+.admin-wrap{max-width:1100px;margin:0;padding:1.75rem clamp(1rem,2.4vw,2rem) 3rem}
+.admin-pagehead{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.admin-pagehead h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0;color:var(--espresso)}
+/* Pages without their own heading (the dashboard, whose title the appbar brand already covers) drop the empty <h1> entirely. */
+.admin-pagehead h1:empty{display:none}
+.admin-pagehead .actions{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-left:auto}
+.admin-pagehead .actions a,.admin-pagehead .actions form{display:inline-block}
 .btn{border:1px solid var(--espresso);background:var(--espresso);color:var(--paper);padding:0.45rem 1.1rem;border-radius:100px;font-family:var(--sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;line-height:1;cursor:pointer;text-decoration:none;transition:background .3s ease,border-color .3s ease,color .3s ease}
 .btn:hover{background:var(--cafe);border-color:var(--cafe)}
 .btn:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px}
 .btn-ghost{background:transparent;color:var(--espresso)}
 .btn-ghost:hover{background:rgba(43,33,24,0.06)}
 .btn-danger{background:#b5482c;border-color:#b5482c}
-.admin-nav{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:1.75rem}
-.admin-nav a{text-decoration:none;color:var(--cafe-ink);padding:0.4rem 0.9rem;border:1px solid rgba(111,90,63,0.25);border-radius:100px;font-size:0.8rem;letter-spacing:0.04em}
-.admin-nav a.active{background:var(--espresso);color:var(--paper);border-color:var(--espresso)}
+.admin-nav{display:flex;flex-direction:column;gap:0.1rem}
+.admin-nav-group{margin-top:0.65rem}
+.admin-nav-group:first-child{margin-top:0}
+.admin-nav-group-label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:0 0.7rem;margin-bottom:0.25rem}
+.admin-nav a{display:block;text-decoration:none;color:var(--cafe-ink);padding:0.38rem 0.7rem;border-radius:9px;font-size:0.84rem;letter-spacing:0.01em;transition:background .2s ease,color .2s ease}
+.admin-nav a:hover{background:rgba(43,33,24,0.06);color:var(--espresso)}
+.admin-nav a.active{background:var(--espresso);color:var(--paper)}
 .card{background:#fffdf8;border:1px solid rgba(111,90,63,0.15);border-radius:16px;padding:1.25rem 1.4rem;margin-bottom:1rem}
 .card h2{font-family:var(--serif);font-weight:400;font-size:1.15rem;margin:0 0 0.25rem;color:var(--espresso)}
 .card .sub{color:var(--muted,#8a7d6d);font-size:0.85rem;margin:0 0 1rem}
@@ -35,7 +41,8 @@ td.wrap{max-width:340px;word-break:break-word}
 .badge-paid,.badge-success{background:rgba(74,102,80,0.16);color:var(--sage-deep)}
 .badge-cancelled,.badge-action{background:rgba(181,72,44,0.12);color:#b5482c}
 .empty-state{color:var(--muted,#8c7d6d);font-style:italic;padding:1.4rem 0;text-align:center}
-.login-card{max-width:360px;margin:8vh auto;background:#fffdf8;border:1px solid rgba(111,90,63,0.15);border-radius:18px;padding:2rem 2rem 1.6rem;box-shadow:0 24px 60px -38px rgba(43,33,24,0.35)}
+.login-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.login-card{max-width:360px;margin:0;background:#fffdf8;border:1px solid rgba(111,90,63,0.15);border-radius:18px;padding:2rem 2rem 1.6rem;box-shadow:0 24px 60px -38px rgba(43,33,24,0.35)}
 .login-card h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0 0 1.1rem;color:var(--espresso);text-align:center}
 .login-card label{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted,#8c7d6d);display:block;margin:0.8rem 0 0.3rem}
 .login-card input{width:100%;border:1px solid rgba(111,90,63,0.28);border-radius:10px;padding:0.6rem 0.8rem;font-family:var(--sans);font-size:0.95rem;background:#fff}
@@ -48,6 +55,14 @@ td.wrap{max-width:340px;word-break:break-word}
 .form-row{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.9rem}
 .form-row label{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted,#8c7d6d)}
 .form-row input,.form-row select,.form-row textarea{border:1px solid rgba(111,90,63,0.28);border-radius:10px;padding:0.55rem 0.8rem;font-family:var(--sans);font-size:0.9rem;background:#fff;width:100%}
+/* File pickers keep the native control, so keyboard access and drag-and-drop keep
+   working, but its grey button is restyled to match the admin pill buttons and the
+   heavy input box is dropped so the picker reads as one control. */
+.form-row input[type=file]{width:auto;max-width:100%;align-self:flex-start;border:0;background:transparent;padding:0;color:var(--muted);font-size:0.85rem;cursor:pointer}
+.form-row input[type=file]::file-selector-button{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;line-height:1;color:var(--paper);background:var(--espresso);border:1px solid var(--espresso);border-radius:100px;padding:0.5rem 1.1rem;margin-right:0.8rem;cursor:pointer;vertical-align:middle;transition:background .3s ease,border-color .3s ease}
+.form-row input[type=file]:hover::file-selector-button{background:var(--cafe);border-color:var(--cafe)}
+.form-row input[type=file]:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px;border-radius:100px}
+.form-row input[type=file]:focus-visible::file-selector-button{outline:2px solid var(--sage-deep);outline-offset:2px}
 .media-picker{display:flex;flex-direction:column;gap:0.4rem}
 .media-preview{min-height:0}
 .media-preview img{max-width:160px;max-height:110px;object-fit:cover;border-radius:8px;border:1px solid rgba(111,90,63,0.2)}
@@ -94,3 +109,44 @@ details.admin-details .inner{margin-top:0.8rem}
 .file-url{width:100%;font-size:0.75rem;padding:0.35rem 0.5rem;border:1px solid rgba(111,90,63,0.25);border-radius:8px;background:#fff}
 .file-url-details .copy-btn{padding:0.25rem 0.7rem;font-size:0.68rem;margin-top:0.35rem}
 @media(max-width:640px){.file-grid{grid-template-columns:1fr 1fr}.file-thumb{height:100px}}
+
+/* ---- Admin shell: left sidebar + sticky appbar ---- */
+.admin-shell{display:flex;align-items:flex-start;min-height:100vh}
+.admin-sidebar{flex:0 0 var(--admin-sidebar-w);width:var(--admin-sidebar-w);position:sticky;top:0;height:100vh;overflow-y:auto;background:#fffdf8;border-right:1px solid rgba(111,90,63,0.15);padding:1rem 0.85rem 1.25rem;z-index:45}
+.admin-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;min-height:100vh}
+.admin-appbar{position:sticky;top:0;z-index:30;height:var(--admin-appbar-h);display:flex;align-items:center;gap:0.6rem;padding:0 clamp(0.9rem,2vw,1.5rem);background:rgba(250,246,239,0.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid rgba(111,90,63,0.15)}
+.admin-brand{display:flex;align-items:center;gap:0.55rem;margin-right:auto;min-width:0;text-decoration:none;color:var(--espresso)}
+.admin-brand img{height:24px;width:auto;display:block}
+.admin-brand span{font-family:var(--serif);font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-iconbtn{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;padding:0;border-radius:50%;border:1px solid rgba(111,90,63,0.25);background:transparent;color:var(--cafe-ink);cursor:pointer;text-decoration:none;transition:background .2s ease,color .2s ease,border-color .2s ease}
+.admin-iconbtn:hover{background:rgba(43,33,24,0.06);color:var(--espresso);border-color:rgba(111,90,63,0.4)}
+.admin-iconbtn:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px}
+.admin-menu-toggle{display:none}
+.admin-profile{position:relative}
+.admin-avatar{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;padding:0;border-radius:50%;border:1px solid var(--espresso);background:var(--espresso);color:var(--paper);font-family:var(--serif);font-size:0.95rem;line-height:1;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.admin-avatar:hover{background:var(--cafe);border-color:var(--cafe)}
+.admin-avatar:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px}
+.admin-menu{position:absolute;right:0;top:calc(100% + 0.5rem);min-width:215px;padding:0.4rem;background:#fffdf8;border:1px solid rgba(111,90,63,0.18);border-radius:14px;box-shadow:0 18px 40px -24px rgba(43,33,24,0.45);z-index:50;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease}
+.admin-menu.is-open{opacity:1;visibility:visible;transform:translateY(0)}
+.admin-menu-user{display:block;padding:0.45rem 0.7rem 0.5rem;margin-bottom:0.3rem;border-bottom:1px solid rgba(111,90,63,0.12);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-menu form{margin:0}
+.admin-menu-item{display:block;width:100%;padding:0.5rem 0.7rem;border:0;border-radius:9px;background:none;font-family:var(--sans);font-size:0.86rem;line-height:1.4;color:var(--cafe-ink);text-align:left;text-decoration:none;cursor:pointer}
+.admin-menu-item:hover{background:rgba(43,33,24,0.06);color:var(--espresso)}
+.admin-menu-item:focus-visible{outline:2px solid var(--sage-deep);outline-offset:-2px}
+.admin-menu-item.danger{color:#b5482c}
+.admin-menu-item.danger:hover{background:rgba(181,72,44,0.08)}
+.admin-scrim{position:fixed;inset:0;z-index:40;background:rgba(43,33,24,0.42);opacity:0;pointer-events:none;transition:opacity .3s ease}
+.admin-scrim.is-open{opacity:1;pointer-events:auto}
+
+@media(max-width:1279px){:root{--admin-sidebar-w:220px}}
+@media(max-width:799px){
+  .admin-shell{display:block}
+  .admin-sidebar{position:fixed;top:0;left:0;bottom:0;height:100%;width:84%;max-width:300px;transform:translateX(-100%);box-shadow:none;transition:transform .3s ease,box-shadow .3s ease}
+  .admin-sidebar.is-open{transform:translateX(0);box-shadow:0 24px 60px -30px rgba(43,33,24,0.5)}
+  .admin-menu-toggle{display:grid}
+  .admin-appbar{gap:0.5rem}
+  .admin-wrap{padding:1.25rem 0.9rem 2.5rem}
+  /* Wide data tables scroll inside their card instead of pushing the page sideways. */
+  .card{overflow-x:auto}
+}
+@media(prefers-reduced-motion:reduce){.admin-sidebar,.admin-scrim,.admin-menu,.admin-nav a,.admin-iconbtn,.admin-avatar{transition:none}}

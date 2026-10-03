@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS files (
   mime TEXT NOT NULL DEFAULT '',
   source TEXT NOT NULL DEFAULT 'upload',
   drive_id TEXT NOT NULL DEFAULT '',
+  photos_id TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -263,6 +264,10 @@ def init_db():
     # Google Drive integration existed.
     _ensure_column(conn, "files", "drive_id", "TEXT NOT NULL DEFAULT ''")
 
+    # Migrate: add photos_id for the Google Photos Picker integration, which
+    # records the persistent media-item id of each imported pick.
+    _ensure_column(conn, "files", "photos_id", "TEXT NOT NULL DEFAULT ''")
+
     # Migrate: double opt-in state for existing newsletter lists. Rows that
     # predate this feature are treated as confirmed, since they signed up when
     # the site promised a single-step join.
@@ -286,6 +291,21 @@ def init_db():
         "CREATE UNIQUE INDEX IF NOT EXISTS idx_journey_email "
         "ON journey_subscribers(lower(email))"
     )
+    # Migrate: make photos_id unique so re-picking the same photo can never store
+    # a second copy. The import loop already checks for an existing row; this
+    # index is what makes that check safe under two concurrent requests, which
+    # a read-then-write alone does not. Any pre-existing duplicate keeps its
+    # earliest row (so nothing is deleted or orphaned on disk) and simply loses
+    # the id, which is a better outcome than failing to boot.
+    conn.execute(
+        "UPDATE files SET photos_id = '' WHERE photos_id != '' AND id NOT IN "
+        "(SELECT MIN(id) FROM files WHERE photos_id != '' GROUP BY photos_id)"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_files_photos_id "
+        "ON files(photos_id) WHERE photos_id != ''"
+    )
+
     # Every subscriber needs a token so marketing mail can carry an unsubscribe
     # link, including rows that predate double opt-in.
     for row in conn.execute("SELECT id FROM journey_subscribers WHERE token = ''").fetchall():
@@ -739,7 +759,8 @@ BACKUP_TABLES = {
         "id", "email", "name", "journey_stage", "source", "status", "token",
         "confirmed_at", "unsubscribed_at", "created_at"]),
     "files": ("files", [
-        "id", "path", "name", "kind", "size", "mime", "source", "drive_id", "created_at"]),
+        "id", "path", "name", "kind", "size", "mime", "source", "drive_id", "photos_id",
+        "created_at"]),
 }
 
 
@@ -869,11 +890,13 @@ def list_orders():
 
 # ---------- Files ----------
 
-def add_file(path, name="", kind="image", size=0, mime="", source="upload", drive_id=""):
+def add_file(path, name="", kind="image", size=0, mime="", source="upload", drive_id="",
+             photos_id=""):
     conn = get_conn()
     conn.execute(
-        "INSERT INTO files (path, name, kind, size, mime, source, drive_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (path, name, kind, size, mime, source, drive_id),
+        "INSERT INTO files (path, name, kind, size, mime, source, drive_id, photos_id) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (path, name, kind, size, mime, source, drive_id, photos_id),
     )
     conn.commit()
     conn.close()
@@ -896,6 +919,16 @@ def get_file(file_id):
 def get_file_by_path(path):
     conn = get_conn()
     row = conn.execute("SELECT * FROM files WHERE path = ?", (path,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_file_by_photos_id(photos_id):
+    """Look up an imported Google Photos pick by its persistent media-item id."""
+    if not photos_id:
+        return None
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM files WHERE photos_id = ?", (photos_id,)).fetchone()
     conn.close()
     return dict(row) if row else None
 

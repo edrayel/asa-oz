@@ -159,7 +159,7 @@ PAGES = {
                 "label": "Hero",
                 "fields": [
                     _lt("eyebrow", "Eyebrow", default="Culture • Community • Connection • Asa-OZ"),
-                    _lt("title", "Headline", default="Travel with people who feel like old friends"),
+                    _lt("title", "Headline", default="Travel with old friends"),
                     _rt("lede", "Intro paragraph", default="AsaOZ is a members’ ONLY club bringing together adults who want to explore the world with like-minded people who feel instantly familiar, like old friends."),
                     _rt("supporting", "Supporting copy", default="Join to access hand-picked travel offers, curated group trips, and a welcoming community of curious, open-hearted adults who share your interests and your desire to begin again."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
@@ -240,7 +240,7 @@ PAGES = {
                             {"title": "Community", "body": "A group to travel with, and to come back to."},
                             {"title": "Trips", "body": "Group journeys with set dates and a WhatsApp group before you fly."},
                             {"title": "Offers", "body": "Member deals on stays, food, activities and events."},
-                            {"title": "Two homes", "body": "Ireland, Nigeria and the road between."},
+                            {"title": "Home and away", "body": "rooted in Ireland, travelling out to the rest of the world."},
                         ],
                     },
                 ],
@@ -335,7 +335,7 @@ PAGES = {
                     },
                     _lt("avatar_alt", "Avatar alt text", default="Ifeoma Adaora, founder of Asa-OZ"),
                     _rt("quote", "Quote", default="The best trips start with"),
-                    _rt("quote_highlight", "Quote highlight", default="your people"),
+                    _rt("quote_highlight", "Quote highlight", default="like minded people"),
                     _lt("from", "Attribution", default="The Asa-OZ Promise"),
                     {
                         "key": "not",
@@ -390,7 +390,7 @@ PAGES = {
                         "default": [
                             {"q": "What is Asa-OZ?", "a": "A members' club for culture, community and travel. Members receive hand-picked offers and group trips, and book directly with the hotel, airline or travel provider."},
                             {"q": "How does it work?", "a": "Join as a member and offers arrive by email, or sign in to browse them on the site. You choose what you love and book directly with the provider. Regular Members get current offers in their welcome email; Group Trip Members start receiving offers with the next Group Trip email."},
-                            {"q": "How much does it cost?", "a": "Regular Membership is €10 a year, Group Trip Membership is €12, and both together are €18."},
+                            {"q": "How much does it cost?", "a": "Regular Membership is €20 a year, Group Trip Membership is €30, and both together are €45."},
                             {"q": "Can I come on a group trip on my own?", "a": "Yes, and many of our members do. Solo travellers are the heart of the club, and every trip has a WhatsApp group so you can meet everyone before you fly."},
                             {"q": "Do you sell travel packages?", "a": "No. Asa-OZ is not a travel-booking site. All members book their own tickets and pay the provider directly. We bring you the offers and the community."},
                         ],
@@ -410,13 +410,13 @@ PAGES = {
                         "type": "list",
                         "item": {
                             "name": {"label": "Name", "type": "text"},
-                            "price": {"label": "Price (per year)", "type": "text", "default": "€10"},
+                            "price": {"label": "Price (per year)", "type": "text", "default": "€20"},
                             "note": {"label": "Note", "type": "text"},
                             "badge": {"label": "Badge text (empty = none)", "type": "text", "default": ""},
                             "features": {"label": "Included (one per line)", "type": "listlines", "default": []},
                         },
                         "default": [
-                            {"name": "Regular Membership", "price": "€10",
+                            {"name": "Regular Membership", "price": "€20",
                              "note": "Offers, community and everyday savings.",
                              "badge": "",
                              "features": [
@@ -426,7 +426,7 @@ PAGES = {
                                  "Private members group and community chat",
                                  "Trip news before anyone else",
                              ]},
-                            {"name": "Group Trip Membership", "price": "€12",
+                            {"name": "Group Trip Membership", "price": "€30",
                              "note": "Meet the community and travel together.",
                              "badge": "",
                              "features": [
@@ -436,7 +436,7 @@ PAGES = {
                                  "Trip WhatsApp group and a video call before you fly",
                                  "More trips, more often: busy months, not quiet ones",
                              ]},
-                            {"name": "Both Memberships", "price": "€18",
+                            {"name": "Both Memberships", "price": "€45",
                              "note": "Everything in both, for less than you would pay separately.",
                              "badge": "Best value",
                              "features": [
@@ -535,7 +535,7 @@ PAGES = {
                             {"name": "Community", "body": "a group to travel with, and to come back to."},
                             {"name": "Trips", "body": "group journeys with set dates and a WhatsApp group before you fly."},
                             {"name": "Offers", "body": "member deals on stays, food, activities and events."},
-                            {"name": "Two homes", "body": "Ireland, Nigeria and the road between."},
+                            {"name": "Home and away", "body": "rooted in Ireland, travelling out to the rest of the world."},
                         ],
                     },
                     _lt("closing", "Closing line", default="This is not about escaping your life. It is about seeing more of it."),
@@ -691,7 +691,7 @@ PAGES = {
                             {"group": "Getting started", "q": "I haven't received an email. What should I do?", "a": "Check your spam, junk and promotions folders first, as member emails sometimes land there. Searching for info@asa-oz.com usually finds them. If you still can't see anything, contact us and we'll sort it out."},
                             {"group": "Getting started", "q": "When will I get my first email?", "a": "Regular Members receive offer emails every few weeks, and Group Trip Members get a Group Trip email whenever trips open. If you've just joined, give it a day or two. Your welcome email links to the offers we've already shared, so you can start browsing straight away."},
                             {"group": "Your membership", "q": "What is the difference between Regular Membership and Group Trip Membership?", "a": "Regular Membership is for travel you plan yourself: offers on stays, food, activities and cultural events, plus community meetups. Group Trip Membership is for travelling together: set-date trips with other members, a WhatsApp group for each trip, and a video call before you fly."},
-                            {"group": "Your membership", "q": "How much does it cost?", "a": "Regular Membership is €10 a year, Group Trip Membership is €12 a year, and both together are €18. One fee, no monthly billing."},
+                            {"group": "Your membership", "q": "How much does it cost?", "a": "Regular Membership is €20 a year, Group Trip Membership is €30 a year, and both together are €45. One fee, no monthly billing."},
                             {"group": "Your membership", "q": "Is it a rolling subscription?", "a": "Each membership runs for one year. You can cancel at any time, and your membership stays active until the year is up."},
                             {"group": "Your membership", "q": "Can I swap my membership?", "a": "Yes. If you've just joined and picked the wrong one, contact us within four weeks and we'll swap it. After that, you can add or change membership when your year is up."},
                             {"group": "Your membership", "q": "How do I cancel my membership?", "a": "Email us at info@asa-oz.com and we'll cancel it for you. You keep access until the end of your membership year."},

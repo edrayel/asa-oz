@@ -1,12 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Feedback - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Feedback</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
+{% block page_title %}Feedback{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Export CSV</a><a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
   <div class="card">
     {% if items %}
     {% for f in items %}
@@ -33,5 +29,4 @@
     {% endfor %}
     {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
   </div>
-</div>
 {% endblock %}

@@ -1,0 +1,80 @@
+{% extends "admin/app.html" %}
+{% block title %}Google Photos - Asa-OZ Admin{% endblock %}
+{% block head %}{% if picker %}<meta http-equiv="refresh" content="{{ poll_seconds }}" />{% endif %}{% endblock %}
+{% block page_title %}Google Photos{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a>{% endblock %}
+{% block content %}
+  {% if not photos_ok %}
+  <div class="card">
+    <h2>Set up Google Photos</h2>
+    <p class="sub">Pick photos from your Google Photos library and <strong>import</strong> them into the media library, where they can be used anywhere the CMS accepts an image.</p>
+    <ol style="padding-left:1.1rem;margin:0;color:var(--cafe-ink);font-size:0.92rem;">
+      <li>Enable the <a href="https://console.cloud.google.com/apis/library/photospicker.googleapis.com" target="_blank" rel="noopener">Google Photos Picker API</a> in your Cloud project.</li>
+      <li>Add the <code>photospicker.mediaitems.readonly</code> scope to the OAuth consent screen.</li>
+      <li>Run <code>python authorize_google.py --scopes photos</code> once and approve access.</li>
+      <li>Point <code>GOOGLE_PHOTOS_CREDENTIALS</code> at the token file it writes and restart the app.</li>
+    </ol>
+    <p class="sub" style="margin-top:0.8rem;">The old Library API scopes (<code>photoslibrary.readonly</code> and friends) were removed on 1&nbsp;April&nbsp;2025, so browsing the whole library server-side is no longer possible — the Picker API is the only supported route.</p>
+    <div class="form-row" style="margin-top:1rem;">
+      <label><code>GOOGLE_PHOTOS_CREDENTIALS</code></label>
+      <input readonly value="path to the token file written by authorize_google.py" />
+    </div>
+  </div>
+  {% else %}
+
+  {% if error %}
+  <div class="flash flash-error">{{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Import from Google Photos</h2>
+    {% if not picker and not items %}
+    <p class="sub">Start a picking session, choose the photos you want in Google Photos, then come back here to import them. Each session is single-use.</p>
+    <form method="POST" action="{{ url_for('admin_photos_session') }}">
+      {{ csrf_input() }}
+      <button class="btn" type="submit">Start picking session</button>
+    </form>
+    {% elif picker %}
+    <p class="sub"><strong>Step 1.</strong> Open the picker and select your photos. This page refreshes itself every {{ poll_seconds }} seconds.</p>
+    <div class="actions" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.9rem;">
+      <a class="btn" href="{{ picker }}" target="_blank" rel="noopener">Open Google Photos picker &rarr;</a>
+      <form method="POST" action="{{ url_for('admin_photos_import') }}">
+        {{ csrf_input() }}
+        <button class="btn btn-ghost" type="submit">I&rsquo;ve finished picking</button>
+      </form>
+      <form method="POST" action="{{ url_for('admin_photos_cancel') }}">
+        {{ csrf_input() }}
+        <button class="btn btn-ghost" type="submit">Cancel</button>
+      </form>
+    </div>
+    <p class="sub"><strong>Step 2.</strong> Once you have tapped <em>Done</em> in Google Photos, this page will list what you picked and offer an import.</p>
+    {% else %}
+    <p class="sub">Google Photos reported {{ items | length }} picked item(s). Importing copies the bytes into the media library — picking again later will not re-import the same photo.</p>
+    <div class="file-grid">
+      {% for item in items %}
+      {% set media = item.mediaFile or {} %}
+      <div class="file-tile">
+        <div class="file-thumb">
+          <div class="file-ico">{{ 'PHOTO' if item.type == 'PHOTO' else (item.type or 'ITEM') }}</div>
+        </div>
+        <div class="file-meta">
+          <div class="file-name" title="{{ media.filename or item.id }}">{{ media.filename or item.id }}</div>
+          <div class="file-dim">{{ media.mimeType or 'unknown type' }}{% if media.mediaFileMetadata and media.mediaFileMetadata.width %} &middot; {{ media.mediaFileMetadata.width }}&times;{{ media.mediaFileMetadata.height }}{% endif %}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="actions" style="display:flex;gap:0.5rem;margin-top:1rem;">
+      <form method="POST" action="{{ url_for('admin_photos_import') }}">
+        {{ csrf_input() }}
+        <button class="btn" type="submit">Import {{ items | length }} item(s)</button>
+      </form>
+      <form method="POST" action="{{ url_for('admin_photos_cancel') }}">
+        {{ csrf_input() }}
+        <button class="btn btn-ghost" type="submit">Discard</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}

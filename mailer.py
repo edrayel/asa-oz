@@ -33,6 +33,10 @@ import queue
 import re
 import smtplib
 import threading
+try:
+    import requests
+except ImportError:  # pragma: no cover
+    requests = None
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
@@ -115,7 +119,9 @@ def _reply_to():
 
 
 def is_configured():
-    return bool(os.environ.get("SMTP_HOST") and os.environ.get("ADMIN_EMAIL"))
+    smtp_ok = bool(os.environ.get("SMTP_HOST") and os.environ.get("ADMIN_EMAIL"))
+    rest_ok = bool(os.environ.get("ZOHO_ACCESS_TOKEN") and os.environ.get("ADMIN_EMAIL"))
+    return smtp_ok or rest_ok
 
 
 def _use_implicit_ssl(port):
@@ -211,10 +217,41 @@ def _log(kind, recipient, subject, status, error=""):
         logger.warning("mailer: could not write email_log for %s", kind)
 
 
+def _deliver_rest(kind, recipient, subject, text, html_body, marketing, unsub_url=""):
+    token = os.environ.get("ZOHO_ACCESS_TOKEN", "")
+    url = os.environ.get("ZOHO_API_URL", "https://zeptomail.zoho.com/v1.1/email")
+    payload = {
+        "from": {"address": _sender() or os.environ.get("ADMIN_EMAIL", "")},
+        "to": [{"email_address": {"address": recipient}}],
+        "subject": subject,
+        "textbody": text,
+        "htmlbody": html_body,
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": token,
+    }
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=30)
+        resp.raise_for_status()
+    except Exception as exc:
+        logger.error("mailer: %s REST failed (%s)", kind, type(exc).__name__)
+        _log(kind, recipient, subject, "failed", type(exc).__name__)
+        return False
+    logger.info("mailer: %s sent via REST", kind)
+    _log(kind, recipient, subject, "sent", "rest")
+    return True
+
+
 def _deliver(kind, recipient, subject, text, html_body, marketing, unsub_url=""):
     if not is_configured():
         _log(kind, recipient, subject, "skipped", "smtp-unconfigured")
         return False
+
+    # REST path via Zoho (HTTPS) — bypasses Render free SMTP block.
+    if os.environ.get("ZOHO_ACCESS_TOKEN"):
+        return _deliver_rest(kind, recipient, subject, text, html_body, marketing, unsub_url)
 
     message = MIMEMultipart("alternative")
     message["From"] = formataddr(("Asa-OZ", _sender()))

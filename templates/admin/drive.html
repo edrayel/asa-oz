@@ -1,34 +1,22 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Google Drive - Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header"><h1>Google Drive</h1>
-    <div class="actions"><a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a><form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form></div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+{% block page_title %}Google Drive{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_files') }}">Files</a>{% endblock %}
+{% block content %}
   {% if not drive_ok and setup_needed %}
   <div class="card">
     <h2>Set up Google Drive</h2>
     <p class="sub">Browse a Google Drive folder, then <strong>import</strong> files (bytes are saved into the media library) or <strong>link</strong> them (bytes are streamed live to the frontend through <code>/media/drive/…</code>).</p>
     <ol style="padding-left:1.1rem;margin:0;color:var(--cafe-ink);font-size:0.92rem;">
       <li>Enable the <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener">Google Drive API</a> in your Cloud project.</li>
-      <li>Create a service account and download its JSON key.</li>
-      <li>Share the folder you want to browse with the service account's email.</li>
-      <li>Set the environment variables below and restart the app.</li>
+      <li>Run <code>python authorize_google.py --scopes drive</code> once and approve access — it writes a refresh token outside the repo.</li>
+      <li>Point <code>GOOGLE_DRIVE_CREDENTIALS</code> at that token file and restart the app.</li>
+      <li>Set <code>GOOGLE_DRIVE_FOLDER_ID</code> if you want a specific folder rather than My Drive.</li>
     </ol>
+    <p class="sub" style="margin-top:0.8rem;">Alternatively, create a service account, share the target folder with its email, and point <code>GOOGLE_DRIVE_CREDENTIALS</code> at its JSON key. A bare OAuth <em>client</em> file (the <code>client_secret_*.json</code> from the console) is not enough on its own — it carries no refresh token.</p>
     <div class="form-row" style="margin-top:1rem;">
       <label><code>GOOGLE_DRIVE_CREDENTIALS</code></label>
-      <input readonly value="path to the service-account JSON, or the JSON itself" />
+      <input readonly value="path to the authorize_google.py token file, the JSON itself, or a service-account key" />
     </div>
     <div class="form-row">
       <label><code>GOOGLE_DRIVE_FOLDER_ID</code> <small style="text-transform:none;letter-spacing:0;">(optional — defaults to My Drive)</small></label>
@@ -107,5 +95,4 @@
     {% endif %}
   </div>
   {% endif %}
-</div>
 {% endblock %}

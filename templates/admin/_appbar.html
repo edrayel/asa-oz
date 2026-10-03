@@ -1,0 +1,36 @@
+{# Admin appbar: mobile hamburger, brand lockup, and circular icon buttons. #}
+{% from "partials/macros.html" import icon_svg as icon %}
+<header class="admin-appbar">
+  <button type="button" class="admin-iconbtn admin-menu-toggle" id="adminMenuToggle"
+          aria-label="Open admin menu" aria-expanded="false" aria-controls="adminSidebar">
+    {{ icon('<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>', 18) }}
+  </button>
+
+  <a class="admin-brand" href="{{ url_for('admin_dashboard') }}">
+    <img src="{{ brand_settings.logo or url_for('static', filename='images/logo.svg') }}"
+         alt="" width="24" height="24" onerror="this.style.display='none';" />
+    <span>{{ brand_settings.logo_alt or 'Asa-OZ' }}</span>
+  </a>
+
+  <a class="admin-iconbtn" href="{{ url_for('index') }}" target="_blank" rel="noopener"
+     title="View site" aria-label="View site">
+    {{ icon('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>', 18) }}
+  </a>
+
+  <div class="admin-profile">
+    <button type="button" class="admin-avatar" id="adminProfileToggle"
+            title="Account" aria-label="Account menu"
+            aria-haspopup="true" aria-expanded="false" aria-controls="adminProfileMenu">
+      {{ (session.admin or 'A')[0] | upper }}
+    </button>
+    <div class="admin-menu" id="adminProfileMenu">
+      <span class="admin-menu-user">Signed in as {{ session.admin }}</span>
+      <a class="admin-menu-item" href="{{ url_for('admin_password') }}">Change password</a>
+      <a class="admin-menu-item" href="{{ url_for('index') }}" target="_blank" rel="noopener">View site</a>
+      <form method="POST" action="{{ url_for('admin_logout') }}">
+        {{ csrf_input() }}
+        <button class="admin-menu-item danger" type="submit">Sign out</button>
+      </form>
+    </div>
+  </div>
+</header>

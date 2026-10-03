@@ -1,22 +1,13 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}Dashboard | Asa-OZ Admin{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header">
-    <h1>Asa-OZ Admin</h1>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{{ url_for('index') }}" target="_blank">View site</a>
+{% block page_title %}{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('index') }}" target="_blank">View site</a>
       <a class="btn btn-ghost" href="{{ url_for('export_waitlist_csv') }}">Waitlist CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_contacts_csv') }}">Contacts CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_orders_csv') }}">Orders CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Bookings CSV</a>
-      <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>
-      <form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form>
-    </div>
-  </div>
-  {% include "admin/_nav.html" %}
-
+      <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>{% endblock %}
+{% block content %}
   <div class="stat-grid">
     <div class="stat"><div class="n">{{ stats.feedback }}</div><div class="l">Feedback</div></div>
     <div class="stat"><div class="n">{{ stats.waitlist }}</div><div class="l">Waitlist</div></div>
@@ -51,5 +42,4 @@
     </tbody></table>
     {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
   </div>
-</div>
 {% endblock %}

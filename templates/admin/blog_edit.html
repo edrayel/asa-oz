@@ -1,29 +1,13 @@
-{% extends "admin/base.html" %}
+{% extends "admin/app.html" %}
 {% block title %}{{ 'Edit story' if post else 'New story' }} | Asa-OZ Admin{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/rte.css') }}">{% endblock %}
-{% block body %}
-<div class="admin-wrap">
-  <div class="admin-header">
-    <h1>{{ 'Edit story' if post else 'New story' }}</h1>
-    <div class="actions">
+{% block page_title %}{{ 'Edit story' if post else 'New story' }}{% endblock %}
+{% block page_actions %}
       {% if post and post.status == 'published' %}
       <a class="btn btn-ghost" href="{{ url_for('blog_post', slug=post.slug) }}" target="_blank">View on site</a>
       {% endif %}
-      <a class="btn btn-ghost" href="{{ url_for('admin_blog') }}">Back</a>
-      <form method="POST" action="{{ url_for('admin_logout') }}">
-  {{ csrf_input() }}<button class="btn">Sign out</button></form>
-    </div>
-  </div>
-  {% include "admin/_nav.html" %}
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="flash flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
+      <a class="btn btn-ghost" href="{{ url_for('admin_blog') }}">Back</a>{% endblock %}
+{% block content %}
   <form method="POST" action="{{ url_for('admin_blog_edit', post_id=post.id) if post else url_for('admin_blog_new') }}" class="blog-edit-form">
     {{ csrf_input() }}
 
@@ -78,5 +62,4 @@
       </div>
     </div>
   </form>
-</div>
 {% endblock %}
