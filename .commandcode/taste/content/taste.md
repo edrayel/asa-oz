@@ -1,10 +1,10 @@
 # Taste
 
-- Positions Asa-OZ as a members' club for culture, community and travel — the site copy must never read like a travel-booking platform. Members choose offers and "book directly with the hotel or travel provider"; all members book their own tickets, and the site explicitly says it is not a travel-booking site. Confidence: 0.75
+- Positions Asa-OZ as a members' club for culture, community and travel — the site copy must never read like a travel-booking platform. Members choose offers and "book directly with the hotel or travel provider"; all members book their own tickets, and the site explicitly says it is not a travel-booking site. Still current. Confidence: 0.75
 
-- Marketing copy must stay inclusive with no age gate: remove the 45+ / "adults aged 45 and above" framing everywhere (hero lede, About, FAQ, terms, privacy, meta description) and replace it with "members" / "anyone ready for…" language. Confidence: 0.75
+- SUPERSEDED (previously: "Marketing copy must stay inclusive with no age gate: remove the 45+ / 'adults aged 45 and above' framing everywhere"). The client brought the age framing back on 2026-10-03. Asa-OZ membership is now a hard floor of adults aged 45 and over, with no upper limit, stated consistently in the tagline, hero, About, FAQ, terms, privacy and meta descriptions. Do NOT strip the 45+ framing again; it is a deliberate eligibility rule, not legacy copy. Confidence: 0.9
 
-- Wants all "wellness-guru" / meditation / spiritual / self-discovery tone stripped from the site's marketing copy — the brand voice must be travel- and experience-focused (like a travel club), not wellness- or identity-flavoured. Confidence: 0.85
+- SUPERSEDED (previously: "wants all 'wellness-guru' / meditation / spiritual / self-discovery tone stripped ... not wellness- or identity-flavoured"). The client brought the identity framing back on 2026-10-03. "Cultural identity restoration" is now core brand language, alongside "reflection circles", belonging and renewal. The founder story (db.py) and the OG image always carried this voice and were never stripped, so the site is now consistent rather than divided. Keep the travel-first discipline (no travel-booking-platform tone, members book directly) but do not remove the identity and belonging framing. Hosts still must never present the club as therapy or counselling. Confidence: 0.9
 
 - Wants the brand voice to move toward a chosen benchmark site (Rory's Travel Club), but "gradually" — layered onto the existing structure and constraints rather than a wholesale rewrite or a literal copy of the reference. Confidence: 0.6
 

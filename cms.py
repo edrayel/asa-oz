@@ -24,9 +24,10 @@ keeps working with an empty database.
 # Owned here so the schema default and the db copy-refresh that replaces the
 # previous wording cannot drift apart.
 SITE_TAGLINE = (
-    "Asa-OZ is a members' ONLY club bringing together adults who want to "
-    "explore the world with like-minded people who feel instantly familiar, "
-    "like old friends."
+    "Asa-OZ is a members' ONLY club bringing together adults aged 45 and over "
+    "who want to explore the world, reconnect with their culture and rediscover "
+    "who they are, with like-minded people who feel instantly familiar, like old "
+    "friends."
 )
 
 def _lt(key, label, **kw):
@@ -159,9 +160,9 @@ PAGES = {
                 "label": "Hero",
                 "fields": [
                     _lt("eyebrow", "Eyebrow", default="Culture • Community • Connection • Asa-OZ"),
-                    _lt("title", "Headline", default="Travel with old friends"),
-                    _rt("lede", "Intro paragraph", default="AsaOZ is a members’ ONLY club bringing together adults who want to explore the world with like-minded people who feel instantly familiar, like old friends."),
-                    _rt("supporting", "Supporting copy", default="Join to access hand-picked travel offers, curated group trips, and a welcoming community of curious, open-hearted adults who share your interests and your desire to begin again."),
+                    _lt("title", "Headline", default="Come home to who you were"),
+                    _rt("lede", "Intro paragraph", default="AsaOZ is a members' ONLY club bringing together adults aged 45 and over who want to explore the world, reconnect with their culture and rediscover who they are, with like-minded people who feel instantly familiar, like old friends."),
+                    _rt("supporting", "Supporting copy", default="Join to access hand-picked travel offers, curated group trips, cultural experiences and reflection circles, and a welcoming community of curious, open-hearted adults who share your interests and your desire to begin again."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
                     _rt("not_this_body", "“What this is not” body", default="Asa-OZ is a members' travel club, not a tour operator. We bring the offers, the group and the culture. You book your own tickets and travel on your own terms."),
                 ],
@@ -236,11 +237,11 @@ PAGES = {
                             "body": {"label": "Body", "type": "text"},
                         },
                         "default": [
-                            {"title": "Culture", "body": "Food, music, markets and stories, from home and away."},
+                            {"title": "Culture", "body": "Food, music, markets and stories that let you meet your heritage where it lives."},
+                            {"title": "Identity", "body": "Cultural identity restoration through travel, story and reflection."},
                             {"title": "Community", "body": "A group to travel with, and to come back to."},
                             {"title": "Trips", "body": "Group journeys with set dates and a WhatsApp group before you fly."},
                             {"title": "Offers", "body": "Member deals on stays, food, activities and events."},
-                            {"title": "Home and away", "body": "rooted in Ireland, travelling out to the rest of the world."},
                         ],
                     },
                 ],
@@ -334,8 +335,8 @@ PAGES = {
                         "hint": "Small round portrait shown above the promise line. Clear it to hide the avatar.",
                     },
                     _lt("avatar_alt", "Avatar alt text", default="Ifeoma Adaora, founder of Asa-OZ"),
-                    _rt("quote", "Quote", default="The best trips start with"),
-                    _rt("quote_highlight", "Quote highlight", default="like minded people"),
+                    _rt("quote", "Quote", default="The journeys that change us start with"),
+                    _rt("quote_highlight", "Quote highlight", default="a rediscovery of who we were"),
                     _lt("from", "Attribution", default="The Asa-OZ Promise"),
                     {
                         "key": "not",
@@ -349,7 +350,8 @@ PAGES = {
                             {"text": "Not a tour operator", "struck": True},
                             {"text": "Not a booking site", "struck": True},
                             {"text": "Not a package holiday", "struck": True},
-                            {"text": "Just a club worth joining", "struck": False},
+                            {"text": "Not therapy or counselling", "struck": True},
+                            {"text": "A space for identity, belonging and renewal", "struck": False},
                         ],
                     },
                 ],
@@ -388,7 +390,7 @@ PAGES = {
                             "a": {"label": "Answer", "type": "textarea"},
                         },
                         "default": [
-                            {"q": "What is Asa-OZ?", "a": "A members' club for culture, community and travel. Members receive hand-picked offers and group trips, and book directly with the hotel, airline or travel provider."},
+                            {"q": "What is Asa-OZ?", "a": "A members' club for adults aged 45 and over who want to travel, reconnect with their culture and rebuild a sense of belonging. Members receive hand-picked offers and group trips, and book directly with the hotel, airline or travel provider."},
                             {"q": "How does it work?", "a": "Join as a member and offers arrive by email, or sign in to browse them on the site. You choose what you love and book directly with the provider. Regular Members get current offers in their welcome email; Group Trip Members start receiving offers with the next Group Trip email."},
                             {"q": "How much does it cost?", "a": "Regular Membership is €20 a year, Group Trip Membership is €30, and both together are €45."},
                             {"q": "Can I come on a group trip on my own?", "a": "Yes, and many of our members do. Solo travellers are the heart of the club, and every trip has a WhatsApp group so you can meet everyone before you fly."},
@@ -497,7 +499,7 @@ PAGES = {
                 "fields": [
                     _lt("eyebrow", "Eyebrow", default="About Asa-OZ"),
                     _lt("title", "Headline", default="Culture, community and the journeys between."),
-                    _ta("lede", "Intro paragraph", default="Asa-OZ is a members' club for culture, community and travel. Join for hand-picked offers and group trips, and travel with a crowd that feels like home."),
+                    _ta("lede", "Intro paragraph", default="Asa-OZ is a members' club for adults aged 45 and over, built around travel, cultural identity and genuine belonging. Join for hand-picked offers and group trips, and travel with a crowd that feels like home."),
                 ],
             },
             {
@@ -511,7 +513,8 @@ PAGES = {
                         "type": "listlines",
                         "default": [
                             "Travel changes when you have people to share it with. Most of us keep a list of places we mean to see and never quite get there, because going alone is harder than it sounds.",
-                            "Asa-OZ exists to close that gap. It is a club that brings culture, community and travel together, so there is always somewhere to go and someone to go with.",
+                            "It also changes when you go looking for where you came from. Many of us reach midlife feeling displaced from our own culture, and unsure what the next chapter is meant to look like.",
+                            "Asa-OZ exists to close both gaps. It is a club that brings culture, community and travel together, so there is always somewhere to go, someone to go with, and room to rediscover who you are.",
                         ],
                     },
                 ],
@@ -521,7 +524,7 @@ PAGES = {
                 "label": "What Asa-OZ is",
                 "fields": [
                     _lt("heading", "Heading", default="What Asa-OZ is"),
-                    _lt("intro", "Intro", default="Asa-OZ brings people together around five things:"),
+                    _lt("intro", "Intro", default="Asa-OZ brings people together around six things:"),
                     {
                         "key": "pillars",
                         "label": "Values",
@@ -531,14 +534,15 @@ PAGES = {
                             "body": {"label": "Body", "type": "text"},
                         },
                         "default": [
-                            {"name": "Culture", "body": "food, music, markets and stories, from home and away."},
+                            {"name": "Culture", "body": "food, music, markets and stories that let you meet your heritage where it lives."},
+                            {"name": "Identity", "body": "cultural identity restoration, through travel, story and reflection."},
                             {"name": "Community", "body": "a group to travel with, and to come back to."},
                             {"name": "Trips", "body": "group journeys with set dates and a WhatsApp group before you fly."},
                             {"name": "Offers", "body": "member deals on stays, food, activities and events."},
                             {"name": "Home and away", "body": "rooted in Ireland, travelling out to the rest of the world."},
                         ],
                     },
-                    _lt("closing", "Closing line", default="This is not about escaping your life. It is about seeing more of it."),
+                    _lt("closing", "Closing line", default="This is not about escaping your life. It is about seeing more of it, and seeing yourself again."),
                 ],
             },
             {
@@ -607,7 +611,7 @@ PAGES = {
                         "type": "listlines",
                         "default": [
                             "My name is Ifeoma Adaora, and for almost 30 years I have travelled between Ireland, Nigeria and further afield. I have learned that the kind of travel that matters is not the kind that rushes from one attraction to the next, but the kind that slows you down and roots you in a place and its people.",
-                            "Along the way I met a lot of adults who wanted to see more of the world but had nobody to go with, many of them after years of looking after everyone else. Asa-OZ is what I built for them: a club that finds the offers, plans the trips and brings the group together, so nobody has to work out who to travel with.",
+                            "Along the way I met a lot of adults over 45 who wanted to see more of the world but had nobody to go with, many of them after years of looking after everyone else. I met women who had lost touch with their own culture, and with the parts of themselves they set aside to get through life. Asa-OZ is what I built for them: a club that finds the offers, plans the trips and brings the group together, so nobody has to work out who to travel with, and nobody has to do the rediscovering alone.",
                         ],
                     },
                     _lt("story_label", "Read-more label", default="Read the full story"),
@@ -684,7 +688,7 @@ PAGES = {
                             "a": {"label": "Answer", "type": "textarea"},
                         },
                         "default": [
-                            {"group": "Getting started", "q": "What is Asa-OZ?", "a": "Asa-OZ is a members' club for culture, community and travel. Members receive hand-picked offers and group trips, and book directly with the hotel, airline or travel provider."},
+                            {"group": "Getting started", "q": "What is Asa-OZ?", "a": "Asa-OZ is a members' club for adults aged 45 and over who want to travel, reconnect with their culture and rebuild a sense of belonging. Members receive hand-picked offers and group trips, and book directly with the hotel, airline or travel provider."},
                             {"group": "Getting started", "q": "What happens when I join?", "a": "You'll get an order confirmation email straight away, then a separate Asa-OZ welcome email. The welcome email explains how the club works, how to access member offers, which membership you have, and how to join our community."},
                             {"group": "Getting started", "q": "How does it work?", "a": "Offers are sent to members by email, or you can sign in to browse them on our website. You choose the offers you love and book directly with the provider. Regular Members receive current offers through their welcome email. Group Trip Members start receiving offers with the next Group Trip email, which includes any group trips with availability at the time."},
                             {"group": "Getting started", "q": "Do I need to sign in to see offers?", "a": "No. Everything is emailed to you. Signing in is optional, and it is simply a place to browse current offers in one spot."},
@@ -706,7 +710,7 @@ PAGES = {
                             {"group": "Group trips", "q": "Can I cancel a group trip?", "a": "Yes. Check the cancellation terms of whoever you booked with. Their deposit and fare rules decide what you get back."},
                             {"group": "About Asa-OZ", "q": "Do you sell travel packages?", "a": "No. Asa-OZ is not a travel-booking site. All members book their own tickets and pay the hotel, airline or travel provider directly. We bring you the offers and the community."},
                             {"group": "About Asa-OZ", "q": "What kind of trips are they?", "a": "Culture-first trips: cities, markets, food, music and history, with free time built in. Some are guided, some are more independent, and every trip is described clearly before you book."},
-                            {"group": "About Asa-OZ", "q": "Is there an age limit?", "a": "Asa-OZ is for adults. There is no upper age limit, and group trips are adult experiences rather than family holidays."},
+                            {"group": "About Asa-OZ", "q": "Is there an age limit?", "a": "Asa-OZ is for adults aged 45 and over. There is no upper age limit, and group trips are adult experiences rather than family holidays."},
                             {"group": "About Asa-OZ", "q": "Where do you travel?", "a": "Ireland, Nigeria, West Africa and beyond. Destinations and dates are shared with Group Trip Members as each trip is confirmed."},
                             {"group": "About Asa-OZ", "q": "Can I join from anywhere?", "a": "Yes. Member offers and the community are open internationally. Some group trips start in Ireland, and you are welcome to join us there."},
                         ],
@@ -751,11 +755,13 @@ PAGES = {
                         },
                         "default": [
                             {"heading": "About this website", "body": "This website is operated by Ifeoma travelled as Asa-OZ, run as a community and cultural venture. Contact email: info@asa-oz.com. Registered: Ireland."},
-                            {"heading": "What Asa-OZ offers", "body": "Asa-OZ is a members' club for culture, community and travel. It brings people together through online sessions, community gatherings, member offers and group trips. It does not sell travel packages. All members book their own tickets directly with the hotel, airline or travel provider."},
-                            {"heading": "What Asa-OZ is not", "body": "Asa-OZ is a members' club, not a tour operator, travel agency or medical service. We do not sell travel packages. Nothing on this site is medical or therapeutic advice. If you need professional support, please contact a qualified professional."},
+                            {"heading": "What Asa-OZ offers", "body": "Asa-OZ is a members' club for adults aged 45 and over, built around culture, community and travel. It brings people together through online sessions, cultural experiences, reflection circles, community gatherings, member offers and group trips. It does not sell travel packages. All members book their own tickets directly with the hotel, airline or travel provider."},
+                            {"heading": "Who can join", "body": "Membership is open to adults aged 45 and over. There is no upper age limit. Membership is personal and non-transferable. By joining you agree to our community standards and to the conduct expected at our gatherings."},
+                            {"heading": "What Asa-OZ is not", "body": "Asa-OZ is a members' club, not a tour operator, travel agency or medical service. We do not sell travel packages. Nothing on this site or in our sessions is medical, psychological or therapeutic advice. Hosts facilitate conversation but do not provide therapy or counselling. If you need professional support, please contact a qualified professional."},
                             {"heading": "Payments & refunds", "body": "Refunds apply to paid events and trips.\n• Full refund available up to 48 hours before the event.\n• No refund within 48 hours of the event start.\nPlaces are limited and can fill quickly, so we recommend booking early."},
                             {"heading": "Bookings", "body": "Bookings are confirmed by email. There is no instant online booking. Enquiries are handled personally."},
                             {"heading": "Privacy", "body": "We collect only the information you choose to share (such as your email) and use it to respond and to keep you informed. We do not sell personal data. This site sets only essential cookies until you choose otherwise."},
+                            {"heading": "Confidentiality", "body": "Reflection circles and cultural sessions are confidential and are never recorded. What is shared in a circle stays in the circle. We ask every member to respect that, and to treat others with dignity and cultural sensitivity."},
                             {"heading": "Content & photography", "body": "Some images are placeholders or stock photography used in the interim before photos from real experiences are available."},
                             {"heading": "Changes to these terms", "body": "These terms may be updated as Asa-OZ grows. The latest version will always be available on this page."},
                         ],
@@ -796,14 +802,15 @@ PAGES = {
                             "body": {"label": "Body", "type": "textarea"},
                         },
                         "default": [
-                            {"heading": "1. Who we are", "body": "Asa-OZ is a members' club for culture, community and travel. For privacy questions, please contact us at info@asa-oz.com."},
+                            {"heading": "1. Who we are", "body": "Asa-OZ is a members' club for adults aged 45 and over, built around culture, community and travel. For privacy questions, please contact us at info@asa-oz.com."},
                             {"heading": "2. What information we collect", "body": "We collect only the information you choose to provide, such as:\n• Your name and email address when you join the club or contact us\n• Your message when you use the contact form\n• Booking preferences when you request a discovery call or order from our store\nWe process payments only through our payment provider (Stripe). We do not store your card details."},
                             {"heading": "3. How we use your information", "body": "We use your information to:\n• Respond to your enquiries\n• Add you to our member list and keep you posted\n• Arrange discovery calls and bookings\n• Process store orders and deliver what you purchase\n• Improve our website and services"},
                             {"heading": "4. Cookies", "body": "We use strictly necessary cookies to make the site work. With your consent, we may use analytics cookies to understand how visitors find us. You can accept or reject non-essential cookies using the cookie banner."},
                             {"heading": "4a. Advertising (Google AdSense)", "body": "We use Google AdSense to display ads. AdSense uses cookies to serve ads based on a user's prior visits to our site or other sites on the Internet. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet. You may opt out of personalised advertising by visiting Google Ads Settings (https://adsettings.google.com). You can also opt out of certain third-party vendors' use of cookies for personalised advertising by visiting www.aboutads.info. The AdSense programme is governed by Google's own policies, available at https://policies.google.com/technologies/ads."},
                             {"heading": "5. Your rights", "body": "You have the right to access, correct, or delete your personal information. To exercise these rights, email us at info@asa-oz.com."},
-                            {"heading": "6. Data security", "body": "We take reasonable measures to protect your information. Forms you submit are stored securely so we can respond; payment details never touch our servers."},
-                            {"heading": "7. Changes to this notice", "body": "We may update this notice from time to time. The latest version will always be available on this page."},
+                            {"heading": "6. Data security", "body": "We take reasonable measures to protect your information. Forms you submit are stored securely so we can respond; payment details never touch our servers. Reflection circles and cultural sessions are never recorded."},
+                            {"heading": "7. Children's data", "body": "Asa-OZ is strictly for adults aged 45 and over. We do not knowingly collect data from anyone under 18."},
+                            {"heading": "8. Changes to this notice", "body": "We may update this notice from time to time. The latest version will always be available on this page."},
                         ],
                     },
                 ],
