@@ -160,7 +160,7 @@ PAGES = {
                 "label": "Hero",
                 "fields": [
                     _lt("eyebrow", "Eyebrow", default="Culture • Community • Connection • Asa-OZ"),
-                    _lt("title", "Headline", default="Come home to who you were"),
+                    _lt("title", "Headline", default="Travel with old friends"),
                     _rt("lede", "Intro paragraph", default="AsaOZ is a members' ONLY club bringing together adults aged 45 and over who want to explore the world, reconnect with their culture and rediscover who they are, with like-minded people who feel instantly familiar, like old friends."),
                     _rt("supporting", "Supporting copy", default="Join to access hand-picked travel offers, curated group trips, cultural experiences and reflection circles, and a welcoming community of curious, open-hearted adults who share your interests and your desire to begin again."),
                     _lt("not_this_title", "“What this is not” title", default="What this is not."),
