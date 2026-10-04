@@ -468,20 +468,87 @@
        outline: 2px solid var(--sage-deep);
        outline-offset: 3px;
      }
-     .wall-overlay {
-       position: fixed;
-       inset: 0;
-       z-index: 90;
-       background: var(--espresso);
-       display: none;
-       opacity: 0;
-       transition: opacity 0.4s var(--ease);
-     }
-     .wall-overlay.open { display: block; opacity: 1; }
-     .wall-canvas-wrap {
-       position: absolute;
-       inset: 0;
-     }
+/* Dark variant of the site's ambient backdrop. The canvas is transparent
+         so these drift behind the ring, which is what stops the wall reading as
+         photos pasted onto a flat brown field. Colours are the same family as the
+         light version's blobs but pushed for vibrancy against the dark base. */
+      .wall-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        /* Deliberately low-chroma. The blobs carry the vibrancy; the base wash stays
+         near-neutral so the drifting colour reads as light through the dark
+         rather than as a flat brown panel behind the photos. */
+        background:
+          radial-gradient(120% 90% at 18% 4%, #241d16 0%, #1a140f 46%, #0c0906 100%);
+        display: none;
+        opacity: 0;
+        transition: opacity 0.4s var(--ease);
+        overflow: hidden;
+      }
+      .wall-overlay.open { display: block; opacity: 1; }
+      /* Vignette: sells the curvature and keeps attention on the centre tiles.
+         The ring is a cylinder around the camera, so every tile sits at almost
+         the same distance and distance-based fog would be a no-op here. */
+      .wall-overlay::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          radial-gradient(105% 78% at 50% 48%, rgba(0,0,0,0) 34%, rgba(8,5,3,0.34) 74%, rgba(6,4,2,0.72) 100%);
+      }
+      .wall-ambience {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .wall-ambience .blob {
+        filter: blur(70px);
+        mix-blend-mode: screen;
+      }
+      /* Screen-blended so the colour adds light instead of muddying the base. Sized
+         and placed to break up the space between the tile bands, which is where
+         the wall would otherwise read as one flat field. */
+      .wall-ambience .b1 {
+        width: 52vw; height: 52vw; min-width: 380px; min-height: 380px;
+        top: -18vw; right: -12vw;
+        background: radial-gradient(circle at 32% 32%, #6b3f18, #a06a2e 50%, #4a2a11);
+        opacity: 0.5;
+        animation: drift1 26s var(--ease) infinite alternate;
+      }
+      .wall-ambience .b2 {
+        width: 46vw; height: 46vw; min-width: 320px; min-height: 320px;
+        bottom: -20vw; left: -14vw;
+        background: radial-gradient(circle at 40% 40%, #5f7630, #44562a 55%, #26301a);
+        opacity: 0.38;
+        animation: drift2 32s var(--ease) infinite alternate;
+      }
+      .wall-ambience .b3 {
+        width: 34vw; height: 34vw; min-width: 240px; min-height: 240px;
+        top: 30%; left: 52%;
+        background: radial-gradient(circle at 50% 50%, #8a5a26, #6b431c 55%, #3c2510);
+        opacity: 0.34;
+        animation: drift3 22s var(--ease) infinite alternate;
+      }
+      /* A cooler highlight near the top centre, so the vignette has a light
+         source to fall away from and the wall reads as lit from above. */
+      .wall-ambience .b4 {
+        width: 40vw; height: 26vw; min-width: 300px; min-height: 200px;
+        top: -10vh; left: 24%;
+        background: radial-gradient(ellipse at 50% 0%, rgba(196,168,130,0.5), rgba(140,116,86,0.16) 55%, rgba(0,0,0,0) 72%);
+        opacity: 0.5;
+        filter: blur(80px);
+        mix-blend-mode: screen;
+        animation: drift2 37s var(--ease) infinite alternate-reverse;
+      }
+      .wall-canvas-wrap {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+      }
      .wall-canvas-wrap canvas {
        display: block;
        width: 100%;

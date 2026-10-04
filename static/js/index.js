@@ -140,10 +140,28 @@
     var hintsEl = document.getElementById('wallHints');
     if (!overlay || !trigger) return;
 
-    // Full 360° ring. COLS is derived from the live image count so the ring
-    // tiles seamlessly with no visible seam.
+    // Full 360° ring.
+    //
+    // The ring radius is DERIVED from the column count rather than fixed. A
+    // fixed radius silently overlaps once the wall gets busy: a ring of
+    // circumference 2*PI*R gives each column only 2*PI*R/COLS of arc, so at 21
+    // photos the old RADIUS of 4.5 left 1.35 units of arc for a 2.0 unit tile
+    // and buried 41% of every photo under its neighbour. Sizing the ring off
+    // COLS makes TILE_W + GUTTER the exact arc per slot, so the spacing matches
+    // the 2D marquee at any photo count and the overlap cannot return.
+    //
+    // The camera sits near the centre of the ring, so every tile is almost the
+    // same distance away. Real depth therefore cannot come from distance-based
+    // fog, which would be a no-op here; it comes from the vignette, the
+    // per-tile darkening and the backdrop instead.
     var ROWS = 3;
-    var RADIUS = 4.5;
+    var TILE_W = 2.0;
+    var TILE_H = 1.3;
+    // Matches the 2D marquee's gutter proportion (~20px against a ~200px photo
+    // row, about 10% of the tile width).
+    var GUTTER = 0.2;
+    var COLS_MIN = 10;
+    var COLS_MAX = 18;
     var PHI_MIN = -0.35;
     var PHI_MAX = 0.35;
     var DRAG_SENS = 0.0035;
@@ -278,57 +296,138 @@
       if (hintsEl) { hintsEl.classList.remove('hidden'); }
     }
 
+    function makeRoundedMask(THREE, width, height, radiusFrac) {
+      // A rounded rectangle baked to a canvas and used as an alphaMap. Cheaper
+      // and far more reliable than rounding the corners of a quad in 3D, and it
+      // lets every tile share the exact same corner radius. The mask is sized to
+      // the plane it clips so the radius comes out the same in world units
+      // regardless of the plane's aspect.
+      var LONG = 256;
+      var aspect = width / height;
+      var c = document.createElement('canvas');
+      c.width = Math.round(LONG * aspect);
+      c.height = LONG;
+      var g = c.getContext('2d');
+      var r = Math.max(0, Math.min(c.width / 2, c.height / 2, radiusFrac * LONG));
+      g.clearRect(0, 0, c.width, c.height);
+      g.fillStyle = '#fff';
+      g.beginPath();
+      if (g.roundRect) {
+        g.roundRect(0, 0, c.width, c.height, r);
+      } else {
+        g.moveTo(r, 0);
+        g.arcTo(c.width, 0, c.width, c.height, r);
+        g.arcTo(c.width, c.height, 0, c.height, r);
+        g.arcTo(0, c.height, 0, 0, r);
+        g.arcTo(0, 0, c.width, 0, r);
+        g.closePath();
+      }
+      g.fill();
+      var tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
     function initScene(THREE, urls) {
       textureLoader = new THREE.TextureLoader();
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x2b2118);
+      // No scene.background: the canvas is transparent so the dark ambient
+      // backdrop in CSS shows through and its blobs can drift behind the ring.
+      // Setting an opaque colour here would paint over it.
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setClearColor(0x000000, 0);
       camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(0, 0, 0.01);
       camera.rotation.order = 'YXZ';
-      renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.domElement.style.touchAction = 'none';
       canvasWrap.appendChild(renderer.domElement);
 
       var count = Math.max(1, urls.length);
-      var COLS = Math.min(24, count); // match live count for a seamless ring
+      // Clamped at both ends: the upper bound stops the ring growing without
+      // limit, the lower bound stops a nearly empty wall from zooming in so far
+      // that two photos fill the screen. Either way COLS*(TILE_W+GUTTER) is the
+      // exact circumference, so the arc per slot is TILE_W+GUTTER and the
+      // overlap the old fixed radius produced cannot come back.
+      var COLS = Math.max(COLS_MIN, Math.min(COLS_MAX, count));
+      var RADIUS = (COLS * (TILE_W + GUTTER)) / (2 * Math.PI);
+      // No back-wall cylinder here. The canvas is transparent and the dark
+      // ambient backdrop lives in CSS behind it, so a cylinder just paints an
+      // opaque brown band over the backdrop and reads as a seam. Depth comes
+      // from the CSS vignette and the per-tile falloff instead.
       var colStep = (2 * Math.PI) / COLS;
-      var tileW = 2.0, tileH = 1.3;
+      var tileW = TILE_W, tileH = TILE_H;
+      var tileAspect = tileW / tileH;
+      // The photos keep a thin transparent margin, which is what creates the
+      // gutter between tiles: without it the cover-crop runs each photo right
+      // up to the tile edge and neighbours touch.
+      // The matte was reading as heavy grey plastic because it sat behind the photo
+      // but was sized to the FULL tile, so its untinted face showed through the
+      // cover-crop wherever the photo did not reach. Sizing it to the photo and
+      // tinting it with the site's cream keeps only a thin, even border.
+      var FRAME = 0.035;
+      var CORNER = 0.14;
+      var innerW = tileW - FRAME * 2, innerH = tileH - FRAME * 2;
+      // One mask per distinct plane size, generated once and shared, so every
+      // photo gets the same rounded corners as the 2D marquee.
+      var photoMask = makeRoundedMask(THREE, innerW, innerH, CORNER);
+      var frameMask = makeRoundedMask(THREE, tileW, tileH, CORNER);
       var entranceStart = performance.now();
       for (var row = 0; row < ROWS; row++) {
         for (var col = 0; col < COLS; col++) {
           var angle = col * colStep;
           var x = RADIUS * Math.sin(angle);
           var z = -RADIUS * Math.cos(angle);
-          var y = (row - (ROWS - 1) / 2) * 1.55;
-          var geom = new THREE.PlaneGeometry(tileW, tileH);
+          var y = (row - (ROWS - 1) / 2) * (tileH + GUTTER);
+          var geom = new THREE.PlaneGeometry(innerW, innerH);
           var imgUrl = urls[(row * COLS + col) % urls.length];
           var tex = textureLoader.load(imgUrl, function (t) {
             var img = t.image;
             if (!img || !img.width || !img.height) return;
+            // Cover-crop rather than letterbox, which is what the 2D marquee
+            // does with object-fit: cover. Scaling the geometry instead left
+            // every tile a different size, so the gutters could never be
+            // uniform. Cropping the texture keeps all tiles identical.
             var a = img.width / img.height;
-            var tw = tileW, th = tileH;
-            if (a > tileW / tileH) { th = tileW / a; }
-            else { tw = tileH * a; }
-            geom.scale(tw / tileW, th / tileH, 1);
+            if (a > tileAspect) {
+              var visible = tileAspect / a;
+              t.repeat.set(visible, 1);
+              t.offset.set((1 - visible) / 2, 0);
+            } else {
+              var visibleH = a / tileAspect;
+              t.repeat.set(1, visibleH);
+              t.offset.set(0, (1 - visibleH) / 2);
+            }
+            t.needsUpdate = true;
           });
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;
-          var mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+          var mat = new THREE.MeshBasicMaterial({ map: tex, alphaMap: photoMask, side: THREE.DoubleSide, transparent: true, opacity: 0 });
           var mesh = new THREE.Mesh(geom, mat);
           mesh.position.set(x, y, z);
           mesh.rotation.y = -angle;
           mesh.scale.setScalar(0);
-          var borderGeom = new THREE.PlaneGeometry(tileW + 0.12, tileH + 0.12);
-          var borderMat = new THREE.MeshBasicMaterial({ color: 0xf4ece0, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+          // The matte sits behind the photo as a thin visible border, sized to
+          // the tile exactly. The old fixed 2.12x1.42 plane was never rescaled
+          // with the photo, which is what produced the grey slabs between tiles.
+          var borderGeom = new THREE.PlaneGeometry(tileW, tileH);
+          var borderMat = new THREE.MeshBasicMaterial({ color: 0xefe6d8, alphaMap: frameMask, side: THREE.DoubleSide, transparent: true, opacity: 0 });
           var borderMesh = new THREE.Mesh(borderGeom, borderMat);
-          borderMesh.position.set(x + Math.sin(angle) * 0.015, y, z + Math.cos(angle) * 0.015);
+          borderMesh.position.set(x + Math.sin(angle) * 0.02, y, z + Math.cos(angle) * 0.02);
           borderMesh.rotation.y = -angle;
           borderMesh.scale.setScalar(0);
+          // Tinted per-tile each frame for the depth falloff. A light warm tint
+          // rather than grey: the photos themselves stay untouched, per the
+          // decision to put the vibrancy in the background, and the tint is what
+          // makes the cream matte sit in the warm palette instead of reading as
+          // cold plastic.
+          mat.color.setHex(0xffffff);
+          borderMat.color.setHex(0xf3ead9);
           scene.add(mesh);
           scene.add(borderMesh);
-          tiles.push({ mesh: mesh, border: borderMesh, delay: (row * COLS + col) * 40, start: entranceStart });
+          tiles.push({ mesh: mesh, border: borderMesh, angle: angle,
+                     delay: (row * COLS + col) * 40, start: entranceStart });
         }
       }
       setupControls();
@@ -375,8 +474,36 @@
       phi = Math.max(PHI_MIN, Math.min(PHI_MAX, phi));
       camera.rotation.y = -theta;
       camera.rotation.x = -phi;
+      applyDepth();
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(renderLoop);
+    }
+
+    // Darken tiles toward the edges of the ring so the wall reads as curving away.
+    //
+    // The camera sits inside the ring, so every tile is almost exactly the same
+    // distance from it and real distance fog would be a no-op. Falloff is
+    // therefore driven by each tile's angular distance from the view centre,
+    // which is the cue that actually sells the curvature: the far side of the
+    // curve dims and desaturates toward the backdrop, so the ring looks like it
+    // wraps around rather than sitting flat.
+    var EDGE_DIM_MIN = 0.42;   // brightest tint at the view centre
+    var EDGE_DIM_RANGE = 0.5;  // how much the tint falls off toward the sides
+
+    function applyDepth() {
+      var viewHalf = Math.PI * 0.42; // roughly half the horizontal field of view
+      for (var i = 0; i < tiles.length; i++) {
+        var t = tiles[i];
+        // Signed angular distance from the centre of the view, wrapped to -PI..PI.
+        var rel = ((t.angle + theta + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+        var a = Math.min(Math.abs(rel) / viewHalf, 1);
+        var shade = 1 - EDGE_DIM_RANGE * a * a;
+        var m = t.mesh.material.color;
+        m.setRGB(shade, shade * 0.985, shade * 0.95);
+        var b = t.border.material.color;
+        var bs = EDGE_DIM_MIN + (1 - EDGE_DIM_MIN) * shade;
+        b.setRGB(bs, bs * 0.97, bs * 0.92);
+      }
     }
 
     function setupControls() {
