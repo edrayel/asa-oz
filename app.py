@@ -760,7 +760,12 @@ def journey_subscribe():
     journey_stage = (request.form.get("journey_stage") or "interest").strip()
     source = (request.form.get("source") or "").strip()
     if not email or "@" not in email:
-        return '<p class="msg" style="color:#b5482c;" role="status">Please enter a valid email address.</p>'
+        # Rendered as a card, not a caption: the old one-line <p> was small
+        # and italic, so visitors assumed nothing had happened.
+        return render_template("partials/journey_confirm.html", variant="error",
+                               title="That email address isn't valid",
+                               body="Please enter a valid email address and try again.",
+                               hint="Check for a missing @ or a typo.")
 
     sub = db.subscribe_journey(email, name, journey_stage, source)
     if sub["is_new"]:
@@ -771,9 +776,14 @@ def journey_subscribe():
             mailer.send("newsletter_confirm", sub["email"], {
                 "confirm_url": BASE_URL + url_for("email_confirm", token=sub["token"]),
             })
-        return '<p class="msg" role="status">Nearly there. Check your inbox and click the link to confirm your email.</p>'
+        return render_template("partials/journey_confirm.html", variant="pending",
+                               title="Nearly there",
+                               body="Check your inbox and click the link to confirm your email.",
+                               hint="If it hasn't arrived in a minute or two, check your spam folder.")
 
-    return '<p class="msg" role="status">You are already on the list. We&rsquo;ll be in touch.</p>'
+    return render_template("partials/journey_confirm.html", variant="already",
+                           title="You're already on the list",
+                           body="We'll be in touch. Thanks for being with us early.")
 
 
 # ------------------ cart (HTMX) ------------------
