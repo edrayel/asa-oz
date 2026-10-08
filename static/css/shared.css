@@ -458,12 +458,21 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
 .cart-checkout:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* ---------- Cookie consent banner (GDPR / Ireland) ---------- */
+html {
+  scroll-padding-top: 13rem;
+  scroll-behavior: smooth;
+}
+
+/* Anchored to the TOP of the viewport, not the bottom. The bottom bar sat
+   exactly on top of the hero's join form, so first-time visitors could not
+   click "Join the club" at all — the bar absorbed every click and no error
+   or feedback appeared, which read as a broken form. */
 .cookie-bar {
   position: fixed;
   z-index: 40;
   left: clamp(0.8rem, 3vw, 1.6rem);
   right: clamp(0.8rem, 3vw, 1.6rem);
-  bottom: clamp(0.8rem, 3vw, 1.6rem);
+  top: clamp(0.8rem, 3vw, 1.6rem);
   max-width: 720px;
   margin: 0 auto;
   background: rgba(250, 245, 236, 0.97);
@@ -475,7 +484,7 @@ footer .copy { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted); }
   display: flex;
   align-items: flex-start;
   gap: 1.1rem;
-  transform: translateY(140%);
+  transform: translateY(-140%);
   transition: transform 0.6s var(--ease);
 }
 .cookie-bar.show { transform: none; }

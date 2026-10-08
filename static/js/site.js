@@ -386,4 +386,15 @@
   wireAjaxForm('feedbackForm', 'feedbackMsg');
   wireAjaxForm('contactForm', 'contactMsg');
 
+  // ---- Journey form feedback (htmx-driven) ----
+  // htmx swaps the server reply into #formMsg but leaves it at opacity 0 (see
+  // .signup .msg in index.css), so the submission succeeded with no visible
+  // feedback. Add .show so the reply fades in.
+  var journeyForm = document.getElementById('journeyform');
+  if (journeyForm) {
+    journeyForm.addEventListener('htmx:afterSwap', function () {
+      var m = document.getElementById('formMsg');
+      if (m) m.classList.add('show');
+    });
+  }
 })();

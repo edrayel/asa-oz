@@ -769,7 +769,11 @@
       transform: translateY(4px);
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
-    .signup .msg.show { opacity: 1; transform: none; }
+    /* :not(:empty) is the safety net: htmx swaps the server reply into
+       #formMsg, and without it the text rendered at opacity 0 — the form
+       submitted fine but the visitor saw no feedback at all. */
+    .signup .msg.show,
+    .signup .msg:not(:empty) { opacity: 1; transform: none; }
     .cta-alt {
       margin-top: 1rem;
       font-size: 0.9rem;
