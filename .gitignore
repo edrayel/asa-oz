@@ -23,6 +23,9 @@ dist/
 .opencode/
 .kilocode/
 
+# End-to-end test fixtures (database, uploads, audit reports)
+tests/.e2e/
+
 # Mail / SMTP credentials (never commit — see DEPLOY.md)
 zoho-mail-cred-info-*.txt
 *cred-info*.txt

@@ -1,0 +1,13 @@
+{% extends "admin/app.html" %}
+{% block title %}Not allowed - Asa-OZ Admin{% endblock %}
+{% block page_title %}Not allowed{% endblock %}
+{% block content %}
+  <div class="card">
+    <h2>That area is not open to your role</h2>
+    <p class="sub" style="color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      Your account does not have permission for this part of the admin. Ask a superadmin
+      if you think it should.
+    </p>
+    <p style="margin-top:1.2rem;"><a class="btn" href="{{ url_for('admin_dashboard') }}">Back to the dashboard</a></p>
+  </div>
+{% endblock %}

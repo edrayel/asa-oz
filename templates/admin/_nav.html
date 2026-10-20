@@ -1,12 +1,13 @@
 {# Admin sidebar navigation. Groups are static, so they live here rather than in
-   the database. #}
+   the database. Each item carries the permission it needs; items the signed-in
+   role does not hold are hidden, and a group with nothing left is dropped. #}
 {% set nav_groups = [
-  ('', [('admin_dashboard', 'Overview')]),
-  ('Content', [('admin_blog', 'Stories'), ('admin_pages', 'Pages'), ('admin_dynamic_pages', 'Dynamic Pages'), ('admin_navigation', 'Navigation'), ('admin_brand', 'Brand')]),
-  ('Media', [('admin_files', 'Files'), ('admin_drive', 'Drive'), ('admin_photos', 'Photos')]),
-  ('Shop', [('admin_products', 'Products'), ('admin_orders', 'Orders')]),
-  ('Audience', [('admin_feedback', 'Feedback'), ('admin_waitlist', 'Waitlist'), ('admin_journey', 'Journey'), ('admin_bookings', 'Bookings'), ('admin_contacts', 'Contacts')]),
-  ('System', [('admin_emails', 'Emails'), ('admin_import', 'Restore'), ('admin_settings', 'Settings'), ('admin_password', 'Password')])
+  ('', [('admin_dashboard', 'Overview', None)]),
+  ('Content', [('admin_blog', 'Stories', 'content.blog'), ('admin_pages', 'Pages', 'content.pages'), ('admin_dynamic_pages', 'Dynamic Pages', 'content.dynamic_pages'), ('admin_navigation', 'Navigation', 'content.navigation'), ('admin_brand', 'Brand', 'content.brand')]),
+  ('Media', [('admin_files', 'Files', 'media.files'), ('admin_drive', 'Drive', 'media.drive'), ('admin_photos', 'Photos', 'media.photos')]),
+  ('Shop', [('admin_products', 'Products', 'shop.products'), ('admin_orders', 'Orders', 'shop.orders')]),
+  ('Audience', [('admin_feedback', 'Feedback', 'audience.feedback'), ('admin_waitlist', 'Waitlist', 'audience.waitlist'), ('admin_journey', 'Journey', 'audience.journey'), ('admin_bookings', 'Bookings', 'audience.bookings'), ('admin_contacts', 'Contacts', 'audience.contacts')]),
+  ('System', [('admin_emails', 'Emails', 'system.emails'), ('admin_users', 'Users', 'system.users'), ('admin_import', 'Restore', 'system.restore'), ('admin_settings', 'Settings', 'system.settings'), ('admin_password', 'Password', None)])
 ] %}
 {# Child endpoints that should highlight a parent item, so editing a record keeps
    its section lit instead of leaving the sidebar blank. #}
@@ -23,16 +24,26 @@
   'admin_feedback_update': 'admin_feedback', 'admin_feedback_delete': 'admin_feedback',
   'admin_order_status': 'admin_orders',
   'admin_booking_status': 'admin_bookings',
-  'admin_journey_delete': 'admin_journey'
+  'admin_journey_delete': 'admin_journey',
+  'admin_user_new': 'admin_users', 'admin_user_edit': 'admin_users', 'admin_user_role': 'admin_users',
+  'admin_user_status': 'admin_users', 'admin_user_invite': 'admin_users', 'admin_user_delete': 'admin_users'
 } %}
 {% set active_nav = nav_parent.get(request.endpoint, request.endpoint) %}
 <nav class="admin-nav" id="adminNav" aria-label="Admin sections">
   {% for group, links in nav_groups %}
+  {% set visible = [] %}
+  {% for link in links %}
+    {% if link[2] is none or (current_user and roles.has_permission(current_user.role, link[2])) %}
+      {% set _ = visible.append(link) %}
+    {% endif %}
+  {% endfor %}
+  {% if visible %}
   <div class="admin-nav-group">
     {% if group %}<p class="admin-nav-group-label">{{ group }}</p>{% endif %}
-    {% for endpoint, label in links %}
+    {% for endpoint, label, permission in visible %}
     <a href="{{ url_for(endpoint) }}"{% if active_nav == endpoint %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
     {% endfor %}
   </div>
+  {% endif %}
   {% endfor %}
 </nav>

@@ -1,0 +1,112 @@
+{% extends "admin/app.html" %}
+{% block title %}Users - Asa-OZ Admin{% endblock %}
+{% block page_title %}Users{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
+
+  <form class="card" method="GET" action="{{ url_for('admin_users') }}" style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem;">
+    <input type="search" name="q" value="{{ search }}" placeholder="Search name, username or email" style="flex:1 1 14rem;min-width:0;" />
+    <select name="role">
+      <option value="">All roles</option>
+      {% for r in roles.ROLE_ORDER %}
+      <option value="{{ r }}"{% if role_filter == r %} selected{% endif %}>{{ roles.label(r) }}</option>
+      {% endfor %}
+    </select>
+    <select name="status">
+      <option value="">Any status</option>
+      {% for s in ['active', 'invited', 'suspended'] %}
+      <option value="{{ s }}"{% if status_filter == s %} selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="{{ url_for('admin_users') }}">Reset</a>
+  </form>
+
+  <div class="card">
+    <h2>{{ users|length }} account{{ '' if users|length == 1 else 's' }}</h2>
+    {% if users %}
+    <table>
+      <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            {{ u.full_name or u.username }}
+            {% if u.username != u.full_name %}<br /><small>{{ u.username }}</small>{% endif %}
+          </td>
+          <td>{{ u.email }}</td>
+          <td>{{ roles.label(u.role) }}</td>
+          <td>
+            {{ u.status }}
+            {% if u.status == 'invited' and u.invite_expires_at %}<br /><small>expires {{ u.invite_expires_at }}</small>{% endif %}
+          </td>
+          <td>{{ u.last_login_at or '—' }}</td>
+          <td><a class="btn btn-sm" href="{{ url_for('admin_user_edit', user_id=u.id) }}">Manage</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No accounts match that filter.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Invite someone</h2>
+    <p class="sub" style="margin-bottom:1rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      An invitation emails a one-off link to set a password. Leave the password empty to
+      send an invitation; fill it in to create the account ready to sign in.
+      You can only hand out roles at or below your own.
+    </p>
+    <form method="POST" action="{{ url_for('admin_user_new') }}">
+      {{ csrf_input() }}
+      <div class="control-row">
+        <div class="control-label">Username<small>Letters, digits, dot, dash or underscore</small></div>
+        <input type="text" name="username" placeholder="alex" required />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Email<small>Where the invitation is sent</small></div>
+        <input type="email" name="email" placeholder="alex@example.com" required />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Full name<small>Optional</small></div>
+        <input type="text" name="full_name" placeholder="Alex Example" />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Role</div>
+        <select name="role" required>
+          {% for r in assignable %}
+          <option value="{{ r }}">{{ roles.label(r) }} — {{ roles.ROLE_DESCRIPTIONS[r] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="control-row">
+        <div class="control-label">Password<small>Optional. Leave empty to send an invitation instead. Minimum 12 characters.</small></div>
+        <input type="password" name="password" autocomplete="new-password" minlength="12" />
+      </div>
+      <button class="btn" type="submit">Create and invite</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Recent activity</h2>
+    {% if audit %}
+    <table>
+      <thead><tr><th>When</th><th>Who</th><th>What</th><th>Detail</th></tr></thead>
+      <tbody>
+        {% for a in audit %}
+        <tr>
+          <td>{{ a.at }}</td>
+          <td>{{ a.actor or '—' }}</td>
+          <td>{{ a.action }}</td>
+          <td>{{ a.target }}{% if a.detail %} <small>{{ a.detail }}</small>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">Nothing logged yet.</p>
+    {% endif %}
+  </div>
+
+{% endblock %}

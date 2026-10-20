@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Unsubscribed | Asa-OZ{% endblock %}
+{% block title %}Unsubscribe | Asa-OZ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">{% endblock %}
 {% block main %}
       <section class="store-hero">
@@ -7,6 +7,13 @@
         <p class="eyebrow reveal">Unsubscribed</p>
         <h1 class="reveal">You have been removed from the list</h1>
         <p class="lede reveal">We will not email you again. If you change your mind, you can join the list again at any time from the home page.</p>
+        {% elif pending %}
+        <p class="eyebrow reveal">Unsubscribe</p>
+        <h1 class="reveal">Leave the list?</h1>
+        <p class="lede reveal">You asked to stop hearing from us{% if subscriber and subscriber.email %} ({{ subscriber.email }}){% endif %}. Confirm below and we will remove you. We never unsubscribe you without this confirmation, because mail scanners follow links too.</p>
+        <form method="post" action="{{ url_for('email_unsubscribe', token=subscriber.token) }}" style="margin-top:1.5rem;">
+          <button type="submit" class="page-btn">Yes, unsubscribe me</button>
+        </form>
         {% else %}
         <p class="eyebrow reveal">Link not valid</p>
         <h1 class="reveal">We could not find that subscription</h1>

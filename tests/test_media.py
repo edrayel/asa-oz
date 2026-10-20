@@ -23,6 +23,12 @@ os.environ["DATABASE"] = os.path.join(_TMP, "media.sqlite3")
 os.environ["UPLOAD_DIR"] = os.path.join(_TMP, "uploads")
 os.environ["APP_URL"] = "http://localhost:5000"
 
+# The suite must never send mail. These are read from the ambient shell
+# environment, and without this the "email configured" path is live.
+for _key in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD", "ADMIN_EMAIL", "FROM_EMAIL",
+             "GOOGLE_DRIVE_CREDENTIALS", "GOOGLE_PHOTOS_CREDENTIALS", "STRIPE_SECRET_KEY"):
+    os.environ.pop(_key, None)
+
 import app as application  # noqa: E402  (import must follow the env setup)
 
 photos_extension = application._photos_extension

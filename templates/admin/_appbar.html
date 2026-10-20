@@ -24,7 +24,10 @@
       {{ (session.admin or 'A')[0] | upper }}
     </button>
     <div class="admin-menu" id="adminProfileMenu">
-      <span class="admin-menu-user">Signed in as {{ session.admin }}</span>
+      <span class="admin-menu-user">Signed in as {{ session.admin }}{% if current_user %} · {{ roles.label(current_user.role) }}{% endif %}</span>
+      {% if current_user and roles.has_permission(current_user.role, 'system.users') %}
+      <a class="admin-menu-item" href="{{ url_for('admin_users') }}">Users</a>
+      {% endif %}
       <a class="admin-menu-item" href="{{ url_for('admin_password') }}">Change password</a>
       <a class="admin-menu-item" href="{{ url_for('index') }}" target="_blank" rel="noopener">View site</a>
       <form method="POST" action="{{ url_for('admin_logout') }}">

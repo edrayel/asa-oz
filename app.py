@@ -25,6 +25,7 @@ from functools import wraps
 from urllib.parse import quote
 
 import stripe
+import itsdangerous
 from flask import (
     Flask, Response, abort, flash, jsonify, redirect, render_template, request, session, send_from_directory, url_for,
 )
@@ -38,6 +39,7 @@ import mailer
 import notify
 import photos
 import nh3
+import roles
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
@@ -388,6 +390,9 @@ def inject_globals():
         "csrf_input": csrf.render_input,
         "og_image_url": _og_image_url(request_path),
         "adsense_publisher_id": ADSENSE_PUBLISHER_ID,
+        "current_user": current_user(),
+        "can": can,
+        "roles": roles,
     }
 
 
@@ -480,12 +485,20 @@ def email_confirm(token):
 
 @app.route("/unsubscribe/<token>", methods=["GET", "POST"])
 def email_unsubscribe(token):
-    """Unsubscribe landing page. POST also serves one-click unsubscribe."""
-    sub = db.unsubscribe_by_token(token)
+    """Unsubscribe landing page.
+
+    GET only *offers* the unsubscribe: a mail scanner, security proxy or
+    link preview that follows the link in an incoming email must not be able
+    to opt somebody out. POST performs it (one-click unsubscribe posts to
+    this URL too, RFC 8058).
+    """
     if request.method == "POST":
-        # One-click unsubscribe must not render a page.
-        return ("", 200) if sub else ("", 404)
-    return render_template("email_unsubscribed.html", subscriber=sub, done=bool(sub))
+        sub = db.unsubscribe_by_token(token)
+        if not sub:
+            return render_template("email_unsubscribed.html", subscriber=None, done=False, pending=False), 404
+        return render_template("email_unsubscribed.html", subscriber=sub, done=True, pending=False)
+    sub = db.get_subscriber_by_token(token)
+    return render_template("email_unsubscribed.html", subscriber=sub, done=False, pending=bool(sub))
 
 
 @app.route("/api/wall")
@@ -796,7 +809,9 @@ def _store_off():
 @app.route("/cart/drawer")
 def cart_drawer_view():
     if _store_off():
-        abort(404)
+        # The store is closed: answer with an empty drawer instead of a 404 so
+        # a stale tab (or the shell) does not spam the error log.
+        return ""
     return cart_drawer()
 
 
@@ -862,6 +877,35 @@ def _send_order_confirm(order_id, items, total, email):
 
 
 # ------------------ checkout ------------------
+_ORDER_SALT = "asa-oz-order"
+
+
+def _order_token(order_id):
+    """Sign an order id so only the browser that placed it can read it."""
+    return itsdangerous.URLSafeTimedSerializer(SECRET_KEY, salt=_ORDER_SALT).dumps(str(order_id))
+
+
+def _authorised_order(order_id, token):
+    """Return the order id the caller is allowed to see, or None.
+
+    An order is authorised when the URL carries a valid signature, or when
+    the order was placed in this browser session.
+    """
+    if not order_id:
+        return None
+    if token:
+        try:
+            value = itsdangerous.URLSafeTimedSerializer(SECRET_KEY, salt=_ORDER_SALT).loads(
+                token, max_age=60 * 60 * 24 * 30)
+        except (itsdangerous.BadSignature, itsdangerous.SignatureExpired):
+            value = None
+        if value is not None and str(order_id) == str(value):
+            return order_id
+    if session.get("order_id") == order_id:
+        return order_id
+    return None
+
+
 @app.route("/checkout", methods=["POST"])
 @csrf.require_csrf
 def checkout():
@@ -883,7 +927,8 @@ def checkout():
         order_id = db.add_order(items, total, customer_email=email)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=_order_token(order_id)))
 
     stripe.api_key = STRIPE_SECRET
     line_items = [
@@ -902,34 +947,38 @@ def checkout():
         order_id = db.add_order(items, total, customer_email=email)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=_order_token(order_id)))
 
     # Priced items go to Stripe, so payment is not complete yet. No confirmation
     # is sent here: mailing "order confirmed" for an unpaid cart would be wrong.
     # A receipt belongs on the payment webhook, which is still to be built.
     order_id = db.add_order(items, total, customer_email=email, status="pending")
     notify.notify_order(items, total, customer_email=email)
+    token = _order_token(order_id)
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=line_items,
             mode="payment",
-            success_url=BASE_URL + url_for("checkout_success", order_id=order_id),
-            cancel_url=BASE_URL + url_for("checkout_cancel", order_id=order_id),
+            success_url=BASE_URL + url_for("checkout_success", order_id=order_id, token=token),
+            cancel_url=BASE_URL + url_for("checkout_cancel", order_id=order_id, token=token),
         )
     except Exception as exc:  # pragma: no cover - network/Stripe errors
         app.logger.error("Stripe session error: %s", exc)
         db.set_order_status(order_id, "enquiry")
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=token))
 
     db.set_order_status(order_id, "pending")
+    session["order_id"] = order_id
     return redirect(checkout_session.url)
 
 
 @app.route("/checkout/cancel")
 def checkout_cancel():
     order_id = request.args.get("order_id", type=int)
-    if order_id:
+    if _authorised_order(order_id, request.args.get("token")):
         db.set_order_status(order_id, "cancelled")
     return render_template("checkout_cancel.html", cart_count=cart_count())
 
@@ -937,6 +986,7 @@ def checkout_cancel():
 @app.route("/checkout/success")
 def checkout_success():
     order_id = request.args.get("order_id", type=int)
+    order_id = _authorised_order(order_id, request.args.get("token"))
     order = db.get_order(order_id) if order_id else None
     if not order:
         abort(404)
@@ -946,6 +996,53 @@ def checkout_success():
 
 
 # ------------------ admin ------------------
+def current_user():
+    """The signed-in user, re-validated against the database.
+
+    Returns None when there is no session, when the account has been
+    deleted or suspended, or when ``auth_version`` moved on (a role change
+    or a password reset ends every live session for that account).
+    """
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    user = db.get_user(user_id)
+    if not user or user.get("status") != "active":
+        session.pop("user_id", None)
+        session.pop("admin", None)
+        session.pop("auth_version", None)
+        return None
+    if session.get("auth_version") != user.get("auth_version"):
+        session.pop("user_id", None)
+        session.pop("admin", None)
+        session.pop("auth_version", None)
+        return None
+    return user
+
+
+def can(permission):
+    """True when the signed-in user holds ``permission``."""
+    user = current_user()
+    if not user:
+        return False
+    return roles.has_permission(user["role"], permission)
+
+
+def sign_in(user):
+    session["user_id"] = user["id"]
+    session["auth_version"] = user["auth_version"]
+    session["admin"] = user["username"]
+    session.modified = True
+    db.touch_login(user["id"])
+
+
+def sign_out():
+    session.pop("user_id", None)
+    session.pop("admin", None)
+    session.pop("auth_version", None)
+    session.modified = True
+
+
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST" and not csrf.validate():
@@ -953,9 +1050,22 @@ def admin_login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
-        if db.verify_admin(username, password):
-            session["admin"] = username
+        ip = request.headers.get("X-Forwarded-For", request.remote_addr or "")
+        ip = ip.split(",")[0].strip()
+        wait = db.login_lockout(username, ip)
+        if wait:
+            return render_template(
+                "admin/login.html",
+                error=f"Too many failed attempts. Try again in {max(1, wait // 60)} minute(s).",
+            )
+        user = db.verify_user(username, password)
+        if user:
+            db.clear_login_failures(username, ip)
+            sign_in(user)
+            db.log_action(user["id"], user["username"], "sign-in", user["username"], user["role"])
             return redirect(url_for("admin_dashboard"))
+        db.record_login_failure(username, ip)
+        db.log_action(None, username, "sign-in-failed", username, ip)
         return render_template("admin/login.html", error="Invalid credentials")
     if session.get("admin"):
         return redirect(url_for("admin_dashboard"))
@@ -965,15 +1075,29 @@ def admin_login():
 @app.route("/admin/logout", methods=["POST"])
 @csrf.require_csrf
 def admin_logout():
-    session.pop("admin", None)
+    user = current_user()
+    if user:
+        db.log_action(user["id"], user["username"], "sign-out", user["username"], "")
+    sign_out()
     return redirect(url_for("admin_login"))
 
 
 def admin_required(fn):
+    """Require a signed-in user, and a role that may use this view.
+
+    The permission is looked up from ``roles.ROUTE_PERMISSIONS`` by endpoint,
+    so a view that is not in the map is superadmin-only: new admin pages fail
+    closed instead of being open to every role.
+    """
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not session.get("admin"):
+        user = current_user()
+        if not user:
             return redirect(url_for("admin_login"))
+        permission = roles.permission_for(request.endpoint)
+        if permission and not roles.has_permission(user["role"], permission):
+            db.log_action(user["id"], user["username"], "denied", request.endpoint or "", user["role"])
+            abort(403)
         return fn(*args, **kwargs)
     return wrapper
 
@@ -981,18 +1105,33 @@ def admin_required(fn):
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-    return render_template("admin/dashboard.html", stats={
-        "feedback": len(db.list_feedback()),
-        "waitlist": len(db.list_waitlist()),
-        "journey": len(db.list_journey_subscribers()),
-        "bookings": len(db.list_bookings()),
-        "contacts": len(db.list_contacts()),
-        "orders": len(db.list_orders()),
-        "products": len(db.list_products()),
-        "files": len(db.list_files()),
-        "recent_waitlist": db.list_waitlist()[:5],
-        "recent_feedback": db.list_feedback()[:5],
-    })
+    """Overview. Only the numbers this role is allowed to see are counted."""
+    user = current_user()
+    role = user["role"]
+
+    def allow(permission):
+        return roles.has_permission(role, permission)
+
+    stats = {}
+    if allow("audience.feedback"):
+        stats["feedback"] = len(db.list_feedback())
+        stats["recent_feedback"] = db.list_feedback()[:5]
+    if allow("audience.waitlist"):
+        stats["waitlist"] = len(db.list_waitlist())
+        stats["recent_waitlist"] = db.list_waitlist()[:5]
+    if allow("audience.journey"):
+        stats["journey"] = len(db.list_journey_subscribers())
+    if allow("audience.bookings"):
+        stats["bookings"] = len(db.list_bookings())
+    if allow("audience.contacts"):
+        stats["contacts"] = len(db.list_contacts())
+    if allow("shop.orders"):
+        stats["orders"] = len(db.list_orders())
+    if allow("shop.products"):
+        stats["products"] = len(db.list_products())
+    if allow("media.files"):
+        stats["files"] = len(db.list_files())
+    return render_template("admin/dashboard.html", stats=stats, can_export=allow("system.export"))
 
 
 @app.route("/admin/products")
@@ -1840,11 +1979,19 @@ def admin_password():
         abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         new_pw = request.form.get("password", "")
-        if len(new_pw) >= 8:
-            db.set_admin_password("admin", new_pw)
+        current_pw = request.form.get("current_password", "")
+        user = current_user()
+        if not user:
+            return redirect(url_for("admin_login"))
+        if not db.verify_user(user["username"], current_pw):
+            flash("Your current password is not correct.", "error")
+            return render_template("admin/password.html")
+        if len(new_pw) >= 12:
+            db.set_user_password(user["id"], new_pw)
+            db.log_action(user["id"], user["username"], "password-changed", user["username"], "")
             flash("Password updated.")
             return redirect(url_for("admin_dashboard"))
-        flash("Password must be at least 8 characters.", "error")
+        flash("Password must be at least 12 characters.", "error")
     return render_template("admin/password.html")
 
 
@@ -2116,9 +2263,252 @@ def not_found(e):
     return render_template("404.html"), 404
 
 
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("admin/403.html"), 403
+
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template("500.html"), 500
+
+
+# ------------------ users, roles and invites ------------------
+
+def _invite_url(token):
+    return f"{BASE_URL}/invite/{token}"
+
+
+def _can_manage(actor, target):
+    """May ``actor`` change ``target``'s account? (role, status, delete)"""
+    if not actor or not target:
+        return False
+    if target["id"] == actor["id"]:
+        return False
+    return roles.may_manage(actor["role"], target["role"])
+
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    user = current_user()
+    status = (request.args.get("status") or "").strip()
+    role = (request.args.get("role") or "").strip()
+    search = (request.args.get("q") or "").strip()
+    return render_template(
+        "admin/users.html",
+        users=db.list_users(status=status, role=role, search=search),
+        roles=roles,
+        actor=user,
+        assignable=roles.assignable_roles(user["role"]),
+        status_filter=status,
+        role_filter=role,
+        search=search,
+        audit=db.list_audit(25),
+    )
+
+
+@app.route("/admin/users/new", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_new():
+    actor = current_user()
+    username = (request.form.get("username") or "").strip().lower()
+    email = (request.form.get("email") or "").strip()
+    full_name = (request.form.get("full_name") or "").strip()
+    role = (request.form.get("role") or "").strip()
+    password = (request.form.get("password") or "").strip()
+
+    if not username or not re.match(r"^[a-z0-9._-]{3,32}$", username):
+        flash("Username must be 3-32 characters: letters, digits, dot, dash or underscore.", "error")
+        return redirect(url_for("admin_users"))
+    if "@" not in email or "." not in email.split("@")[-1]:
+        flash("A valid email address is required — the invitation is sent there.", "error")
+        return redirect(url_for("admin_users"))
+    if not roles.is_role(role):
+        flash("Unknown role.", "error")
+        return redirect(url_for("admin_users"))
+    if not roles.may_assign(actor["role"], role):
+        flash("You cannot hand out a role above your own.", "error")
+        return redirect(url_for("admin_users"))
+    if db.username_taken(username):
+        flash("That username is taken.", "error")
+        return redirect(url_for("admin_users"))
+    if db.email_taken(email):
+        flash("That email address already has an account.", "error")
+        return redirect(url_for("admin_users"))
+    if password and len(password) < 12:
+        flash("A password must be at least 12 characters.", "error")
+        return redirect(url_for("admin_users"))
+
+    user, token = db.create_user(username, email, full_name, role, invited_by=actor["id"],
+                                 password=password)
+    db.log_action(actor["id"], actor["username"], "user-created", username, role)
+    if password:
+        flash(f"{username} created with a password. They can sign in now.")
+    else:
+        invite = _invite_url(token)
+        sent = mailer.send_user_invite(email, full_name or username, invite, roles.label(role))
+        db.log_action(actor["id"], actor["username"], "invite-sent", username,
+                      "sent" if sent else "not-configured")
+        if sent:
+            flash(f"Invitation sent to {email}.")
+        else:
+            flash("Mail is not configured, so the invitation was not sent. Copy the link below.",
+                  "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user["id"]))
+
+
+@app.route("/admin/users/<int:user_id>")
+@admin_required
+def admin_user_edit(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    invite = ""
+    if target["status"] == "invited" and target.get("invite_token"):
+        invite = _invite_url(target["invite_token"])
+    return render_template(
+        "admin/user_edit.html",
+        target=target,
+        actor=actor,
+        roles=roles,
+        assignable=roles.assignable_roles(actor["role"]),
+        manageable=_can_manage(actor, target),
+        invite_url=invite,
+        audit=db.list_audit(20),
+    )
+
+
+@app.route("/admin/users/<int:user_id>/role", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_role(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    role = (request.form.get("role") or "").strip()
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if not roles.is_role(role) or not roles.may_assign(actor["role"], role):
+        flash("You cannot hand out that role.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if target["role"] == roles.SUPERADMIN and role != roles.SUPERADMIN:
+        if db.count_active_superadmins(exclude_id=target["id"]) == 0:
+            flash("The last superadmin cannot be demoted.", "error")
+            return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.set_user_role(user_id, role)
+    db.log_action(actor["id"], actor["username"], "role-changed", target["username"],
+                  f"{target['role']} -> {role}")
+    flash(f"{target['username']} is now {roles.label(role)}.")
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/status", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_status(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    status = (request.form.get("status") or "").strip()
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if status not in ("active", "suspended", "invited"):
+        abort(400)
+    if target["role"] == roles.SUPERADMIN and status != "active":
+        if db.count_active_superadmins(exclude_id=target["id"]) == 0:
+            flash("The last superadmin cannot be suspended.", "error")
+            return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.set_user_status(user_id, status)
+    db.log_action(actor["id"], actor["username"], "status-changed", target["username"], status)
+    flash(f"{target['username']} is now {status}.")
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/invite", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_invite(user_id):
+    """Re-send an invitation (or issue a password reset link)."""
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    token = db.create_invite(user_id)
+    invite = _invite_url(token)
+    sent = mailer.send_user_invite(target["email"], target["full_name"] or target["username"],
+                                   invite, roles.label(target["role"]))
+    db.log_action(actor["id"], actor["username"], "invite-sent", target["username"],
+                  "sent" if sent else "not-configured")
+    if sent:
+        flash(f"A new invitation was sent to {target['email']}.")
+    else:
+        flash("Mail is not configured, so the invitation was not sent. Copy the link below.", "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_delete(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot delete that account.", "error")
+        return redirect(url_for("admin_users"))
+    if target["role"] == roles.SUPERADMIN and db.count_active_superadmins(exclude_id=target["id"]) == 0:
+        flash("The last superadmin cannot be deleted.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.delete_user(user_id)
+    db.log_action(actor["id"], actor["username"], "user-deleted", target["username"], target["role"])
+    flash(f"{target['username']} was removed.")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/invite/<token>", methods=["GET", "POST"])
+def invite_accept(token):
+    """Redeem an invitation: the invite token is the credential."""
+    user = db.get_user_by_invite_token(token)
+    if not user:
+        return render_template("invite_accept.html", user=None, error="This invitation is not valid."), 404
+    if db.invite_expired(user):
+        return render_template(
+            "invite_accept.html", user=user,
+            error="This invitation has expired. Ask an administrator to send a new one.",
+        ), 410
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        password = request.form.get("password") or ""
+        confirm = request.form.get("confirm") or ""
+        if password != confirm:
+            flash("The two passwords do not match.", "error")
+            return render_template("invite_accept.html", user=user)
+        if len(password) < 12:
+            flash("A password must be at least 12 characters.", "error")
+            return render_template("invite_accept.html", user=user)
+        db.set_user_password(user["id"], password)
+        db.log_action(user["id"], user["username"], "invite-accepted", user["username"], user["role"])
+        fresh = db.get_user(user["id"])
+        sign_in(fresh)
+        flash("Your account is ready.")
+        if user["role"] == roles.MEMBER:
+            return redirect(url_for("index"))
+        return redirect(url_for("admin_dashboard"))
+    return render_template("invite_accept.html", user=user)
 
 
 with app.app_context():

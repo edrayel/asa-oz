@@ -53,5 +53,12 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
 - **`SECRET_KEY` and `ADMIN_PASSWORD` are required and deliberately fail-fast** — a misconfigured deploy must be loud, not silent. In production they live in `/home/agent/asa-oz/app/.env` (mode `600`); that file is never committed and never baked into the image.
 - **`ADMIN_PASSWORD` only seeds the first boot.** Afterwards change it at `/admin/password`; editing the env var will not update an existing admin row.
 - **Never inline a secret.** `.env` locally (gitignored) and `/home/agent/asa-oz/app/.env` on the VPS. `.dockerignore` keeps `.env` out of the image — never remove that line.
+- **End-to-end audit harness.** `tests/e2e_server.py` runs the app against an isolated
+  database (no mail, no Drive), `tests/e2e_seed.py` fills it with representative content,
+  and `tests/e2e_audit.py` crawls every public and admin page at desktop, tablet and
+  mobile, capturing JavaScript errors, failed requests, broken images, horizontal
+  overflow and dead links. Run it before a release:
+  `.venv/bin/python tests/e2e_server.py --port 5055 --fresh` then
+  `.venv/bin/python tests/e2e_audit.py --base http://127.0.0.1:5055`.
 - **Kilo is the agent runtime here; OpenCode is retired.** Project config is `kilo.json` (repo root) and `.kilo/`; MCP servers live in the user-level `~/.config/kilo/kilo.jsonc`. Anything committed must carry placeholders only — real credentials stay in `~/.config/opencode/keys/` (mode `600`), referenced as `"{file:~/.config/opencode/keys/<name>"}`.
 - `app.py` is large — grep for the symbol rather than dumping it into context.

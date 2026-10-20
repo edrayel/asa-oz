@@ -198,7 +198,8 @@
       </section>
 
       {% if cms.custom_blocks.blocks %}
-      <section class="cms-custom-blocks{% if cms.custom_blocks.style %} cms-section--padding-{{ cms.custom_blocks.style.get('padding', 'medium') }} cms-section--align-{{ cms.custom_blocks.style.get('text_align', 'left') }}{% endif %}"{% if cms.custom_blocks.style and cms.custom_blocks.style.get('background') == 'custom' and cms.custom_blocks.style.get('background_custom') %} style="background:{{ cms.custom_blocks.style.background_custom }};"{% elif cms.custom_blocks.style and cms.custom_blocks.style.get('background', 'none') not in ['none', '--cream', '--paper'] %} style="background:var({{ cms.custom_blocks.style.background }});"{% endif %} aria-label="Content blocks">
+      {% set blocks = cms.custom_blocks.blocks %}
+      <section class="cms-custom-blocks{% if cms.custom_blocks.style %} cms-section--padding-{{ cms.custom_blocks.style.get('padding', 'medium') }} cms-section--align-{{ cms.custom_blocks.style.get('text_align', 'left') }}{% endif %}"{% if cms.custom_blocks.style and cms.custom_blocks.style.get('background') == 'custom' and cms.custom_blocks.style.get('background_custom') %} style="background:{{ cms.custom_blocks.style.background_custom }};"{% elif cms.custom_blocks.style and cms.custom_blocks.style.get('background', 'none') not in ['none', '--cream', '--paper'] %} style="background:var({{ cms.custom_blocks.style.background }});"{% endif %}" aria-label="Content blocks">
         {% include "partials/cms_blocks.html" with context %}
       </section>
       {% endif %}

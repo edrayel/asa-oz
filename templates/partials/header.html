@@ -41,10 +41,12 @@
       <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
         {{ icon('<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>', 18) }}
       </button>
+      {% if settings.get('show_store', '0') == '1' %}
       <button class="cart-toggle" id="cartToggle" aria-label="Open cart">
         {{ icon('<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>', 18) }}
         <span class="cart-count" id="cartCount"{% if not cart_count %} style="display:none;"{% endif %}>{{ cart_count }}</span>
       </button>
+      {% endif %}
     </div>
   </div>
 </header>
