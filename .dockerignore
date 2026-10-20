@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+.venv
+__pycache__
+*.pyc
+*.log
+instance
+data
+.playwright-mcp
+graphify-out
+.opencode
+.kilo
+.commandcode

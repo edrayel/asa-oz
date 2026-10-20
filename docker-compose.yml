@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    container_name: asaoz-web
+    env_file:
+      - ./.env
+    volumes:
+      - ../data:/data
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.asaoz.rule=Host(`asa-oz.com`) || Host(`www.asa-oz.com`) || Host(`go.asa-oz.com`) || Host(`asa-oz.ie`) || Host(`www.asa-oz.ie`) || Host(`asa-oz.net`) || Host(`www.asa-oz.net`)"
+      - "traefik.http.routers.asaoz.entrypoints=websecure"
+      - "traefik.http.routers.asaoz.tls=true"
+      - "traefik.http.routers.asaoz.tls.certresolver=cf"
+      - "traefik.http.routers.asaoz.tls.domains[0].main=asa-oz.com"
+      - "traefik.http.routers.asaoz.tls.domains[0].sans=www.asa-oz.com,go.asa-oz.com,asa-oz.ie,www.asa-oz.ie,asa-oz.net,www.asa-oz.net"
+      - "traefik.http.services.asaoz.loadbalancer.server.port=8000"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

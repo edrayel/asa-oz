@@ -3,11 +3,14 @@
   "mcp": {
     "render-asaoz": {
       "type": "local",
-      "command": ["npx", "-y", "mcp-render"],
-      "enabled": true,
+      "command": [
+        "/home/edrayel/.npm-global/lib/node_modules/mcp-render/build/index.js"
+      ],
+      "enabled": false,
       "environment": {
         "RENDER_API_KEY": "{file:~/.config/opencode/keys/render_asa-oz_api_key}"
-      }
+      },
+      "_comment": "Absolute path to the globally installed mcp-render (npm bin name is `render`), so each opencode instance does not pay an npx package resolve on startup."
     }
   }
 }

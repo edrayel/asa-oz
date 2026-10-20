@@ -49,9 +49,17 @@ admin-dashboard.png
 
 # Verification screenshots
 *.png
-# Playwright snapshot dumps
-*.yml
+# Playwright snapshot dumps (scoped: a bare *.yml would also hide
+# docker-compose.yml, which belongs in the repo)
+.playwright-mcp/*.yml
+*.playwright.yml
 
 # Legacy source copy directories
 webcopy/
 feedback/
+
+# Knowledge-graph output (generated)
+graphify-out/
+
+# Docker Compose data directory (the persistent volume mount target)
+data/

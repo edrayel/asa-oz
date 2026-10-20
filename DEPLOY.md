@@ -1,9 +1,10 @@
 # Deploying Asa-OZ
 
-Flask + SQLite + HTMX, deployed on Render. This document covers the full
-production setup: env vars, secrets, the admin, the CMS, the SMTP provider
-(Zoho Mail), Google Drive as an admin media library, Google AdSense, and
-the commandcode Render MCP integration.
+Flask + SQLite + HTMX. Production runs on the VPS (Docker Compose behind
+Traefik — see § 11); Render remains a supported target (§ 1–§ 10). This
+document covers the full setup: env vars, secrets, the admin, the CMS, the
+SMTP provider (Zoho Mail), Google Drive as an admin media library, Google
+AdSense, and the commandcode Render MCP integration.
 
 ## 1. Required environment variables
 
@@ -490,6 +491,94 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
   level (HTTP 413) before they reach the view code.
 - **Google credentials** (Drive and Photos) never touch the database and are
   never logged. Both integrations are read-only: `drive.readonly` and
-  `photospicker.mediaitems.readonly`. The refresh token lives outside the repo
+  `photopicker.mediaitems.readonly`. The refresh token lives outside the repo
   under `~/.config/opencode/keys/` and is loaded via
   `GOOGLE_DRIVE_CREDENTIALS` / `GOOGLE_PHOTOS_CREDENTIALS`.
+
+## 11. VPS deployment (current production)
+
+Production is served from the VPS, not Render. The app runs as the Docker
+Compose service `asaoz-web` behind the host's Traefik proxy.
+
+### 11.1 Layout
+
+| Path | Contents |
+|---|---|
+| `/home/agent/asa-oz/app` | Application code (synced from this repo; **not** a git checkout) |
+| `/home/agent/asa-oz/app/.env` | Production secrets — lives on the VPS only, never in git |
+| `/home/agent/asa-oz/data` | Persistent volume: `asaoz.sqlite3`, `uploads/`, `backups/` |
+| `/home/agent/asa-oz/data/backups` | Timestamped database snapshots (§ 11.4) |
+
+`docker-compose.yml` mounts `../data:/data`, and the production `.env` points
+`DATABASE=/data/asaoz.sqlite3` and `UPLOAD_DIR=/data/uploads` at that mount.
+Nothing the app writes may land outside it — the container filesystem is
+ephemeral.
+
+### 11.2 Deploying a change
+
+```bash
+# 1. push the change, then copy the tracked files to the VPS
+git push origin master
+rsync -a --delete --exclude '.env' --exclude 'data' \
+      --exclude '.git' --exclude 'instance' --exclude 'graphify-out' \
+      --exclude '.venv' --exclude '__pycache__' \
+      ./ root@<vps>:/home/agent/asa-oz/app/
+
+# 2. rebuild and recreate the container
+ssh root@<vps> 'cd /home/agent/asa-oz/app && docker compose build && docker compose up -d'
+
+# 3. verify
+ssh root@<vps> 'docker logs asaoz-web --tail 20 && curl -fsS https://asa-oz.com/health'
+```
+
+`docker compose build` is required after any change — the image bakes the
+code in, so a plain `restart` serves the previous build.
+
+### 11.3 The image must not contain secrets
+
+`Dockerfile` does `COPY . .`, so `.dockerignore` is what keeps the production
+`.env` out of the image layers. It excludes `.env`, `instance/`, `data/`,
+`.git` and the local tool directories. Never remove `.env` from
+`.dockerignore`; if a secret is baked into an image, that image must be
+deleted (`docker image prune -a` after rebuilding), not just replaced.
+
+### 11.4 Backing up the database
+
+The database is a single SQLite file, so a consistent snapshot needs the
+SQLite online-backup API — copying the file while the app is writing can
+capture a torn file.
+
+```bash
+ssh root@<vps> 'python3 - <<PY
+import sqlite3
+src = sqlite3.connect("/home/agent/asa-oz/data/asaoz.sqlite3")
+dst = sqlite3.connect("/home/agent/asa-oz/data/backups/asaoz-$(date +%Y%m%d-%H%M%S).sqlite3")
+src.backup(dst)
+print("ok")
+PY'
+```
+
+Then verify the copy before trusting it:
+
+```bash
+python3 -c "import sqlite3;print(sqlite3.connect('<backup>').execute('PRAGMA integrity_check').fetchone()[0])"
+```
+
+A second copy outside the app directory is cheap insurance — the whole
+`data/` directory is lost if the VPS disk is replaced:
+
+```bash
+scp root@<vps>:/home/agent/asa-oz/data/backups/asaoz-<stamp>.sqlite3 ./backups/
+```
+
+### 11.5 Traefik and TLS
+
+The router is declared by labels on the Compose service, not by an nginx
+config file: `Host` rules cover `asa-oz.com`, `www.asa-oz.com`,
+`go.asa-oz.com`, `asa-oz.ie`, `www.asa-oz.ie`, `asa-oz.net` and
+`www.asa-oz.net`, on the `websecure` entrypoint, with certificates issued by
+the `cf` (Cloudflare) resolver. The site is served through Cloudflare's proxy.
+
+The Compose file expects the external Docker network `proxy` to exist
+(`docker network create proxy` on a fresh host) and the container to publish
+port `8000` internally only — Traefik is the only thing that should reach it.
