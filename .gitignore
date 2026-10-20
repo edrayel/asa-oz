@@ -19,6 +19,10 @@ dist/
 # MCP config (contains API keys — never commit)
 .mcp.json
 
+# Agent-runtime config (OpenCode is retired; Kilo is the runtime)
+.opencode/
+.kilocode/
+
 # Mail / SMTP credentials (never commit — see DEPLOY.md)
 zoho-mail-cred-info-*.txt
 *cred-info*.txt

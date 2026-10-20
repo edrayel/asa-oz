@@ -1,0 +1,12 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "watcher": {
+    "ignore": [
+      "**/graphify-out/**",
+      "**/node_modules/**",
+      "**/instance/**",
+      "**/data/**",
+      "**/.venv/**"
+    ]
+  }
+}

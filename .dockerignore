@@ -12,4 +12,10 @@ data
 graphify-out
 .opencode
 .kilo
+.kilocode
 .commandcode
+kilo.json
+.mcp.json
+.mcp.json.example
+AGENTS.md
+DEPLOY.md

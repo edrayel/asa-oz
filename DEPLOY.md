@@ -1,10 +1,10 @@
 # Deploying Asa-OZ
 
 Flask + SQLite + HTMX. Production runs on the VPS (Docker Compose behind
-Traefik — see § 11); Render remains a supported target (§ 1–§ 10). This
-document covers the full setup: env vars, secrets, the admin, the CMS, the
-SMTP provider (Zoho Mail), Google Drive as an admin media library, Google
-AdSense, and the commandcode Render MCP integration.
+Traefik — see § 11). Render was retired on 20 October 2026 and the Render
+service was deleted. This document covers the full setup: env vars, secrets,
+the admin, the CMS, the SMTP provider (Zoho Mail), Google Drive as an admin
+media library, and Google AdSense.
 
 ## 1. Required environment variables
 
@@ -17,8 +17,9 @@ loud, not silent.
 | `SECRET_KEY` | Flask session signing key (≥ 48 random bytes) | `python -c 'import secrets; print(secrets.token_urlsafe(48))'` |
 | `ADMIN_PASSWORD` | Initial admin password (≥ 12 chars). Used only on first boot to seed the admin row, then change it at `/admin/password`. | A long random string or a passphrase. |
 
-`render.yaml` declares both as `sync: false` — set them in the Render
-dashboard's **Environment** tab, not in the YAML.
+On the VPS both live in `/home/agent/asa-oz/app/.env` (mode `600`, owned by
+`agent`); locally they are exported from your shell. Neither file is
+committed.
 
 `ADMIN_PASSWORD` matters more than it looks. `init_db()` seeds the admin row
 from it on first boot and raises `RuntimeError` if it is missing while the
@@ -28,35 +29,23 @@ database: the deploy then crash-loops and the site goes down. Keep it set.
 
 ## 1.1 Persistence
 
-Render's filesystem is **ephemeral** on a service without a disk. The SQLite
-database is recreated empty on every deploy, every restart, and every
-environment variable change. On the free instance type it is also discarded
-whenever the service spins down.
-
-`render.yaml` therefore declares a disk, and everything the app writes points
-into it:
-
-```yaml
-disk:
-  name: asa-oz-data
-  mountPath: /var/data
-  sizeGB: 1
-```
+The container filesystem is **ephemeral**: `docker compose build` replaces the
+image and a recreated container starts with an empty `/app`. Everything the
+app writes therefore has to live in the bind-mounted volume:
 
 ```
-DATABASE=/var/data/asaoz.sqlite3
-UPLOAD_DIR=/var/data/uploads
+DATABASE=/data/asaoz.sqlite3
+UPLOAD_DIR=/data/uploads
 ```
 
-Anything written outside `/var/data` is lost on the next deploy, so if you add
-a new writable path, put it under the mount. A disk requires a paid instance
-type, so the disk and the plan belong together.
+`docker-compose.yml` maps the host's `/home/agent/asa-oz/data` to `/data`
+inside the container, so those two paths are the same files seen from both
+sides. The host directory survives rebuilds, container recreation and
+reboots.
 
-Attaching a disk restarts the service, and that restart still begins from an
-empty volume: the data that existed before the disk was attached is gone. From
-then on, deploys preserve it. If a deploy ever needs to be made on a service
-that has neither a disk nor a backup, treat the database as write-only and
-expect to lose it.
+Two things can still lose the data: the host disk being replaced, and
+deleting `/home/agent/asa-oz/data` by hand. Take a backup before any risky
+operation; see § 11.4.
 
 ## 2. Optional environment variables
 
@@ -95,15 +84,10 @@ Notes specific to Zoho:
   A regular login password will be rejected.
 - The `From` address in outgoing mail must match the SMTP account (or one
   of its aliases) or Zoho will return `Relaying disallowed`.
-- **Free instances cannot send mail at all.** Render blocks outbound traffic to
-  SMTP ports 25, 465 and 587 on free web services. Port 25 is blocked on every
-  plan because Render runs on EC2; 465 and 587 work on paid instances. On free
-  the connection never leaves the network and every send fails with
-  `TimeoutError`, which the admin's Emails page will show. The fix is to move
-  the service to any paid instance type. Nothing in the code or the credentials
-  needs to change.
-- Render's outbound IPs are not on any RBL, so no special DNS work is
-  needed. Add SPF / DKIM / DMARC records on `asa-oz.com` once you have a
+- The VPS has no SMTP egress restriction, so all three ports work normally.
+  If a send fails with `TimeoutError`, check the host's outbound firewall
+  before suspecting the credentials.
+- Add SPF / DKIM / DMARC records on `asa-oz.com` once you have a
   stable sending domain to improve deliverability. Note also that
   `asa-oz.com` currently has no MX record, so `info@asa-oz.com` cannot receive
   replies and `Reply-To` on outgoing mail is a dead end until one exists.
@@ -121,10 +105,10 @@ export FROM_EMAIL="$SMTP_USERNAME"
 export ADMIN_EMAIL="$SMTP_USERNAME"
 ```
 
-Rotating the password is a one-file change. In production set the same six
-vars in the Render dashboard. Note that saving env vars on Render restarts
-the service, which wipes the ephemeral SQLite database — add a `disk:` block
-to `render.yaml` first if that data matters.
+Rotating the password is a one-file change. In production the same six vars
+live in `/home/agent/asa-oz/app/.env`; editing that file changes nothing
+until the container is recreated (`docker compose up -d --force-recreate`).
+The database is not affected by a restart.
 
 #### Automatic emails
 
@@ -202,8 +186,8 @@ export GOOGLE_DRIVE_CREDENTIALS="$HOME/.config/opencode/keys/asa-oz_google_oauth
 export GOOGLE_PHOTOS_CREDENTIALS="$GOOGLE_DRIVE_CREDENTIALS"
 ```
 
-In production set both in the Render dashboard. Saving env vars restarts the
-service.
+In production both live in `/home/agent/asa-oz/app/.env`; recreate the
+container after changing them.
 
 #### Refresh tokens expire after 7 days in Testing
 
@@ -277,27 +261,18 @@ Sources (verified against these, not written from memory):
 
 | Var | Default | Purpose |
 |---|---|---|
-| `APP_URL` | `https://asa-oz.com` | Canonical public site URL. Drives emailed confirm and unsubscribe links, the email logo, Stripe return URLs, OG tags and the sitemap. Declared in `render.yaml`. Never point this at the `*.onrender.com` host: the app no longer falls back to `RENDER_EXTERNAL_URL` for exactly that reason. A local run can set `APP_URL=http://localhost:5000` to get clickable local links. |
+| `APP_URL` | `https://asa-oz.com` | Canonical public site URL. Drives emailed confirm and unsubscribe links, the email logo, Stripe return URLs, OG tags and the sitemap. Set it in the production `.env`. A local run can set `APP_URL=http://localhost:5000` to get clickable local links. |
 | `DATABASE` | `instance/asaoz.sqlite3` | SQLite file path. |
 | `UPLOAD_DIR` | `instance/uploads/` | File-upload directory. |
 | `MAX_UPLOAD_MB` | `20` | Max upload size in MB. Enforced at the Werkzeug level (413 on oversize). |
-| `PYTHON_VERSION` | `3.12` | Set in `render.yaml`. |
-| `FLASK_ENV` | `production` | Set in `render.yaml`. |
+| `PYTHON_VERSION` | `3.12` | Pins the interpreter; the image is already `python:3.12-slim`. |
+| `FLASK_ENV` | `production` | Set in the production `.env`. |
 
 ### 2.5 Google AdSense (only after AdSense approval)
 
 | Var | Purpose |
 |---|---|
 | `ADSENSE_PUBLISHER_ID` | Your AdSense `ca-pub-XXXXXXXXXXXXXXXX` ID. If unset, the AdSense script does not load. |
-
-### 2.6 Render MCP (commandcode)
-
-This is for the commandcode AI agent, not the running app. See
-[§ 7 Render MCP](#7-render-mcp-commandcode).
-
-| Var | Purpose |
-|---|---|
-| `RENDER_ASAOZ_API_KEY` | Render API key with read access to your workspace. Read from the shell at agent startup. |
 
 ## 3. The admin / CMS
 
@@ -396,44 +371,31 @@ pre-filled with the AdSense disclosure language. Edit it from
 database and (if configured) Google Drive. Returns HTTP 200 with
 `{"db": true, "status": "ok"}` when both subsystems respond, or HTTP 503
 with `{"db": false, ...}` / `{"drive": false, ...}` if anything is
-degraded. Use this URL as your Render healthcheck.
+degraded. Use this URL as the container healthcheck (see `Dockerfile`).
 
 `GET /ping` is a cheap no-op alias — used by the keep-alive cron.
 
-## 7. MCP servers (commandcode)
+## 7. MCP servers (Kilo)
 
-The repo's `.mcp.json` (project scope, committed) configures:
+Kilo is the agent runtime for this repo; OpenCode is retired. The project
+config is `kilo.json` at the repo root, and the MCP servers themselves are
+defined in the user-level `~/.config/kilo/kilo.jsonc` so they are shared
+across projects.
 
-| Server | Why project-scoped |
-|---|---|
-| `github-edrayel` | Personal GitHub PAT — only this repo's sessions need it. |
-| `render` | `RENDER_ASAOZ_API_KEY` reads from env; only this project uses Render for Asa-OZ. |
-| `playwright` | Launches a real Chrome browser. Per-project because the spawned browser holds a singleton user-data-dir lock; if two opencode sessions on the same machine both enable it, the second one fails to start. |
-| `chrome-devtools` | Same browser-process concern as playwright. |
+Credentials never live in the repo. Two conventions are used:
 
-The user-level `~/.commandcode/mcp.json` keeps cross-project MCPs
-(`vps-manager`, `supermemory`, `paperplain`) but **not** the browser
-MCPs — those live at the project scope so they don't collide between
-different opencode instances on the same machine.
+- **Repo-side placeholders.** `kilo.json` and `.kilo/mcp.example.json` show
+  the shape of a server definition with `<placeholder>` values only.
+- **Real values live outside git.** One file per credential under
+  `~/.config/opencode/keys/` (mode `600`); a config references one with
+  `"{file:~/.config/opencode/keys/<name>"}"`.
 
-### Render API key
-
-The env-var name is `RENDER_ASAOZ_API_KEY` (service-prefixed, so
-multiple Render accounts cluster as `RENDER_*` when listed with
-`env | grep ^RENDER_`).
-
-In your shell, export it once per session:
-
-```bash
-export RENDER_ASAOZ_API_KEY="$(cat ~/.config/opencode/keys/render_asa-oz_api_key)"
-```
-
-Generate a new key at
-<https://dashboard.render.com/u/settings?add-api-key> if you ever need
-to rotate. After editing `.mcp.json`, restart the agent or run
-`/mcp` inside an active session to pick up the new server. The first
-time the agent invokes a Render tool, it will scope the connection to
-a workspace.
+The repo's `.mcp.json` is **gitignored** and holds the local, real
+credentials for the servers that are only needed while working on this
+project (`github-edrayel`, `playwright`, `chrome-devtools`). Copy
+`.mcp.json.example` to `.mcp.json` and fill in the placeholders to recreate
+it. After editing it, restart the agent or run `/mcp` inside an active
+session to pick up the change.
 
 ## 8. First-time local setup
 
@@ -459,8 +421,8 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
 - [ ] `SECRET_KEY` set to a random 48+ byte value
 - [ ] `ADMIN_PASSWORD` set to a strong (≥ 12 char) initial value, then
       changed at `/admin/password`
-- [ ] `APP_URL` is `https://asa-oz.com` (declared in `render.yaml`) so emailed
-      links and OG tags use the live domain, not the `*.onrender.com` host
+- [ ] `APP_URL` is `https://asa-oz.com` so emailed links and OG tags use the
+      live domain
 - [ ] `STRIPE_SECRET_KEY` set if you want to take real payments
       (otherwise the site runs in enquiry-only mode)
 - [ ] `SMTP_*` set with Zoho Mail credentials (use an app password if 2FA
@@ -497,8 +459,10 @@ Log in at `/admin` with the value of `ADMIN_PASSWORD`.
 
 ## 11. VPS deployment (current production)
 
-Production is served from the VPS, not Render. The app runs as the Docker
-Compose service `asaoz-web` behind the host's Traefik proxy.
+Production is served from the VPS. The app runs as the Docker Compose
+service `asaoz-web` behind the host's Traefik proxy. The Render service
+(`asa-oz-web`) was deleted on 20 October 2026; nothing in the app depends on
+it any more.
 
 ### 11.1 Layout
 
@@ -583,3 +547,12 @@ the `cf` (Cloudflare) resolver. The site is served through Cloudflare's proxy.
 The Compose file expects the external Docker network `proxy` to exist
 (`docker network create proxy` on a fresh host) and the container to publish
 port `8000` internally only — Traefik is the only thing that should reach it.
+
+### 11.6 Deferred: the container runs as root
+
+`asaoz-web` has no `USER` directive, so gunicorn runs as uid 0 and anything
+it writes into `/data` becomes root-owned. This is not app-specific — every
+container on this VPS runs the same way — so it was left alone on
+20 October 2026 as out of scope for this app. Revisit it when the host's
+container baseline is revisited: the fix is a non-root `USER` in the
+`Dockerfile` plus matching ownership on `/home/agent/asa-oz/data`.

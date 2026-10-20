@@ -1,0 +1,25 @@
+{
+  "_comment": "Copy to .mcp.json (gitignored) and fill in the placeholders. Real credentials belong in ~/.config/opencode/keys/ at mode 600, one file per credential; the {file:...} reference is resolved by the agent at load time.",
+  "mcpServers": {
+    "github-edrayel": {
+      "transport": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": false,
+      "headers": {
+        "Authorization": "{file:~/.config/opencode/keys/github_edrayel_pat}"
+      }
+    },
+    "playwright": {
+      "transport": "stdio",
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--browser", "chrome"]
+    },
+    "chrome-devtools": {
+      "transport": "stdio",
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}

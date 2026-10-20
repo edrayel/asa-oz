@@ -6,7 +6,7 @@ Flask + SQLite + HTMX site and CMS. Production runs on the VPS (Docker Compose b
 
 - Code is NOT in the semantic index (retired 2026-10-18: embedding the corpus cost hours of CPU to save cents of tokens). For code use `Grep`/`Glob`; for structure use `graphify`.
 - `app.py` is one large module with no factory. Grep for the route or helper you need — do not read the file whole.
-- Deployment, env vars, SMTP, Drive, AdSense and the Render MCP integration are documented in `DEPLOY.md`. Read the relevant section before touching deploy config. The VPS runs the app as the `asaoz-web` Compose service; `/home/agent/asa-oz/app` is a git checkout of `master`, so a deploy is `git pull` + `docker compose build` + `docker compose up -d`.
+- Deployment, env vars, SMTP, Drive and AdSense are documented in `DEPLOY.md`. Read the relevant section before touching deploy config. The VPS runs the app as the `asaoz-web` Compose service; `/home/agent/asa-oz/app` is a git checkout of `master`, so a deploy is `git pull` + `docker compose build` + `docker compose up -d`.
 
 ## Quick Start
 
@@ -20,10 +20,10 @@ python run.py            # PORT default 5000; FLASK_DEBUG=1 enables the reloader
 
 `run.py` calls `load_dotenv(override=True)`, so `.env` wins over ambient vars locally.
 
-Production entrypoint (from `Procfile`):
+Production entrypoint (from the `Dockerfile`):
 
 ```
-gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 app:app
+gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
 ```
 
 ## Tech Stack
@@ -32,7 +32,7 @@ gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 app:app
 |---|---|
 | Web | Flask 3.1, HTMX, server-rendered Jinja |
 | Data | SQLite |
-| Deploy | VPS (`Dockerfile`, `docker-compose.yml`, Traefik); Render (`Procfile`, `render.yaml`) is a secondary target |
+| Deploy | VPS (`Dockerfile`, `docker-compose.yml`, Traefik) |
 | Mail | Zoho Mail over SMTP |
 | Media | Google Drive as the admin media library |
 | Payments | Stripe |
@@ -50,7 +50,8 @@ gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 app:app
 
 ## Critical Rules
 
-- **`SECRET_KEY` and `ADMIN_PASSWORD` are required and deliberately fail-fast** — a misconfigured deploy must be loud, not silent. Both are `sync: false` in `render.yaml`: set them in the Render dashboard's **Environment** tab, not in the YAML.
+- **`SECRET_KEY` and `ADMIN_PASSWORD` are required and deliberately fail-fast** — a misconfigured deploy must be loud, not silent. In production they live in `/home/agent/asa-oz/app/.env` (mode `600`); that file is never committed and never baked into the image.
 - **`ADMIN_PASSWORD` only seeds the first boot.** Afterwards change it at `/admin/password`; editing the env var will not update an existing admin row.
-- **Never inline a secret.** `.env` locally (gitignored), Render env vars in production, and `/home/agent/asa-oz/app/.env` on the VPS. `.dockerignore` keeps `.env` out of the image — never remove that line.
+- **Never inline a secret.** `.env` locally (gitignored) and `/home/agent/asa-oz/app/.env` on the VPS. `.dockerignore` keeps `.env` out of the image — never remove that line.
+- **Kilo is the agent runtime here; OpenCode is retired.** Project config is `kilo.json` (repo root) and `.kilo/`; MCP servers live in the user-level `~/.config/kilo/kilo.jsonc`. Anything committed must carry placeholders only — real credentials stay in `~/.config/opencode/keys/` (mode `600`), referenced as `"{file:~/.config/opencode/keys/<name>"}`.
 - `app.py` is large — grep for the symbol rather than dumping it into context.
