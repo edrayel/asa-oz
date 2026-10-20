@@ -504,7 +504,7 @@ Compose service `asaoz-web` behind the host's Traefik proxy.
 
 | Path | Contents |
 |---|---|
-| `/home/agent/asa-oz/app` | Application code (synced from this repo; **not** a git checkout) |
+| `/home/agent/asa-oz/app` | Application code — a **git checkout** of this repo (branch `master`) |
 | `/home/agent/asa-oz/app/.env` | Production secrets — lives on the VPS only, never in git |
 | `/home/agent/asa-oz/data` | Persistent volume: `asaoz.sqlite3`, `uploads/`, `backups/` |
 | `/home/agent/asa-oz/data/backups` | Timestamped database snapshots (§ 11.4) |
@@ -517,15 +517,11 @@ ephemeral.
 ### 11.2 Deploying a change
 
 ```bash
-# 1. push the change, then copy the tracked files to the VPS
+# 1. push the change
 git push origin master
-rsync -a --delete --exclude '.env' --exclude 'data' \
-      --exclude '.git' --exclude 'instance' --exclude 'graphify-out' \
-      --exclude '.venv' --exclude '__pycache__' \
-      ./ root@<vps>:/home/agent/asa-oz/app/
 
-# 2. rebuild and recreate the container
-ssh root@<vps> 'cd /home/agent/asa-oz/app && docker compose build && docker compose up -d'
+# 2. pull it on the VPS, rebuild and recreate the container
+ssh root@<vps> 'su - agent -c "cd /home/agent/asa-oz/app && git pull --ff-only && docker compose build && docker compose up -d"'
 
 # 3. verify
 ssh root@<vps> 'docker logs asaoz-web --tail 20 && curl -fsS https://asa-oz.com/health'
@@ -533,6 +529,11 @@ ssh root@<vps> 'docker logs asaoz-web --tail 20 && curl -fsS https://asa-oz.com/
 
 `docker compose build` is required after any change — the image bakes the
 code in, so a plain `restart` serves the previous build.
+
+The checkout is a plain clone with no local modifications; if `git pull`
+reports a dirty tree, the working copy has been edited on the server and the
+edit has to be discarded or moved into a commit before deploying. `.env` is
+untracked and is never touched by `git pull`.
 
 ### 11.3 The image must not contain secrets
 

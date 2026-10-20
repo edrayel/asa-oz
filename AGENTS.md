@@ -6,7 +6,7 @@ Flask + SQLite + HTMX site and CMS. Production runs on the VPS (Docker Compose b
 
 - Code is NOT in the semantic index (retired 2026-10-18: embedding the corpus cost hours of CPU to save cents of tokens). For code use `Grep`/`Glob`; for structure use `graphify`.
 - `app.py` is one large module with no factory. Grep for the route or helper you need — do not read the file whole.
-- Deployment, env vars, SMTP, Drive, AdSense and the Render MCP integration are documented in `DEPLOY.md`. Read the relevant section before touching deploy config. The VPS runs the app as the `asaoz-web` Compose service; the code on the VPS is a copy, not a git checkout, so a deploy is `rsync` + `docker compose build` + `docker compose up -d`.
+- Deployment, env vars, SMTP, Drive, AdSense and the Render MCP integration are documented in `DEPLOY.md`. Read the relevant section before touching deploy config. The VPS runs the app as the `asaoz-web` Compose service; `/home/agent/asa-oz/app` is a git checkout of `master`, so a deploy is `git pull` + `docker compose build` + `docker compose up -d`.
 
 ## Quick Start
 
