@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Share your story | Asa-OZ{% endblock %}
+
+{% block scripts %}
+{{ captcha_script() }}
+{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}" />{% endblock %}
 
 {% block main %}
@@ -13,6 +17,7 @@
 
         <form method="POST" action="{{ url_for('blog_submit') }}" class="blog-form">
           {{ csrf_input() }}
+          {{ captcha_field() }}
           <label>Title
             <input type="text" name="title" required value="{{ form.get('title','') }}" placeholder="Lagos in the rain" />
           </label>

@@ -24,6 +24,7 @@ for _key in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD", "ADMIN_EMAIL", "FROM
     os.environ.pop(_key, None)
 
 import app as application  # noqa: E402  (import must follow the env setup)
+import captcha  # noqa: E402
 import db as database  # noqa: E402
 import roles  # noqa: E402
 
@@ -67,9 +68,10 @@ def csrf_token(client, path="/admin/users"):
 
 
 def post(client, path, data=None, token_from=None):
-    """POST with the CSRF token, like a browser form does."""
+    """POST with the CSRF token and a solved captcha, like a browser form does."""
     payload = dict(data or {})
     payload["_csrf"] = csrf_token(client, token_from or path)
+    payload["altcha"] = captcha.solve_for_tests()
     return client.post(path, data=payload)
 
 

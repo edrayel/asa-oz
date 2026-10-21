@@ -26,12 +26,14 @@ from urllib.parse import quote
 
 import stripe
 import itsdangerous
+from markupsafe import Markup
 from flask import (
     Flask, Response, abort, flash, jsonify, redirect, render_template, request, session, send_from_directory, url_for,
 )
 from werkzeug.utils import secure_filename
 
 import db
+import captcha
 import cms
 import csrf
 import drive
@@ -117,6 +119,26 @@ ENDPOINT_PAGE = {
     "store": "home",
     "product": "home",
 }
+
+
+def captcha_script():
+    """The tag that loads the ALTCHA widget. Served from this site."""
+    return Markup(
+        '<script async defer type="module" src="%s"></script>'
+        % url_for("static", filename="js/altcha.min.js")
+    )
+
+
+def captcha_field():
+    """The widget itself: a proof-of-work puzzle the browser solves."""
+    # type="native" is the quiet bar that solves itself; auto="onsubmit" means
+    # the proof of work is only computed when the form is actually sent.
+    return Markup(
+        '<altcha-widget class="captcha-widget" challenge="%s" name="altcha" '
+        'type="native" auto="onsubmit" '
+        'style="--altcha-max-width: 320px; --altcha-border-radius: 12px;"></altcha-widget>'
+        % url_for("captcha_challenge")
+    )
 
 
 def _current_cms():
@@ -393,6 +415,8 @@ def inject_globals():
         "current_user": current_user(),
         "can": can,
         "roles": roles,
+        "captcha_script": captcha_script,
+        "captcha_field": captcha_field,
     }
 
 
@@ -450,6 +474,9 @@ def blog_submit():
     if request.method == "POST":
         if not csrf.validate():
             abort(400, "CSRF token missing or invalid")
+        problem = captcha.check_request()
+        if problem:
+            return render_template("blog_submit.html", error=problem, form=request.form), 400
         if not request.form.get("title", "").strip() or not request.form.get("body", "").strip():
             return render_template("blog_submit.html", error="Title and story are required.",
                                    form=request.form), 400
@@ -693,11 +720,28 @@ def dynamic_page(slug):
     return render_template("dynamic_page.html", page=page, sections=sections)
 
 
+# ------------------ captcha ------------------
+@app.route("/captcha/challenge")
+def captcha_challenge():
+    """A fresh proof-of-work challenge for the ALTCHA widget.
+
+    No account, no API key: the widget solves a small puzzle in the
+    browser and the answer is checked on the server.
+    """
+    if not captcha.enabled():
+        return jsonify({"algorithm": captcha.ALGORITHM, "challenge": "", "maxNumber": 0,
+                         "salt": "", "signature": ""})
+    return jsonify(captcha.create_challenge())
+
+
 # ------------------ forms (HTMX) ------------------
 @app.route("/waitlist", methods=["POST"])
 @csrf.require_csrf
 def waitlist():
     email = (request.form.get("email") or "").strip().lower()
+    problem = captcha.check_request()
+    if problem:
+        return '<p class="msg" style="color:#b5482c;" role="status">%s</p>' % problem
     if not email or "@" not in email:
         return '<p class="msg" style="color:#b5482c;" role="status">Please enter a valid email address.</p>'
     ok = db.add_waitlist(email, request.form.get("source", ""))
@@ -751,6 +795,9 @@ def booking():
 def feedback():
     text = (request.form.get("text") or "").strip()
     category = (request.form.get("category") or "").strip()
+    problem = captcha.check_request()
+    if problem:
+        return '<p class="feedback-msg" style="color:#b5482c;" role="status">%s</p>' % problem
     if not text:
         return '<p class="feedback-msg" style="color:#b5482c;" role="status">Please write a little something first.</p>'
     db.add_feedback(category, text)
@@ -764,6 +811,9 @@ def contact_msg():
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip()
     message = (request.form.get("message") or "").strip()
+    problem = captcha.check_request()
+    if problem:
+        return '<p class="form-msg" style="color:#b5482c;" role="status">%s</p>' % problem
     if not all([name, email, message]):
         return '<p class="form-msg" style="color:#b5482c;" role="status">Please fill in every field.</p>'
     db.add_contact(name, email, message)
@@ -780,6 +830,12 @@ def journey_subscribe():
     name = (request.form.get("name") or "").strip()
     journey_stage = (request.form.get("journey_stage") or "interest").strip()
     source = (request.form.get("source") or "").strip()
+    problem = captcha.check_request()
+    if problem:
+        return render_template("partials/journey_confirm.html", variant="error",
+                               title="We could not check that you are human",
+                               body=problem,
+                               hint="Please try again in a moment.")
     if not email or "@" not in email:
         # Rendered as a card, not a caption: the old one-line <p> was small
         # and italic, so visitors assumed nothing had happened.
@@ -1065,6 +1121,9 @@ def admin_login():
         password = request.form.get("password", "")
         ip = request.headers.get("X-Forwarded-For", request.remote_addr or "")
         ip = ip.split(",")[0].strip()
+        problem = captcha.check_request()
+        if problem:
+            return render_template("admin/login.html", error=problem)
         wait = db.login_lockout(username, ip)
         if wait:
             return render_template(
@@ -2333,6 +2392,11 @@ def account_signup():
     if request.method == "POST":
         if not csrf.validate():
             abort(400, "CSRF token missing or invalid")
+        problem = captcha.check_request()
+        if problem:
+            return render_template("account/signup.html", error=problem,
+                                   email=(request.form.get("email") or ""),
+                                   full_name=(request.form.get("full_name") or "")), 400
         email = (request.form.get("email") or "").strip().lower()
         full_name = (request.form.get("full_name") or "").strip()
         password = request.form.get("password") or ""

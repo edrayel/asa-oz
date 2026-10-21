@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Create an account | Asa-OZ{% endblock %}
+
+{% block scripts %}
+{{ captcha_script() }}
+{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">{% endblock %}
 {% block main %}
       <section class="account-hero">
@@ -13,6 +17,7 @@
           {% if error %}<p class="account-error" role="alert">{{ error }}</p>{% endif %}
           <form method="POST" action="{{ url_for('account_signup') }}" class="account-form">
             {{ csrf_input() }}
+            {{ captcha_field() }}
             <div class="account-field">
               <label for="signupName">Your name</label>
               <input id="signupName" type="text" name="full_name" value="{{ full_name or '' }}" autocomplete="name" />

@@ -30,6 +30,16 @@
     </div>
 
     <div class="card">
+      <h2>Spam protection</h2>
+      <div class="control-row">
+        <div class="control-label">Captcha on the public forms<small>
+          A proof-of-work puzzle the browser solves before a public form is accepted — no account,
+          no API key, no third-party request. Turn it off only to debug a submission problem.</small></div>
+        <input type="checkbox" name="captcha_enabled" value="1" {% if settings.get('captcha_enabled', '1') == '1' %}checked{% endif %} />
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Store &amp; pricing</h2>
       <div class="control-row">
         <div class="control-label">Show prices<small>Show prices on the home teaser, store listings and product pages. Turn off to hide prices entirely</small></div>

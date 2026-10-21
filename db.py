@@ -240,6 +240,10 @@ DEFAULT_SETTINGS = {
     "email_order_confirm": "1",
     "email_story_ack": "1",
     "email_admin_alerts": "1",
+    # The proof-of-work captcha on the public forms. On by default: it needs
+    # no account and no API key, and it is what stops the feedback and
+    # contact spam. "0" turns it off (for debugging a submission).
+    "captcha_enabled": "1",
 }
 
 DEFAULT_PRODUCTS = [

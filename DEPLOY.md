@@ -580,7 +580,23 @@ The Compose file expects the external Docker network `proxy` to exist
 (`docker network create proxy` on a fresh host) and the container to publish
 port `8000` internally only — Traefik is the only thing that should reach it.
 
-### 11.6 Deferred: the container runs as root
+### 11.6 Spam protection: the captcha
+
+The public forms (contact, feedback, story submission, waitlist, newsletter
+signup, member sign-up, admin sign-in) are protected by **ALTCHA**, a
+proof-of-work captcha that needs **no account and no API key**: the browser
+solves a small puzzle, the answer is checked by this server, and the widget
+is served from this site — so no visitor data goes to a third party.
+
+- the widget is vendored at `static/js/altcha.min.js` (MIT, see
+  `static/js/README.md`) and the server side is `captcha.py`;
+- the signing key is `CAPTCHA_HMAC_KEY`; when it is not set, a key is
+  derived from `SECRET_KEY`, so there is nothing to configure;
+- it is switched on with the `captcha_enabled` setting (Settings → Spam
+  protection);
+- the `altcha` package is in `requirements.txt`, so the image installs it.
+
+### 11.7 Deferred: the container runs as root
 
 `asaoz-web` has no `USER` directive, so gunicorn runs as uid 0 and anything
 it writes into `/data` becomes root-owned. This is not app-specific — every

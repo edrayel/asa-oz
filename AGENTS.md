@@ -81,6 +81,12 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
   credentials into a dev server. Production is gunicorn; `APP_ENV=prod python
   run.py` refuses to start and prints the command. `FLASK_ENV` is not used
   (Flask removed it in 3.0).
+- **Captcha.** The public forms are protected by ALTCHA, a proof-of-work
+  captcha with no account, no API key and no third-party request: the widget
+  is vendored at `static/js/altcha.min.js`, the server side is `captcha.py`
+  (the key comes from `CAPTCHA_HMAC_KEY`, or is derived from `SECRET_KEY`),
+  and the `captcha_enabled` setting switches it off. Signed-in members are
+  exempt.
 - **Member accounts.** A `member` is a public-site account: sign in at
   `/account`, share a story, add a testimonial, leave feedback, and see their
   own orders. Orders are matched by account id, and by email only once the

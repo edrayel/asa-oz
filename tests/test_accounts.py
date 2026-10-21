@@ -24,6 +24,7 @@ for _key in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD", "ADMIN_EMAIL", "FROM
     os.environ.pop(_key, None)
 
 import app as application  # noqa: E402  (import must follow the env setup)
+import captcha  # noqa: E402
 import db as database  # noqa: E402
 import roles  # noqa: E402
 
@@ -56,7 +57,7 @@ def signup(client, email="member@example.com", name="Mem Ber", password=PASSWORD
     token = csrf_token(client, "/account/signup")
     return client.post("/account/signup", data={
         "email": email, "full_name": name, "password": password, "confirm": password,
-        "_csrf": token,
+        "_csrf": token, "altcha": captcha.solve_for_tests(),
     })
 
 
@@ -69,6 +70,7 @@ def login(client, email="member@example.com", password=PASSWORD):
     token = csrf_token(client, "/account/login")
     return client.post("/account/login", data={
         "login": email, "password": password, "_csrf": token,
+        "altcha": captcha.solve_for_tests(),
     })
 
 
@@ -102,7 +104,7 @@ class MemberSignup(unittest.TestCase):
         token = csrf_token(self.client, "/account/signup")
         response = self.client.post("/account/signup", data={
             "email": "member@example.com", "full_name": "Mem", "password": PASSWORD,
-            "confirm": "something-else", "_csrf": token,
+            "confirm": "something-else", "_csrf": token, "altcha": captcha.solve_for_tests(),
         })
         self.assertEqual(response.status_code, 400)
         self.assertIsNone(database.get_user_by_email("member@example.com"))

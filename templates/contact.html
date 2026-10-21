@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Contact | Asa-OZ{% endblock %}
+
+{% block scripts %}
+{{ captcha_script() }}
+{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">{% endblock %}
 {% block main %}
       <section class="store-hero">
@@ -22,6 +26,7 @@
           </div>
           <form id="contactForm" class="contact-form reveal" action="{{ url_for('contact_msg') }}" method="POST" novalidate>
             {{ csrf_input() }}
+            {{ captcha_field() }}
             <div class="field">
               <label for="cName">{{ cms.form.name_label }}</label>
               <input type="text" id="cName" name="name" autocomplete="name" required placeholder="{{ cms.form.name_placeholder }}" />

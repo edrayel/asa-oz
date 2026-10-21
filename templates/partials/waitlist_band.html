@@ -11,6 +11,7 @@
     </p>
     <form id="waitform" class="waitlist-form" method="POST" action="{{ url_for('waitlist') }}">
       {{ csrf_input() }}
+      {{ captcha_field() }}
       <label class="sr-only" for="waitlistEmail">Email address</label>
       <input id="waitlistEmail" type="email" name="email" placeholder="you@example.com" required />
       <input type="hidden" name="source" value="waitlist-band" />

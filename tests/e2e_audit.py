@@ -195,13 +195,26 @@ class Audit:
                     self.add("navigation-error", self.base + path, name, str(exc)[:200])
             ctx.close()
 
+    def submit(self, page, selector, timeout=20000) -> bool:
+        """Click something and wait for the page it leads to.
+
+        The captcha widget solves its proof of work when the form is sent and
+        then submits it, so the navigation lands a moment after the click.
+        """
+        try:
+            with page.expect_navigation(timeout=timeout):
+                page.click(selector)
+            return True
+        except Exception:
+            page.wait_for_load_state("domcontentloaded")
+            return False
+
     def login(self, page, viewport: str, events: list[dict]) -> None:
         events.clear()
         page.goto(self.base + "/admin/login", wait_until="domcontentloaded")
         page.fill('input[name="username"]', "admin")
         page.fill('input[name="password"]', "e2e-admin-password")
-        page.click('form button[type="submit"], form input[type="submit"]')
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, 'form button[type="submit"], form input[type="submit"]')
         if "/admin/login" in page.url:
             self.add("login-failed", self.base + "/admin/login", viewport, "still on the login page")
         self.absorb(events, self.base + "/admin/login", viewport)
@@ -405,8 +418,7 @@ class Audit:
         page.fill("input[name='email']", "audit-member-%d@example.com" % int(time.time()))
         page.fill("input[name='password']", "audit-member-password-123")
         page.fill("input[name='confirm']", "audit-member-password-123")
-        page.locator("form:has(input[name='email']) button[type=submit]").first.click()
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, "form:has(input[name='email']) button[type=submit]")
         if "/account" not in page.url:
             self.add("ui", base + "/account/signup", "interact", f"the sign-up did not land on the account ({page.url})")
             return
@@ -420,16 +432,14 @@ class Audit:
         page.goto(base + "/account/testimonial", wait_until="domcontentloaded")
         self.dismiss_cookie_bar(page)
         page.fill("textarea[name='quote']", "The audit wrote this testimonial.")
-        page.locator("form:has(textarea[name='quote']) button[type=submit]").first.click()
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, "form:has(textarea[name='quote']) button[type=submit]")
         if "The audit wrote this testimonial." not in page.content():
             self.add("ui", base + "/account/testimonial", "interact", "the testimonial was not saved")
         # feedback
         page.goto(base + "/account/feedback", wait_until="domcontentloaded")
         self.dismiss_cookie_bar(page)
         page.fill("textarea[name='text']", "The audit wrote this feedback.")
-        page.locator("form:has(textarea[name='text']) button[type=submit]").first.click()
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, "form:has(textarea[name='text']) button[type=submit]")
         if "The audit wrote this feedback." not in page.content():
             self.add("ui", base + "/account/feedback", "interact", "the feedback was not saved")
         # sign out
@@ -706,8 +716,7 @@ class Audit:
         page.goto(self.base + "/admin/login", wait_until="domcontentloaded")
         page.fill('input[name="username"]', "admin")
         page.fill('input[name="password"]', "e2e-admin-password")
-        page.click('form button[type="submit"]')
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, 'form button[type="submit"]')
         if "/admin/login" in page.url:
             self.add("ui", self.base + "/admin/login", "roles", "the superadmin could not sign back in")
 
@@ -742,8 +751,7 @@ class Audit:
         page.goto(base + "/admin/login", wait_until="domcontentloaded")
         page.fill('input[name="username"]', username)
         page.fill('input[name="password"]', "audit-password-12345")
-        page.click('form button[type="submit"]')
-        page.wait_for_load_state("domcontentloaded")
+        self.submit(page, 'form button[type="submit"]')
         if "/admin/login" in page.url:
             self.add("ui", base + "/admin/login", "roles", f"{username} could not sign in")
             return
