@@ -69,6 +69,12 @@
       delete form.dataset.captchaVerified;
       return;
     }
+    // Let the browser's own validation run first: an empty required field
+    // must not be sent to the server just because the captcha solved.
+    if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+      if (typeof form.reportValidity === 'function') form.reportValidity();
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     say(form, 'Checking you are human…', 'checking');
