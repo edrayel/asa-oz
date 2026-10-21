@@ -66,6 +66,10 @@ def main() -> int:
     from app import app  # noqa: E402  (import after the env is set)
 
     app.config["TESTING"] = True
+    print("=" * 72)
+    print("TEST FIXTURE — this is a throwaway database with seeded content,")
+    print("not the site's data. For the real copy, run: python run.py  (port 5000)")
+    print("=" * 72)
     app.run(host="127.0.0.1", port=args.port, debug=False, use_reloader=False, threaded=True)
     return 0
 

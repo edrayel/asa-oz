@@ -59,6 +59,12 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
   `.venv/bin/python tests/e2e_styles.py --base http://127.0.0.1:5055 --admin --out before.json`,
   make the change, run it again, then
   `.venv/bin/python tests/e2e_styles.py --diff before.json after.json`.
+- **Two local servers, two databases.** `python run.py` (port 5000) runs the real
+  development database, `instance/asaoz.sqlite3`; `tests/e2e_server.py` (port 5055)
+  runs a throwaway fixture with seeded content. The words on the site live in the
+  database, so the local dev copy drifts behind the live one — copy it across with
+  `.venv/bin/python tests/db_sync_copy.py --from <live.sqlite3> --to instance/asaoz.sqlite3 --apply`
+  (the live copy comes from the VPS, see § 11.4).
 - **End-to-end audit harness.** `tests/e2e_server.py` runs the app against an isolated
   database (no mail, no Drive), `tests/e2e_seed.py` fills it with representative content,
   and `tests/e2e_audit.py` crawls every public and admin page at desktop, tablet and
