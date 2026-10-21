@@ -26,8 +26,7 @@
           </div>
           <form id="contactForm" class="contact-form reveal" action="{{ url_for('contact_msg') }}" method="POST" novalidate>
             {{ csrf_input() }}
-            {{ captcha_field() }}
-            <div class="field">
+              <div class="field">
               <label for="cName">{{ cms.form.name_label }}</label>
               <input type="text" id="cName" name="name" autocomplete="name" required placeholder="{{ cms.form.name_placeholder }}" />
             </div>
@@ -42,6 +41,7 @@
             <button type="submit" class="submit-btn">{{ cms.form.submit }}</button>
             <p class="form-msg" id="contactMsg" role="status" aria-live="polite"></p>
           </form>
+          {{ captcha_field() }}
         </div>
       </section>
 {% endblock %}

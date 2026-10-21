@@ -11,12 +11,12 @@
     </p>
     <form id="waitform" class="waitlist-form" method="POST" action="{{ url_for('waitlist') }}">
       {{ csrf_input() }}
-      {{ captcha_field() }}
       <label class="sr-only" for="waitlistEmail">Email address</label>
       <input id="waitlistEmail" type="email" name="email" placeholder="you@example.com" required />
       <input type="hidden" name="source" value="waitlist-band" />
       <button type="submit" class="page-btn">Join the waitlist</button>
     </form>
+    {{ captcha_field() }}
     <p class="msg" id="waitlistMsg" role="status" aria-live="polite"></p>
   </div>
 </section>

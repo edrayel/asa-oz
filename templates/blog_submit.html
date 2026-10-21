@@ -17,7 +17,6 @@
 
         <form method="POST" action="{{ url_for('blog_submit') }}" class="blog-form">
           {{ csrf_input() }}
-          {{ captcha_field() }}
           <label>Title
             <input type="text" name="title" required value="{{ form.get('title','') }}" placeholder="Lagos in the rain" />
           </label>
@@ -41,5 +40,6 @@
           </label>
           <button type="submit" class="page-btn">Submit story</button>
         </form>
+        {{ captcha_field() }}
       </section>
 {% endblock %}

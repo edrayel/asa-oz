@@ -31,7 +31,6 @@
             <form id="journeyform" action="{{ url_for('journey_subscribe') }}" method="POST" novalidate
                   hx-post="{{ url_for('journey_subscribe') }}" hx-target="#formMsg" hx-swap="innerHTML">
               {{ csrf_input() }}
-              {{ captcha_field() }}
               <input type="hidden" name="source" value="asa-oz-coming-soon" />
               <input type="hidden" name="journey_stage" value="interest" />
               <div class="journey-fields">
@@ -42,6 +41,7 @@
                 <button type="submit">{{ cms.signup.button }}</button>
               </div>
             </form>
+            {{ captcha_field() }}
             <p class="note">{{ cms.signup.note }}</p>
             <div class="msg" id="formMsg" role="status" aria-live="polite"></div>
           </div>
@@ -195,7 +195,6 @@
           <p class="feedback-lede">{{ cms.feedback.lede }}</p>
           <form id="feedbackForm" action="{{ url_for('feedback') }}" method="POST" novalidate>
             {{ csrf_input() }}
-            {{ captcha_field() }}
             <div class="feedback-field">
               <label for="fbCategory">{{ cms.feedback.topic_label }}</label>
               <select id="fbCategory" name="category">
@@ -212,6 +211,7 @@
             <button type="submit" class="feedback-submit">{{ cms.feedback.submit }}</button>
             <p class="feedback-msg" id="feedbackMsg" role="status" aria-live="polite"></p>
           </form>
+          {{ captcha_field() }}
         </div>
       </section>
 

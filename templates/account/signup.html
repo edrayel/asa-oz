@@ -17,7 +17,6 @@
           {% if error %}<p class="account-error" role="alert">{{ error }}</p>{% endif %}
           <form method="POST" action="{{ url_for('account_signup') }}" class="account-form">
             {{ csrf_input() }}
-            {{ captcha_field() }}
             <div class="account-field">
               <label for="signupName">Your name</label>
               <input id="signupName" type="text" name="full_name" value="{{ full_name or '' }}" autocomplete="name" />
@@ -36,6 +35,7 @@
             </div>
             <button class="account-btn" type="submit">Create my account</button>
           </form>
+          {{ captcha_field() }}
           <p class="account-alt">Already have one? <a href="{{ url_for('account_login') }}">Sign in</a>.</p>
         </div>
       </section>

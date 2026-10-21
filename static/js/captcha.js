@@ -22,7 +22,12 @@
   document.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form || form.tagName !== 'FORM') return;
-    var widget = form.querySelector('altcha-widget');
+    // The widget is a sibling of the form, not a child of it, so it does
+    // not sit inside the form's own layout.
+    var widget = form.nextElementSibling;
+    while (widget && widget.tagName !== 'ALTCHA-WIDGET') {
+      widget = widget.nextElementSibling;
+    }
     if (!widget) return;
     if (form.dataset.captchaVerified === '1') {
       // The second attempt — the real one — is left alone.
@@ -47,6 +52,21 @@
         hide(widget);
         return;
       }
+      // The widget's hidden input lives inside the widget, which is a
+      // sibling of the form, so it would not be submitted with the form.
+      // Copy the solved payload into the form before sending it.
+      var payload = '';
+      var src = widget.querySelector('input[name="altcha"]');
+      if (src) payload = src.value;
+      var dst = form.querySelector('input[name="altcha"]');
+      if (!dst) {
+        dst = document.createElement('input');
+        dst.type = 'hidden';
+        dst.name = 'altcha';
+        form.appendChild(dst);
+      }
+      dst.value = payload;
+
       form.dataset.captchaVerified = '1';
       if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
