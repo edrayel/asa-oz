@@ -1,62 +1,22 @@
 /* The ALTCHA captcha driver.
 
-   The widget itself is silent (auto="off", display="invisible"): it draws
-   nothing and does not intercept the form. This script drives it, so the
-   same flow works for a plain form, an HTMX form and the forms this site
-   submits with fetch: the first submit is held back, the browser solves
-   the proof of work, and only then is the form sent. The visitor sees one
-   line under the button while it happens.
+   The widget is hidden until the form is submitted: nothing is shown while
+   the visitor reads and fills the form in. When the button is pressed, this
+   script shows the widget's own UI (the checkbox with the circular progress
+   spinner) and lets it solve the proof of work. Only then is the form sent.
 
-   It is loaded on its own (not from site.js) because the admin pages do
-   not load site.js. */
+   It is a separate file because the admin pages do not load site.js, and
+   it has to run after the widget (loaded with defer). */
 (function () {
-  function noteFor(form) {
-    var el = form.querySelector('.captcha-note');
-    if (!el) {
-      el = document.createElement('p');
-      el.className = 'captcha-note';
-      el.setAttribute('role', 'status');
-      el.setAttribute('aria-live', 'polite');
-      // The note is a sibling of the form, not a child of it: that keeps
-      // it out of whatever layout the form uses (a flex row, a grid, a
-      // container with its own padding) and puts it right under the form,
-      // where the visitor expects the reply.
-      if (form.parentNode) {
-        form.insertAdjacentElement('afterend', el);
-      } else {
-        form.appendChild(el);
-      }
-    }
-    return el;
+  'use strict';
+
+  function show(widget) {
+    widget.setAttribute('display', 'standard');
   }
 
-  function say(form, message, state) {
-    var el = noteFor(form);
-    el.textContent = message;
-    el.className = 'captcha-note' + (state ? ' is-' + state : '');
-    // The note sits under the submit button, which is often at the bottom
-    // of the form: scroll by exactly what is needed so the visitor can
-    // read it. The measurement waits for the next frame, so the note has
-    // its final height by then. scrollIntoView is not used here — it aims
-    // at the element's edge and leaves the last line below the fold.
-    window.requestAnimationFrame(function () {
-      var box = el.getBoundingClientRect();
-      var delta = 0;
-      if (box.bottom > window.innerHeight) {
-        delta = box.bottom - window.innerHeight + 8;
-      } else if (box.top < 0) {
-        delta = box.top - 8;
-      }
-      if (delta) {
-        // 'instant': the site sets scroll-behavior: smooth, which would
-        // leave the note half off the screen while it animated.
-        try {
-          window.scrollBy({ top: delta, behavior: 'instant' });
-        } catch (e) {
-          window.scrollBy(0, delta);
-        }
-      }
-    });
+  function hide(widget) {
+    widget.setAttribute('display', 'invisible');
+    try { widget.reset(); } catch (e) {}
   }
 
   document.addEventListener('submit', function (event) {
@@ -77,18 +37,16 @@
     }
     event.preventDefault();
     event.stopPropagation();
-    say(form, 'Checking you are human…', 'checking');
+    show(widget);
 
     var done = false;
     function finish(ok) {
       if (done) return;
       done = true;
       if (!ok) {
-        say(form, 'We could not check that you are human. Please try again.', 'failed');
-        try { widget.reset(); } catch (e) {}
+        hide(widget);
         return;
       }
-      say(form, 'Sending…', 'done');
       form.dataset.captchaVerified = '1';
       if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();

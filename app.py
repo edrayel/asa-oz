@@ -138,14 +138,13 @@ def captcha_script():
 
 def captcha_field():
     """The widget itself: a proof-of-work puzzle the browser solves."""
-    # The widget is silent (auto="off", display="invisible") and is driven by
-    # the site's own script: the first submit is held back, the proof of work
-    # is solved, and only then is the form sent. Doing it here means the same
-    # flow works for a plain form, an HTMX form and the forms this site
-    # submits with fetch — the widget's own submit handling does not.
+    # The widget's own UI: a checkbox with a circular progress spinner
+    # while the proof of work is being solved. It starts invisible and is
+    # switched to "standard" by the driver when the form is submitted.
     return Markup(
         '<altcha-widget class="captcha-widget" challenge="%s" name="altcha" '
-        'auto="off" display="invisible"></altcha-widget>'
+        'type="native" auto="off" display="invisible" '
+        'style="--altcha-max-width: 320px; --altcha-border-radius: 12px;"></altcha-widget>'
         % url_for("captcha_challenge")
     )
 
