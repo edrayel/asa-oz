@@ -53,6 +53,12 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
 - **`SECRET_KEY` and `ADMIN_PASSWORD` are required and deliberately fail-fast** — a misconfigured deploy must be loud, not silent. In production they live in `/home/agent/asa-oz/app/.env` (mode `600`); that file is never committed and never baked into the image.
 - **`ADMIN_PASSWORD` only seeds the first boot.** Afterwards change it at `/admin/password`; editing the env var will not update an existing admin row.
 - **Never inline a secret.** `.env` locally (gitignored) and `/home/agent/asa-oz/app/.env` on the VPS. `.dockerignore` keeps `.env` out of the image — never remove that line.
+- **Style fingerprint.** `tests/e2e_styles.py` records the computed style of
+  the shell, the typography and the page furniture on every page, and diffs two
+  runs of it. Use it to prove a CSS change moved nothing:
+  `.venv/bin/python tests/e2e_styles.py --base http://127.0.0.1:5055 --admin --out before.json`,
+  make the change, run it again, then
+  `.venv/bin/python tests/e2e_styles.py --diff before.json after.json`.
 - **End-to-end audit harness.** `tests/e2e_server.py` runs the app against an isolated
   database (no mail, no Drive), `tests/e2e_seed.py` fills it with representative content,
   and `tests/e2e_audit.py` crawls every public and admin page at desktop, tablet and
@@ -60,5 +66,17 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
   overflow and dead links. Run it before a release:
   `.venv/bin/python tests/e2e_server.py --port 5055 --fresh` then
   `.venv/bin/python tests/e2e_audit.py --base http://127.0.0.1:5055`.
+- **Three environments, one switch.** `APP_ENV` is `dev` (default), `test` or
+  `prod`; `run.py` loads `.env` only in dev and never with `override=True`, and
+  sets `FLASK_SKIP_DOTENV=1` otherwise so Flask cannot pull the production
+  credentials into a dev server. Production is gunicorn; `APP_ENV=prod python
+  run.py` refuses to start and prints the command. `FLASK_ENV` is not used
+  (Flask removed it in 3.0).
+- **Member accounts.** A `member` is a public-site account: sign in at
+  `/account`, share a story, add a testimonial, leave feedback, and see their
+  own orders. Orders are matched by account id, and by email only once the
+  address is confirmed, so nobody can claim another person's order by signing
+  up with their address. The member area is in `templates/account/`, the
+  permission matrix in `roles.py`, and the data in `db.py`.
 - **Kilo is the agent runtime here; OpenCode is retired.** Project config is `kilo.json` (repo root) and `.kilo/`; MCP servers live in the user-level `~/.config/kilo/kilo.jsonc`. Anything committed must carry placeholders only — real credentials stay in `~/.config/opencode/keys/` (mode `600`), referenced as `"{file:~/.config/opencode/keys/<name>"}`.
 - `app.py` is large — grep for the symbol rather than dumping it into context.

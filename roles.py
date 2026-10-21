@@ -46,7 +46,8 @@ SUPERADMIN_ONLY = "superadmin.only"
 CONTENT = {"content.pages", "content.blog", "content.dynamic_pages", "content.navigation", "content.brand"}
 MEDIA = {"media.files", "media.drive", "media.photos"}
 SHOP = {"shop.products", "shop.orders"}
-AUDIENCE = {"audience.feedback", "audience.waitlist", "audience.journey", "audience.bookings", "audience.contacts"}
+AUDIENCE = {"audience.feedback", "audience.waitlist", "audience.journey", "audience.bookings", "audience.contacts",
+           "audience.testimonials"}
 SYSTEM = {"system.emails", "system.settings", "system.restore", "system.export", "system.users"}
 
 ALL_PERMISSIONS = CONTENT | MEDIA | SHOP | AUDIENCE | SYSTEM | {SUPERADMIN_ONLY}
@@ -117,6 +118,9 @@ ROUTE_PERMISSIONS = {
     "admin_dynamic_page_delete": "content.dynamic_pages",
     "admin_navigation": "content.navigation",
     "admin_brand": "content.brand",
+    "admin_testimonials": "audience.testimonials",
+    "admin_testimonial_status": "audience.testimonials",
+    "admin_testimonial_delete": "audience.testimonials",
     "admin_users": "system.users",
     "admin_user_new": "system.users",
     "admin_user_edit": "system.users",

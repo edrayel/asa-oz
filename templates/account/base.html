@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title|default('My account') }} | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">{% endblock %}
+{% block main %}
+      <section class="account-hero">
+        <p class="eyebrow">My account</p>
+        <h1>{% block account_heading %}{{ page_title|default('Your account') }}{% endblock %}</h1>
+        {% block account_intro %}{% endblock %}
+      </section>
+
+      <section class="account-section">
+        <div class="account-grid">
+          <div class="account-content">
+            {% block account_content %}{% endblock %}
+          </div>
+          <nav class="account-nav" aria-label="Account sections">
+            <a href="{{ url_for('account') }}"{% if request.endpoint == 'account' %} class="active"{% endif %}>Overview</a>
+            <a href="{{ url_for('account_orders') }}"{% if request.endpoint == 'account_orders' %} class="active"{% endif %}>Orders &amp; payments</a>
+            <a href="{{ url_for('account_testimonial') }}"{% if request.endpoint == 'account_testimonial' %} class="active"{% endif %}>Add a testimonial</a>
+            <a href="{{ url_for('account_feedback') }}"{% if request.endpoint == 'account_feedback' %} class="active"{% endif %}>Give feedback</a>
+            <a href="{{ url_for('account_profile') }}"{% if request.endpoint == 'account_profile' %} class="active"{% endif %}>Profile</a>
+            <a href="{{ url_for('blog_submit') }}">Share a story</a>
+            <form method="POST" action="{{ url_for('account_logout') }}">
+              {{ csrf_input() }}
+              <button type="submit" class="account-signout">Sign out</button>
+            </form>
+          </nav>
+        </div>
+      </section>
+{% endblock %}

@@ -16,6 +16,7 @@ os.environ["ADMIN_PASSWORD"] = "users_test_password"
 os.environ["DATABASE"] = os.path.join(_TMP, "users.sqlite3")
 os.environ["UPLOAD_DIR"] = os.path.join(_TMP, "uploads")
 os.environ["APP_URL"] = "http://localhost:5000"
+os.environ["APP_ENV"] = "test"
 os.environ["MAIL_SYNC"] = "1"
 
 for _key in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD", "ADMIN_EMAIL", "FROM_EMAIL",

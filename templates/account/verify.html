@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Confirm your email | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">{% endblock %}
+{% block main %}
+      <section class="account-hero">
+        {% if ok %}
+        <p class="eyebrow">Confirmed</p>
+        <h1>Your email is confirmed</h1>
+        <p class="account-lede">Thank you. Your orders placed with this address are now visible in your account.</p>
+        <p class="account-actions"><a class="account-btn" href="{{ url_for('account') }}">Go to my account</a></p>
+        {% elif expired %}
+        <p class="eyebrow">Expired</p>
+        <h1>That link has expired</h1>
+        <p class="account-lede">Sign in and we will send you a fresh confirmation link.</p>
+        <p class="account-actions"><a class="account-btn" href="{{ url_for('account_login') }}">Sign in</a></p>
+        {% else %}
+        <p class="eyebrow">Not valid</p>
+        <h1>We could not find that confirmation</h1>
+        <p class="account-lede">The link may already have been used. Sign in and we will send a new one.</p>
+        <p class="account-actions"><a class="account-btn" href="{{ url_for('account_login') }}">Sign in</a></p>
+        {% endif %}
+      </section>
+{% endblock %}

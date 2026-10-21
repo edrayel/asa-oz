@@ -22,6 +22,7 @@ os.environ["ADMIN_PASSWORD"] = "media_test_password"
 os.environ["DATABASE"] = os.path.join(_TMP, "media.sqlite3")
 os.environ["UPLOAD_DIR"] = os.path.join(_TMP, "uploads")
 os.environ["APP_URL"] = "http://localhost:5000"
+os.environ["APP_ENV"] = "test"
 
 # The suite must never send mail. These are read from the ambient shell
 # environment, and without this the "email configured" path is live.

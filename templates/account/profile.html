@@ -1,0 +1,30 @@
+{% extends "account/base.html" %}
+{% block page_title %}Your profile{% endblock %}
+{% block account_heading %}Your profile{% endblock %}
+{% block account_content %}
+        <form method="POST" action="{{ url_for('account_profile') }}" class="account-form">
+          {{ csrf_input() }}
+          <div class="account-field">
+            <label for="profileName">Your name</label>
+            <input id="profileName" type="text" name="full_name" value="{{ user.full_name }}" autocomplete="name" />
+          </div>
+          <div class="account-field">
+            <label for="profileEmail">Email</label>
+            <input id="profileEmail" type="email" name="email" value="{{ user.email }}" required autocomplete="email" />
+            {% if user.email_verified_at %}
+            <small class="account-verified">Confirmed {{ user.email_verified_at }}</small>
+            {% else %}
+            <small class="account-unverified">Not confirmed yet.</small>
+            {% endif %}
+          </div>
+          <div class="account-field">
+            <label for="profileCurrent">Current password<small>Only needed to set a new one.</small></label>
+            <input id="profileCurrent" type="password" name="current_password" autocomplete="current-password" />
+          </div>
+          <div class="account-field">
+            <label for="profilePassword">New password<small>At least 12 characters. Leave empty to keep the current one.</small></label>
+            <input id="profilePassword" type="password" name="password" minlength="12" autocomplete="new-password" />
+          </div>
+          <button class="account-btn" type="submit">Save</button>
+        </form>
+{% endblock %}

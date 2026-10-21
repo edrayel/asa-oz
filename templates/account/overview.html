@@ -1,0 +1,88 @@
+{% extends "account/base.html" %}
+{% block page_title %}Your account{% endblock %}
+{% block account_heading %}Hello, {{ user.full_name or user.username }}{% endblock %}
+{% block account_intro %}
+        <p class="account-lede">Everything you have sent us, and everything you have ordered, in one place.</p>
+{% endblock %}
+{% block account_content %}
+        {% if not verified %}
+        <div class="account-banner">
+          <p><strong>Confirm your email address.</strong> We need to know the address belongs to you before we
+             can show orders placed with it.</p>
+          <form method="POST" action="{{ url_for('account_verify_resend') }}">
+            {{ csrf_input() }}
+            <button class="account-btn account-btn-small" type="submit">Send the link again</button>
+          </form>
+        </div>
+        {% endif %}
+
+        <div class="account-stats">
+          <div class="account-stat"><span class="n">{{ orders|length }}</span><span class="l">Orders</span></div>
+          <div class="account-stat"><span class="n">{{ stories|length }}</span><span class="l">Stories</span></div>
+          <div class="account-stat"><span class="n">{{ testimonials|length }}</span><span class="l">Testimonials</span></div>
+          <div class="account-stat"><span class="n">{{ feedback|length }}</span><span class="l">Feedback</span></div>
+        </div>
+
+        <h2 class="account-h2">Recent orders</h2>
+        {% if orders %}
+        <table class="account-table">
+          <thead><tr><th>Order</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for o in orders[:5] %}
+            <tr>
+              <td><a href="{{ url_for('account_orders') }}">#{{ o.id }}</a></td>
+              <td>{{ o.created_at }}</td>
+              <td>&euro;{{ o.total }}</td>
+              <td><span class="account-badge account-badge-{{ o.status }}">{{ o.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p><a href="{{ url_for('account_orders') }}">See every order and payment &rarr;</a></p>
+        {% else %}
+        <p class="account-empty">No orders yet.</p>
+        {% endif %}
+
+        <h2 class="account-h2">Your stories</h2>
+        {% if stories %}
+        <ul class="account-list">
+          {% for st in stories %}
+          <li>
+            <span>{{ st.title }}</span>
+            <span class="account-badge account-badge-{{ st.status }}">{{ st.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <p><a href="{{ url_for('blog_submit') }}">Share another story &rarr;</a></p>
+        {% else %}
+        <p class="account-empty">You have not shared a story yet. <a href="{{ url_for('blog_submit') }}">Write one</a>.</p>
+        {% endif %}
+
+        <h2 class="account-h2">Your testimonials</h2>
+        {% if testimonials %}
+        <ul class="account-list">
+          {% for t in testimonials %}
+          <li>
+            <span>{{ t.quote }}</span>
+            <span class="account-badge account-badge-{{ t.status }}">{{ t.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="account-empty">You have not sent a testimonial yet. <a href="{{ url_for('account_testimonial') }}">Write one</a>.</p>
+        {% endif %}
+
+        <h2 class="account-h2">Your feedback</h2>
+        {% if feedback %}
+        <ul class="account-list">
+          {% for f in feedback %}
+          <li>
+            <span>{{ f.text }}</span>
+            <span class="account-badge account-badge-{{ f.status }}">{{ f.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="account-empty">No feedback yet. <a href="{{ url_for('account_feedback') }}">Tell us something</a>.</p>
+        {% endif %}
+{% endblock %}

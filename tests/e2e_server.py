@@ -53,7 +53,7 @@ def main() -> int:
     os.environ["DATABASE"] = str(db_path)
     os.environ["UPLOAD_DIR"] = str(upload_dir)
     os.environ["APP_URL"] = f"http://127.0.0.1:{args.port}"
-    os.environ["FLASK_ENV"] = "development"
+    os.environ["APP_ENV"] = "test"
     # Flask's ``app.run()`` calls ``flask.cli.load_dotenv()``, which would
     # re-read the repository ``.env`` and hand the test run the real SMTP and
     # Google credentials. Skip it so the run stays hermetic.

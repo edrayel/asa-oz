@@ -1056,6 +1056,17 @@ PAGES = {
                 ],
             },
             {
+                "key": "member_verify",
+                "label": "Member account: confirm your email",
+                "fields": [
+                    _lt("subject", "Subject", default="Confirm your email | Asa-OZ"),
+                    _lt("heading", "Heading", default="One click and your account is confirmed"),
+                    _ta("body", "Body", default="Thanks for creating an Asa-OZ account.\n\nConfirm your email address and your orders, stories and feedback will all be in one place."),
+                    _lt("button", "Button label", default="Confirm my email"),
+                    _lt("signoff", "Sign off", default="Ifeoma, Asa-OZ"),
+                ],
+            },
+            {
                 "key": "story_ack",
                 "label": "Story submission: acknowledgement",
                 "fields": [

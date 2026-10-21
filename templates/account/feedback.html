@@ -1,0 +1,36 @@
+{% extends "account/base.html" %}
+{% block page_title %}Give feedback{% endblock %}
+{% block account_heading %}Give feedback{% endblock %}
+{% block account_content %}
+        <p class="account-lede">What is working, what is not, and what you would like to see next.</p>
+        <form method="POST" action="{{ url_for('account_feedback') }}" class="account-form">
+          {{ csrf_input() }}
+          <div class="account-field">
+            <label for="feedbackCategory">About</label>
+            <select id="feedbackCategory" name="category">
+              <option value="General">General</option>
+              <option value="The trips">The trips</option>
+              <option value="The club">The club</option>
+              <option value="The website">The website</option>
+              <option value="Membership">Membership</option>
+            </select>
+          </div>
+          <div class="account-field">
+            <label for="feedbackText">Your feedback</label>
+            <textarea id="feedbackText" name="text" rows="4" required>{{ text or '' }}</textarea>
+          </div>
+          <button class="account-btn" type="submit">Send it</button>
+        </form>
+
+        {% if feedback %}
+        <h2 class="account-h2">What you have sent</h2>
+        <ul class="account-list">
+          {% for f in feedback %}
+          <li>
+            <span>{{ f.text }}</span>
+            <span class="account-badge account-badge-{{ f.status }}">{{ f.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+{% endblock %}

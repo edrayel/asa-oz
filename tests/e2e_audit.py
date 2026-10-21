@@ -22,6 +22,7 @@ import json
 import pathlib
 import re
 import sys
+import time
 import urllib.parse
 
 from playwright.sync_api import sync_playwright
@@ -44,6 +45,7 @@ PUBLIC_PAGES = [
     "/", "/about", "/faq", "/blog", "/blog/submit", "/store", "/terms", "/privacy",
     "/policies", "/contact", "/sitemap.xml", "/robots.txt", "/ads.txt", "/api/wall",
     "/health", "/ping", "/nonexistent-page-404",
+    "/account/login", "/account/signup",
 ]
 
 ADMIN_PAGES = [
@@ -52,7 +54,7 @@ ADMIN_PAGES = [
     "/admin/emails", "/admin/bookings", "/admin/contacts", "/admin/journey", "/admin/orders",
     "/admin/pages", "/admin/pages/home", "/admin/settings", "/admin/password", "/admin/export",
     "/admin/dynamic-pages", "/admin/dynamic-pages/new", "/admin/navigation", "/admin/brand",
-    "/admin/users",
+    "/admin/users", "/admin/testimonials",
 ]
 
 EXPECTED_404 = {"/nonexistent-page-404"}
@@ -216,7 +218,7 @@ class Audit:
         mctx = browser.new_context(viewport=msize)
         mpage = mctx.new_page()
         mevents = self.watch(mpage, "", "interact")
-        self.interact_mobile(mpage, mevents)
+        self.step("mobile-menu", self.interact_mobile, mpage, mevents)
         mctx.close()
 
         ctx = browser.new_context(viewport=size)
@@ -225,6 +227,24 @@ class Audit:
         self.login(page, "interact", events)
         self.interact_admin(page, events)
         ctx.close()
+
+        # the member journey runs in its own context: it signs in as a member
+        mctx2 = browser.new_context(viewport=size)
+        mpage2 = mctx2.new_page()
+        self.watch(mpage2, "", "interact")
+        self.step("member-journey", self._member_journey, mpage2)
+        mctx2.close()
+
+    def dismiss_cookie_bar(self, page) -> None:
+        """The consent bar is fixed to the bottom of the window and covers
+        whatever sits behind it, so accept it before clicking anything low
+        on a page."""
+        bar = page.locator("#cookieBar")
+        if bar.count() and bar.is_visible():
+            accept = page.locator("#ckAccept")
+            if accept.count():
+                accept.click()
+                page.wait_for_timeout(400)
 
     def step(self, label: str, fn, *args, **kwargs) -> None:
         """Run one interaction step; a failure is a finding, not a crash."""
@@ -251,6 +271,8 @@ class Audit:
         self.step("booking-modal", self._booking, page, events, base)
         # 8. Blog submission (public form)
         self.step("blog-submit", self._blog_submit, page, events, base)
+        # 9. The waitlist band
+        self.step("waitlist", self._waitlist, page, events, base)
 
 
     # ---- individual interaction steps ----
@@ -277,8 +299,12 @@ class Audit:
         page.wait_for_timeout(300)
         if page.locator("#backToTop").is_visible():
             page.click("#backToTop")
-            page.wait_for_timeout(2000)
-            y = page.evaluate("window.scrollY")
+            # The scroll is smooth: wait for it to settle rather than guessing.
+            for _ in range(40):
+                page.wait_for_timeout(150)
+                y = page.evaluate("window.scrollY")
+                if y <= 5:
+                    break
             if y > 40:
                 self.add("ui", base + "/about", "interact", f"back-to-top left scrollY={y}")
 
@@ -320,6 +346,24 @@ class Audit:
             remove.first.click()
             page.wait_for_timeout(900)
 
+    def _waitlist(self, page, events, base) -> None:
+        """The waitlist band: the form must be there and it must save."""
+        page.goto(base + "/", wait_until="domcontentloaded")
+        self.dismiss_cookie_bar(page)
+        form = page.locator("#waitform")
+        if not form.count():
+            self.add("ui", base + "/", "interact", "the waitlist form is not on the home page")
+            return
+        events.clear()
+        form.locator("input[name='email']").fill("audit-waitlist@example.com")
+        form.locator("button[type=submit]").first.click()
+        page.wait_for_timeout(1200)
+        self.absorb(events, base + "/", "interact")
+        msg = page.locator("#waitlistMsg")
+        text = (msg.inner_text() if msg.count() else "").strip().lower()
+        if "thank" not in text and "already" not in text:
+            self.add("ui", base + "/", "interact", f"the waitlist form gave no confirmation ({text[:60]!r})")
+
     def _booking(self, page, events, base) -> None:
         page.goto(base + "/", wait_until="domcontentloaded")
         trigger = page.locator("#headerBookingTrigger, .pricing-btn")
@@ -351,9 +395,61 @@ class Audit:
             self.add("ui", base + "/blog/submit", "interact",
                      f"no confirmation on the response page ({page.url})")
 
+    def _member_journey(self, page) -> None:
+        """Sign up as a member, use the account area, sign out."""
+        base = self.base
+        page.goto(base + "/account/signup", wait_until="domcontentloaded")
+        self.dismiss_cookie_bar(page)
+        page.locator("form:has(input[name='email']) input[name='full_name']").fill("Audit Member")
+        # a fresh address every run: the account survives between runs
+        page.fill("input[name='email']", "audit-member-%d@example.com" % int(time.time()))
+        page.fill("input[name='password']", "audit-member-password-123")
+        page.fill("input[name='confirm']", "audit-member-password-123")
+        page.locator("form:has(input[name='email']) button[type=submit]").first.click()
+        page.wait_for_load_state("domcontentloaded")
+        if "/account" not in page.url:
+            self.add("ui", base + "/account/signup", "interact", f"the sign-up did not land on the account ({page.url})")
+            return
+        # the account page shows the sections
+        for path in ("/account", "/account/orders", "/account/testimonial", "/account/feedback",
+                     "/account/profile"):
+            resp = page.goto(base + path, wait_until="domcontentloaded")
+            if resp and resp.status != 200:
+                self.add("ui", base + path, "interact", f"the account page returned {resp.status}")
+        # a testimonial
+        page.goto(base + "/account/testimonial", wait_until="domcontentloaded")
+        self.dismiss_cookie_bar(page)
+        page.fill("textarea[name='quote']", "The audit wrote this testimonial.")
+        page.locator("form:has(textarea[name='quote']) button[type=submit]").first.click()
+        page.wait_for_load_state("domcontentloaded")
+        if "The audit wrote this testimonial." not in page.content():
+            self.add("ui", base + "/account/testimonial", "interact", "the testimonial was not saved")
+        # feedback
+        page.goto(base + "/account/feedback", wait_until="domcontentloaded")
+        self.dismiss_cookie_bar(page)
+        page.fill("textarea[name='text']", "The audit wrote this feedback.")
+        page.locator("form:has(textarea[name='text']) button[type=submit]").first.click()
+        page.wait_for_load_state("domcontentloaded")
+        if "The audit wrote this feedback." not in page.content():
+            self.add("ui", base + "/account/feedback", "interact", "the feedback was not saved")
+        # sign out
+        page.goto(base + "/account", wait_until="domcontentloaded")
+        signout = page.locator("form[action*='/account/logout'] button")
+        if signout.count():
+            signout.first.click()
+            page.wait_for_load_state("domcontentloaded")
+            page.goto(base + "/account", wait_until="domcontentloaded")
+            if "/account/login" not in page.url:
+                self.add("security", base + "/account", "interact", "the account is still reachable after signing out")
+        else:
+            self.add("ui", base + "/account", "interact", "no sign-out control found")
+
     def interact_mobile(self, page, events: list[dict]) -> None:
         base = self.base
         page.goto(base + "/", wait_until="domcontentloaded")
+        # The consent bar sits over the header on a small screen, so it has to
+        # go before the menu button can be reached.
+        self.dismiss_cookie_bar(page)
         if page.locator("#menuToggle").is_visible():
             page.click("#menuToggle")
             page.wait_for_timeout(600)

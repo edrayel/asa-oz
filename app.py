@@ -420,7 +420,8 @@ def index():
                            products=db.list_products(active_only=True),
                            # More than three keeps the stories band useful: the
                            # template turns four or more into a scrollable rail.
-                           blog_posts=db.list_blog_posts(status="published", limit=8))
+                           blog_posts=db.list_blog_posts(status="published", limit=8),
+                           member_testimonials=db.list_testimonials(status="approved"))
 
 
 # -------------------- Blog --------------------
@@ -453,21 +454,28 @@ def blog_submit():
             return render_template("blog_submit.html", error="Title and story are required.",
                                    form=request.form), 400
         author_email = (request.form.get("author_email") or "").strip()
+        member = current_user()
         db.save_blog_post({
             "title": request.form["title"],
             "summary": request.form.get("summary", ""),
             "body": request.form["body"],
-            "author": request.form.get("author", "").strip() or "Anonymous member",
-            "author_email": author_email,
+            "author": request.form.get("author", "").strip()
+                      or (member["full_name"] or member["username"] if member else "Anonymous member"),
+            "author_email": author_email or (member["email"] if member else ""),
             "image": request.form.get("image", ""),
             "category": request.form.get("category", "Member stories"),
             "status": "draft",
+            "user_id": member["id"] if member else 0,
         })
         notify.notify_story(request.form["title"], request.form.get("author", ""), author_email)
         if author_email and db.setting_bool("email_story_ack", "1"):
             mailer.send("story_ack", author_email, {"story_title": request.form["title"]})
         return render_template("blog_submitted.html")
-    return render_template("blog_submit.html", form={})
+    member = current_user()
+    form = {}
+    if member:
+        form = {"author": member["full_name"] or member["username"], "author_email": member["email"]}
+    return render_template("blog_submit.html", form=form)
 
 
 @app.route("/confirm/<token>")
@@ -923,8 +931,11 @@ def checkout():
             error="Please add an email address so we can confirm your order.",
         ), 400
 
+    member = current_user()
+    member_id = member["id"] if member else 0
+
     if not STRIPE_SECRET:
-        order_id = db.add_order(items, total, customer_email=email)
+        order_id = db.add_order(items, total, customer_email=email, user_id=member_id)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
         session["order_id"] = order_id
@@ -944,7 +955,7 @@ def checkout():
         if it["price"] > 0
     ]
     if not line_items:
-        order_id = db.add_order(items, total, customer_email=email)
+        order_id = db.add_order(items, total, customer_email=email, user_id=member_id)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
         session["order_id"] = order_id
@@ -953,7 +964,8 @@ def checkout():
     # Priced items go to Stripe, so payment is not complete yet. No confirmation
     # is sent here: mailing "order confirmed" for an unpaid cart would be wrong.
     # A receipt belongs on the payment webhook, which is still to be built.
-    order_id = db.add_order(items, total, customer_email=email, status="pending")
+    order_id = db.add_order(items, total, customer_email=email, status="pending",
+                            user_id=member_id)
     notify.notify_order(items, total, customer_email=email)
     token = _order_token(order_id)
     try:
@@ -970,6 +982,7 @@ def checkout():
         session["order_id"] = order_id
         return redirect(url_for("checkout_success", order_id=order_id, token=token))
 
+    db.set_order_stripe_session(order_id, checkout_session.id)
     db.set_order_status(order_id, "pending")
     session["order_id"] = order_id
     return redirect(checkout_session.url)
@@ -2047,8 +2060,10 @@ def export_orders_csv():
     for o in db.list_orders():
         items = json.loads(o.get("items") or "[]")
         names = ", ".join("%s ×%d" % (it["name"], it["qty"]) for it in items)
-        rows.append((o["id"], names, o["total"], o["status"], o["created_at"]))
-    return _csv_response("asa-oz-orders.csv", ["Order ID", "Items", "Total (EUR)", "Status", "Date"], rows)
+        rows.append((o["id"], names, o["total"], o["status"], o["created_at"], o.get("customer_email", "")))
+    return _csv_response("asa-oz-orders.csv",
+                         ["Order ID", "Items", "Total (EUR)", "Status", "Date", "Email"],
+                         rows)
 
 
 @app.route("/admin/export/bookings.csv")
@@ -2258,6 +2273,237 @@ def _inject_nav_and_brand():
     }
 
 
+# ------------------ member accounts ------------------
+
+def member_required(fn):
+    """Require a signed-in account. Members use the public site, not the admin."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not current_user():
+            return redirect(url_for("account_login"))
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+def _member_orders(user):
+    """The orders this account owns.
+
+    Orders placed while signed in carry the account id. Older orders are
+    matched on the email address, but only once that address is verified —
+    otherwise anybody could sign up with somebody else's address and read
+    their orders.
+    """
+    verified = db.email_verified(user)
+    return db.list_orders_for_user(user["id"], email=user["email"], include_email=verified)
+
+
+@app.route("/account/login", methods=["GET", "POST"])
+def account_login():
+    if current_user():
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        login = (request.form.get("login") or "").strip()
+        password = request.form.get("password") or ""
+        user = db.verify_user(login, password)
+        if user:
+            sign_in(user)
+            db.log_action(user["id"], user["username"], "member-sign-in", user["email"], user["role"])
+            nxt = request.args.get("next") or ""
+            if nxt.startswith("/") and not nxt.startswith("//"):
+                return redirect(nxt)
+            return redirect(url_for("account"))
+        db.record_login_failure(login, request.remote_addr or "")
+        return render_template("account/login.html", error="That email or password is not right.",
+                               login=login), 401
+    return render_template("account/login.html", login="")
+
+
+@app.route("/account/signup", methods=["GET", "POST"])
+def account_signup():
+    if current_user():
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        email = (request.form.get("email") or "").strip().lower()
+        full_name = (request.form.get("full_name") or "").strip()
+        password = request.form.get("password") or ""
+        confirm = request.form.get("confirm") or ""
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return render_template("account/signup.html", error="We need a valid email address.",
+                                   email=email, full_name=full_name), 400
+        if len(password) < 12:
+            return render_template("account/signup.html",
+                                   error="A password needs at least 12 characters.",
+                                   email=email, full_name=full_name), 400
+        if password != confirm:
+            return render_template("account/signup.html", error="The two passwords do not match.",
+                                   email=email, full_name=full_name), 400
+        if db.email_taken(email):
+            return render_template("account/signup.html",
+                                   error="There is already an account with that email. Sign in instead.",
+                                   email=email, full_name=full_name), 400
+        try:
+            user, token = db.create_member(email, full_name, password)
+        except sqlite3.IntegrityError:
+            return render_template("account/signup.html",
+                                   error="There is already an account with that email. Sign in instead.",
+                                   email=email, full_name=full_name), 400
+        sign_in(user)
+        db.log_action(user["id"], user["username"], "member-sign-up", user["email"], "")
+        _send_member_verify(user, token)
+        flash("Your account is ready. Check your email to confirm it.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/signup.html", email="", full_name="")
+
+
+def _send_member_verify(user, token=None):
+    """Send (or re-send) the address confirmation email."""
+    token = token or db.create_verify_token(user["id"])
+    link = f"{BASE_URL}/account/verify/{token}"
+    return mailer.send("member_verify", user["email"], {
+        "confirm_url": link,
+        "member_name": user["full_name"] or user["username"],
+    })
+
+
+@app.route("/account/verify/<token>")
+def account_verify(token):
+    user = db.get_user_by_verify_token(token)
+    if not user:
+        return render_template("account/verify.html", ok=False), 404
+    if db.invite_expired(user):
+        return render_template("account/verify.html", ok=False, expired=True), 410
+    db.set_user_email_verified(user["id"])
+    db.log_action(user["id"], user["username"], "email-verified", user["email"], "")
+    return render_template("account/verify.html", ok=True)
+
+
+@app.route("/account/verify", methods=["POST"])
+@member_required
+@csrf.require_csrf
+def account_verify_resend():
+    user = current_user()
+    token = db.create_verify_token(user["id"])
+    _send_member_verify(user, token)
+    flash("We sent the confirmation link again.", "success")
+    return redirect(url_for("account"))
+
+
+@app.route("/account/logout", methods=["POST"])
+@member_required
+@csrf.require_csrf
+def account_logout():
+    user = current_user()
+    db.log_action(user["id"], user["username"], "member-sign-out", user["email"], "")
+    sign_out()
+    return redirect(url_for("index"))
+
+
+@app.route("/account")
+@member_required
+def account():
+    user = current_user()
+    orders = _member_orders(user)
+    return render_template(
+        "account/overview.html",
+        user=user,
+        orders=orders,
+        total_spent=sum(o["total"] for o in orders if o["status"] in ("paid", "shipped")),
+        stories=db.list_blog_posts_by_user(user["id"]),
+        feedback=db.list_feedback_for_user(user["id"]),
+        testimonials=db.list_testimonials(user_id=user["id"]),
+        verified=db.email_verified(user),
+    )
+
+
+@app.route("/account/orders")
+@member_required
+def account_orders():
+    user = current_user()
+    orders = _member_orders(user)
+    return render_template(
+        "account/orders.html",
+        user=user,
+        orders=orders,
+        total_spent=sum(o["total"] for o in orders if o["status"] in ("paid", "shipped")),
+        verified=db.email_verified(user),
+    )
+
+
+@app.route("/account/testimonial", methods=["GET", "POST"])
+@member_required
+def account_testimonial():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        quote = (request.form.get("quote") or "").strip()
+        if len(quote) < 10:
+            flash("Tell us a little more — a sentence or two.", "error")
+            return render_template("account/testimonial.html", user=user, quote=quote)
+        db.add_testimonial(user["id"], user["full_name"] or user["username"], quote,
+                           request.form.get("role") or "Community member")
+        flash("Thank you. We will read it before it goes on the site.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/testimonial.html", user=user, quote="")
+
+
+@app.route("/account/feedback", methods=["GET", "POST"])
+@member_required
+def account_feedback():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        text = (request.form.get("text") or "").strip()
+        category = (request.form.get("category") or "General").strip()
+        if not text:
+            flash("Write a little something first.", "error")
+            return render_template("account/feedback.html", user=user, text=text)
+        db.add_feedback(category, text, user_id=user["id"])
+        notify.notify_feedback(category, text)
+        flash("Thank you. Your feedback has been sent.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/feedback.html", user=user, text="")
+
+
+@app.route("/account/profile", methods=["GET", "POST"])
+@member_required
+def account_profile():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        full_name = (request.form.get("full_name") or "").strip()
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        current_password = request.form.get("current_password") or ""
+        if email and email != user["email"] and db.email_taken(email):
+            flash("That email address already has an account.", "error")
+            return render_template("account/profile.html", user=user)
+        if password:
+            if not db.verify_user(user["username"], current_password):
+                flash("Your current password is not right.", "error")
+                return render_template("account/profile.html", user=user)
+            if len(password) < 12:
+                flash("A password needs at least 12 characters.", "error")
+                return render_template("account/profile.html", user=user)
+            db.change_user_password(user["id"], password)
+        if email and email != user["email"]:
+            db.update_user_profile(user["id"], full_name, email)
+            db.create_verify_token(user["id"])
+            _send_member_verify(db.get_user(user["id"]))
+            flash("Details saved. Confirm the new address from your email.", "success")
+        else:
+            db.update_user_profile(user["id"], full_name)
+            flash("Details saved.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/profile.html", user=user)
+
+
 @app.errorhandler(404)
 def not_found(e):
     return render_template("404.html"), 404
@@ -2286,6 +2532,37 @@ def _can_manage(actor, target):
     if target["id"] == actor["id"]:
         return False
     return roles.may_manage(actor["role"], target["role"])
+
+
+@app.route("/admin/testimonials")
+@admin_required
+def admin_testimonials():
+    return render_template("admin/testimonials.html", testimonials=db.list_testimonials())
+
+
+@app.route("/admin/testimonials/<int:testimonial_id>/status", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_testimonial_status(testimonial_id):
+    status = (request.form.get("status") or "new").strip()
+    if status not in ("new", "approved", "rejected"):
+        abort(400)
+    db.set_testimonial_status(testimonial_id, status)
+    user = current_user()
+    db.log_action(user["id"], user["username"], "testimonial-status", str(testimonial_id), status)
+    flash("Testimonial updated.", "success")
+    return redirect(url_for("admin_testimonials"))
+
+
+@app.route("/admin/testimonials/<int:testimonial_id>/delete", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_testimonial_delete(testimonial_id):
+    db.delete_testimonial(testimonial_id)
+    user = current_user()
+    db.log_action(user["id"], user["username"], "testimonial-deleted", str(testimonial_id), "")
+    flash("Testimonial removed.", "success")
+    return redirect(url_for("admin_testimonials"))
 
 
 @app.route("/admin/users")

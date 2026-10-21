@@ -382,7 +382,7 @@
         .catch(function () { if (msg) msg.innerHTML = '<p class="msg" style="color:#b5482c;">Something went wrong. Please try again.</p>'; });
     });
   }
-  wireAjaxForm('waitform', 'formMsg');
+  wireAjaxForm('waitform', 'waitlistMsg');
   wireAjaxForm('feedbackForm', 'feedbackMsg');
   wireAjaxForm('contactForm', 'contactMsg');
 
