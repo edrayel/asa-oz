@@ -1282,10 +1282,15 @@ html {
 /* ---------- Captcha ----------
    The ALTCHA widget: a proof-of-work puzzle the browser solves in the
    background. No account, no API key, no third-party request. */
+/* The widget is not inline in the form: it is a floating indicator that
+   appears under the submit button when the form is sent. The host element
+   therefore takes no space and is not a positioning context, so the panel
+   lands where the widget puts it. */
 .captcha-widget {
   display: block;
-  margin: 1rem 0 0.4rem;
+  height: 0;
+  margin: 0;
   max-width: 320px;
+  overflow: visible;
 }
-.login-card .captcha-widget { margin: 0.6rem 0 1rem; }
-.account-form .captcha-widget { margin: 0.4rem 0 0; }
+/* The host is zero-height in every form, so it needs no special spacing. */

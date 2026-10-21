@@ -133,9 +133,11 @@ def captcha_field():
     """The widget itself: a proof-of-work puzzle the browser solves."""
     # type="native" is the quiet bar that solves itself; auto="onsubmit" means
     # the proof of work is only computed when the form is actually sent.
+    # display="floating" keeps it out of the form: nothing is shown until the
+    # visitor presses the button, and then the indicator appears under it.
     return Markup(
         '<altcha-widget class="captcha-widget" challenge="%s" name="altcha" '
-        'type="native" auto="onsubmit" '
+        'type="native" auto="onsubmit" display="floating" floatingPlacement="bottom" '
         'style="--altcha-max-width: 320px; --altcha-border-radius: 12px;"></altcha-widget>'
         % url_for("captcha_challenge")
     )
