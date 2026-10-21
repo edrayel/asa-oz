@@ -813,6 +813,23 @@ def email_verified(user):
     return bool(user and user.get("email_verified_at"))
 
 
+def author_email_verified(user_id):
+    """Has the account behind this content confirmed its address?
+
+    Content that is published under a member's name (a story, a testimonial)
+    may only go out once the address behind it has been confirmed, otherwise
+    anybody could claim a name that is not theirs.
+    """
+    if not user_id:
+        return True
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT email_verified_at FROM users WHERE id = ?", (user_id,)
+    ).fetchone()
+    conn.close()
+    return bool(row and row["email_verified_at"])
+
+
 def create_verify_token(user_id, days=7):
     token = secrets.token_urlsafe(32)
     conn = get_conn()
@@ -864,6 +881,13 @@ def list_testimonials(status="", user_id=0):
     rows = conn.execute(sql, params).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def get_testimonial(testimonial_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM testimonials WHERE id = ?", (testimonial_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
 
 
 def set_testimonial_status(testimonial_id, status):

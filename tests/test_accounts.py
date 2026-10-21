@@ -279,13 +279,32 @@ class AdminTestimonialQueue(unittest.TestCase):
         html = self.client.get("/admin/testimonials").get_data(as_text=True)
         self.assertIn("A fine quote.", html)
 
-    def test_the_admin_can_approve(self):
+    def test_the_admin_cannot_approve_an_unconfirmed_testimonial(self):
+        """A testimonial is published under a name, so the address behind it
+        has to be confirmed first."""
+        row = database.list_testimonials()[0]
+        token = csrf_token(self.client, "/admin/testimonials")
+        self.client.post("/admin/testimonials/%d/status" % row["id"],
+                         data={"status": "approved", "_csrf": token})
+        self.assertEqual(database.list_testimonials()[0]["status"], "new")
+
+    def test_the_admin_can_approve_a_confirmed_testimonial(self):
+        member = database.get_user_by_email("testimonial@example.com")
+        database.set_user_email_verified(member["id"])
         row = database.list_testimonials()[0]
         token = csrf_token(self.client, "/admin/testimonials")
         response = self.client.post("/admin/testimonials/%d/status" % row["id"],
                                     data={"status": "approved", "_csrf": token})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(database.list_testimonials()[0]["status"], "approved")
+
+    def test_the_admin_can_send_a_confirmation_link(self):
+        member = database.get_user_by_email("testimonial@example.com")
+        token = csrf_token(self.client, "/admin/users/%d" % member["id"])
+        response = self.client.post("/admin/users/%d/verify" % member["id"],
+                                    data={"_csrf": token})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(database.get_user(member["id"])["verify_token"])
 
     def test_the_admin_can_delete(self):
         row = database.list_testimonials()[0]

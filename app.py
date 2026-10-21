@@ -1308,7 +1308,12 @@ def admin_blog_edit(post_id):
     post = db.get_blog_post(post_id=post_id)
     if not post:
         abort(404)
+    author_verified = db.author_email_verified(post.get("user_id"))
     if request.method == "POST":
+        if "publish" in request.form and not author_verified:
+            flash("This story came from an account whose email is not confirmed, so it "
+                  "cannot be published under that name yet.", "error")
+            return redirect(url_for("admin_blog_edit", post_id=post_id))
         db.save_blog_post({
             "id": post_id,
             "title": request.form.get("title", post["title"]),
@@ -1321,7 +1326,8 @@ def admin_blog_edit(post_id):
             "status": request.form.get("status", post["status"]),
         }, publish=("publish" in request.form))
         return redirect(url_for("admin_blog_edit", post_id=post_id))
-    return render_template("admin/blog_edit.html", post=post, form=post)
+    return render_template("admin/blog_edit.html", post=post, form=post,
+                           author_verified=author_verified)
 
 
 @app.route("/admin/blog/<int:post_id>/delete", methods=["POST"])
@@ -2537,7 +2543,10 @@ def _can_manage(actor, target):
 @app.route("/admin/testimonials")
 @admin_required
 def admin_testimonials():
-    return render_template("admin/testimonials.html", testimonials=db.list_testimonials())
+    rows = db.list_testimonials()
+    for row in rows:
+        row["author_verified"] = db.author_email_verified(row.get("user_id"))
+    return render_template("admin/testimonials.html", testimonials=rows)
 
 
 @app.route("/admin/testimonials/<int:testimonial_id>/status", methods=["POST"])
@@ -2547,6 +2556,11 @@ def admin_testimonial_status(testimonial_id):
     status = (request.form.get("status") or "new").strip()
     if status not in ("new", "approved", "rejected"):
         abort(400)
+    row = db.get_testimonial(testimonial_id)
+    if row and status == "approved" and not db.author_email_verified(row.get("user_id")):
+        flash("That testimonial came from an account whose email is not confirmed. "
+              "Ask them to confirm it before it goes on the site.", "error")
+        return redirect(url_for("admin_testimonials"))
     db.set_testimonial_status(testimonial_id, status)
     user = current_user()
     db.log_action(user["id"], user["username"], "testimonial-status", str(testimonial_id), status)
@@ -2731,6 +2745,34 @@ def admin_user_invite(user_id):
         flash(f"A new invitation was sent to {target['email']}.")
     else:
         flash("Mail is not configured, so the invitation was not sent. Copy the link below.", "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/verify", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_verify(user_id):
+    """Send a member the link that confirms their address."""
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    token = db.create_verify_token(user_id)
+    invite = f"{BASE_URL}/account/verify/{token}"
+    sent = mailer.send("member_verify", target["email"], {
+        "confirm_url": invite,
+        "member_name": target["full_name"] or target["username"],
+    })
+    db.log_action(actor["id"], actor["username"], "verify-sent", target["username"],
+                  "sent" if sent else "not-configured")
+    if sent:
+        flash(f"We sent a confirmation link to {target['email']}.", "success")
+    else:
+        flash("Mail is not configured, so the link was not sent. Copy it below.", "error")
         flash(invite)
     return redirect(url_for("admin_user_edit", user_id=user_id))
 

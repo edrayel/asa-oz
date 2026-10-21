@@ -552,7 +552,9 @@ html {
   z-index: 40;
   left: clamp(0.8rem, 3vw, 1.6rem);
   right: clamp(0.8rem, 3vw, 1.6rem);
-  top: clamp(0.8rem, 3vw, 1.6rem);
+  /* Set by site.js to the height of the header plus a gap, so the bar never
+     covers the brand or the menu button. */
+  top: var(--consent-top, clamp(0.8rem, 3vw, 1.6rem));
   max-width: 720px;
   margin: 0 auto;
   background: rgba(250, 245, 236, 0.97);

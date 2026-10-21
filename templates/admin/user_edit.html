@@ -14,6 +14,8 @@
         <tr><th>Status</th><td>{{ target.status }}</td></tr>
         <tr><th>Created</th><td>{{ target.created_at }}</td></tr>
         <tr><th>Last sign-in</th><td>{{ target.last_login_at or 'Never' }}</td></tr>
+        <tr><th>Email confirmed</th>
+          <td>{% if target.email_verified_at %}Yes — {{ target.email_verified_at }}{% else %}Not yet{% endif %}</td></tr>
         {% if target.invite_expires_at %}<tr><th>Invitation expires</th><td>{{ target.invite_expires_at }}</td></tr>{% endif %}
       </tbody>
     </table>
@@ -24,6 +26,20 @@
   </div>
 
   {% if manageable %}
+  {% if target.role == 'member' and not target.email_verified_at %}
+  <div class="card">
+    <h2>Email confirmation</h2>
+    <p class="sub" style="margin-bottom:0.9rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      This member has not confirmed their address, so we cannot show them the orders placed with it and
+      nothing they send us can be published under their name.
+    </p>
+    <form method="POST" action="{{ url_for('admin_user_verify', user_id=target.id) }}">
+      {{ csrf_input() }}
+      <button class="btn" type="submit">Send the confirmation link</button>
+    </form>
+  </div>
+  {% endif %}
+
   <div class="card">
     <h2>Role</h2>
     <p class="sub" style="margin-bottom:0.8rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">

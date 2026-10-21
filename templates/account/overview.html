@@ -7,8 +7,8 @@
 {% block account_content %}
         {% if not verified %}
         <div class="account-banner">
-          <p><strong>Confirm your email address.</strong> We need to know the address belongs to you before we
-             can show orders placed with it.</p>
+          <p><strong>Confirm your email address.</strong> Until you do, we cannot show you the orders placed
+             with this address, and anything you send us cannot go out under your name.</p>
           <form method="POST" action="{{ url_for('account_verify_resend') }}">
             {{ csrf_input() }}
             <button class="account-btn account-btn-small" type="submit">Send the link again</button>

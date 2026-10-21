@@ -251,6 +251,22 @@
       bar.classList.add('is-hidden');
       applyConsent(value);
     }
+    // The bar floats at the top of the window, so it has to start below the
+    // header: it used to cover the menu button on a phone, which meant a
+    // first-time visitor could not open the menu at all.
+    function offsetBelowHeader() {
+      var header = document.querySelector('.site-header');
+      if (!header) return;
+      // The header is sticky, so its bottom edge is where the bar has to
+      // start: measured from the box, not from the height, because the
+      // buttons inside it can sit lower than the bar's own padding.
+      var bottom = header.getBoundingClientRect().bottom;
+      if (!bottom) return;
+      bar.style.setProperty('--consent-top', (bottom + 10) + 'px');
+    }
+    window.addEventListener('resize', offsetBelowHeader);
+    offsetBelowHeader();
+
     var stored = null;
     try { stored = localStorage.getItem(STORE_KEY); } catch (e) {}
     if (stored === 'all') {

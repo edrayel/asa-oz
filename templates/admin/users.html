@@ -39,6 +39,9 @@
           <td>
             {{ u.status }}
             {% if u.status == 'invited' and u.invite_expires_at %}<br /><small>expires {{ u.invite_expires_at }}</small>{% endif %}
+            {% if u.role == 'member' %}
+            <br /><small>{% if u.email_verified_at %}email confirmed{% else %}email not confirmed{% endif %}</small>
+            {% endif %}
           </td>
           <td>{{ u.last_login_at or '—' }}</td>
           <td><a class="btn btn-sm" href="{{ url_for('admin_user_edit', user_id=u.id) }}">Manage</a></td>
