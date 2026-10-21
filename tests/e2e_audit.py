@@ -536,8 +536,13 @@ class Audit:
             if row.count():
                 remove = row.first.locator("form[action*='navigation'] button").last
                 if remove.count():
+                    # the row's delete button asks for confirmation
+                    page.once("dialog", lambda dialog: dialog.accept())
                     remove.click()
                     page.wait_for_load_state("domcontentloaded")
+                    if "E2E nav item" in page.content():
+                        self.add("ui", base + "/admin/navigation", "interact",
+                                 "the navigation item the audit added was not removed")
         self.absorb(events, base + "/admin/navigation", "interact")
 
     def _admin_brand(self, page, events, base) -> None:
