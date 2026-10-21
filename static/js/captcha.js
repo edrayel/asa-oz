@@ -79,7 +79,7 @@
         try { widget.reset(); } catch (e) {}
         return;
       }
-      say(form, 'Thank you — sending…', 'done');
+      say(form, 'Sending…', 'done');
       form.dataset.captchaVerified = '1';
       if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
