@@ -2,23 +2,26 @@
 {% block title %}Dashboard | Asa-OZ Admin{% endblock %}
 {% block page_title %}{% endblock %}
 {% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('index') }}" target="_blank">View site</a>
+      {% if can_export %}
       <a class="btn btn-ghost" href="{{ url_for('export_waitlist_csv') }}">Waitlist CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_contacts_csv') }}">Contacts CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_orders_csv') }}">Orders CSV</a>
       <a class="btn btn-ghost" href="{{ url_for('export_bookings_csv') }}">Bookings CSV</a>
-      <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>{% endblock %}
+      <a class="btn btn-ghost" href="{{ url_for('export_feedback_csv') }}">Feedback CSV</a>
+      {% endif %}{% endblock %}
 {% block content %}
   <div class="stat-grid">
-    <div class="stat"><div class="n">{{ stats.feedback }}</div><div class="l">Feedback</div></div>
-    <div class="stat"><div class="n">{{ stats.waitlist }}</div><div class="l">Waitlist</div></div>
-    <div class="stat"><div class="n">{{ stats.journey }}</div><div class="l">Journey</div></div>
-    <div class="stat"><div class="n">{{ stats.bookings }}</div><div class="l">Bookings</div></div>
-    <div class="stat"><div class="n">{{ stats.contacts }}</div><div class="l">Contacts</div></div>
-    <div class="stat"><div class="n">{{ stats.orders }}</div><div class="l">Orders</div></div>
-    <div class="stat"><div class="n">{{ stats.products }}</div><div class="l">Products</div></div>
-    <div class="stat"><div class="n">{{ stats.files }}</div><div class="l">Files</div></div>
+    {% if stats.feedback is defined %}<div class="stat"><div class="n">{{ stats.feedback }}</div><div class="l">Feedback</div></div>{% endif %}
+    {% if stats.waitlist is defined %}<div class="stat"><div class="n">{{ stats.waitlist }}</div><div class="l">Waitlist</div></div>{% endif %}
+    {% if stats.journey is defined %}<div class="stat"><div class="n">{{ stats.journey }}</div><div class="l">Journey</div></div>{% endif %}
+    {% if stats.bookings is defined %}<div class="stat"><div class="n">{{ stats.bookings }}</div><div class="l">Bookings</div></div>{% endif %}
+    {% if stats.contacts is defined %}<div class="stat"><div class="n">{{ stats.contacts }}</div><div class="l">Contacts</div></div>{% endif %}
+    {% if stats.orders is defined %}<div class="stat"><div class="n">{{ stats.orders }}</div><div class="l">Orders</div></div>{% endif %}
+    {% if stats.products is defined %}<div class="stat"><div class="n">{{ stats.products }}</div><div class="l">Products</div></div>{% endif %}
+    {% if stats.files is defined %}<div class="stat"><div class="n">{{ stats.files }}</div><div class="l">Files</div></div>{% endif %}
   </div>
 
+  {% if stats.recent_waitlist is defined %}
   <div class="card">
     <h2>Latest waitlist signups</h2>
     {% if stats.recent_waitlist %}
@@ -30,7 +33,9 @@
     </tbody></table>
     {% else %}<p class="empty-state">No waitlist signups yet.</p>{% endif %}
   </div>
+  {% endif %}
 
+  {% if stats.recent_feedback is defined %}
   <div class="card">
     <h2>Newest feedback</h2>
     {% if stats.recent_feedback %}
@@ -42,4 +47,5 @@
     </tbody></table>
     {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
   </div>
+  {% endif %}
 {% endblock %}

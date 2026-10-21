@@ -30,8 +30,16 @@ os.environ["ADMIN_PASSWORD"] = "smoke_test_password"
 os.environ["DATABASE"] = os.path.join(_TMP, "smoke.sqlite3")
 os.environ["UPLOAD_DIR"] = os.path.join(_TMP, "uploads")
 os.environ["APP_URL"] = "http://localhost:5000"
+os.environ["APP_ENV"] = "test"
+
+# The suite must never send mail. These are read from the ambient shell
+# environment, and without this the "email configured" path is live.
+for _key in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD", "ADMIN_EMAIL", "FROM_EMAIL",
+             "GOOGLE_DRIVE_CREDENTIALS", "GOOGLE_PHOTOS_CREDENTIALS", "STRIPE_SECRET_KEY"):
+    os.environ.pop(_key, None)
 
 import app as application  # noqa: E402  (import must follow the env setup)
+import db as database  # noqa: E402
 
 from jinja2 import nodes  # noqa: E402
 
@@ -45,6 +53,7 @@ NAV_ENDPOINTS = [
     "admin_photos", "admin_products", "admin_orders", "admin_feedback",
     "admin_waitlist", "admin_journey", "admin_bookings", "admin_contacts",
     "admin_emails", "admin_import", "admin_settings", "admin_password",
+    "admin_users",
 ]
 
 # Public legal and editorial pages. These render from CMS defaults rather than
@@ -74,14 +83,29 @@ def admin_templates():
     return sorted(out)
 
 
+def sign_in(client, username="admin"):
+    """Sign a real account into the test client.
+
+    The session carries the user id and the account's auth_version, so the
+    admin guard re-validates it against the database exactly as it does in
+    production.
+    """
+    user = database.get_user_by_username(username)
+    assert user is not None, "the seeded superadmin is missing from the test database"
+    with client.session_transaction() as sess:
+        sess["user_id"] = user["id"]
+        sess["auth_version"] = user["auth_version"]
+        sess["admin"] = user["username"]
+    return user
+
+
 class AdminPagesRender(unittest.TestCase):
     """Every sidebar page renders for a logged-in admin."""
 
     def setUp(self):
         flask_app.config["TESTING"] = True
         self.client = flask_app.test_client()
-        with self.client.session_transaction() as sess:
-            sess["admin"] = "admin"
+        sign_in(self.client)
 
     def test_every_nav_page_returns_200(self):
         for endpoint in NAV_ENDPOINTS:
@@ -150,8 +174,8 @@ class PhotosTemplateContract(unittest.TestCase):
         self.addCleanup(lambda: [setattr(photos, n, v) for n, v in originals.items()])
 
         client = flask_app.test_client()
+        sign_in(client)
         with client.session_transaction() as sess:
-            sess["admin"] = "admin"
             sess["photos_picker_session"] = "test-session"
         response = client.get("/admin/photos")
         self.assertEqual(response.status_code, 200)

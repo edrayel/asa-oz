@@ -1,39 +1,4 @@
 
-    :root {
-      --espresso: #2b2118;
-      --tobacco: #6f5a3f;
-      --cafe: #a67b5b;
-      --cafe-ink: #8a6038;
-      --sand: #c4a882;
-      --cream: #f4ece0;
-      --paper: #faf5ec;
-      --sage: #8a9a5b;
-      --sage-deep: #5f6d3d;
-      --ink: #3a2f22;
-      --muted: #7d6e5b;
-
-      --serif: "Fraunces", Georgia, "Times New Roman", serif;
-      --sans: "Jost", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
-      --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-
-    body {
-      font-family: var(--sans);
-      color: var(--ink);
-      background: var(--paper);
-      line-height: 1.65;
-      font-weight: 400;
-      overflow-x: hidden;
-      overflow-x: clip;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
     ::selection { background: var(--sage); color: var(--paper); }
 
     a { color: inherit; text-decoration: none; }
@@ -126,212 +91,6 @@
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 clamp(1.4rem, 5vw, 4rem);
-    }
-
-    /* ---------- Header ---------- */
-    .brand {
-      display: flex;
-      align-items: center;
-    }
-    .brand-link {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      text-decoration: none;
-      color: inherit;
-    }
-    .brand-logo-img {
-      display: block;
-      max-height: 36px;
-      width: auto;
-    }
-    .brand-logo-fallback {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: clamp(1.35rem, 2.4vw, 1.6rem);
-      letter-spacing: 0.02em;
-      color: var(--espresso);
-    }
-     .header-actions {
-       display: flex;
-       align-items: center;
-       gap: 0.8rem;
-     }
-     .header-booking {
-       border: 1px solid rgba(111, 90, 63, 0.32);
-       background: rgba(255, 255, 255, 0.65);
-       backdrop-filter: blur(6px);
-       color: var(--espresso);
-       padding: 0.5rem 0.95rem;
-       border-radius: 100px;
-       font-family: var(--sans);
-       font-size: 0.72rem;
-       font-weight: 500;
-       letter-spacing: 0.12em;
-       text-transform: uppercase;
-       cursor: pointer;
-       transition: all 0.3s var(--ease);
-       white-space: nowrap;
-     }
-     .header-booking:hover {
-       background: var(--espresso);
-       color: #fff;
-       border-color: var(--espresso);
-     }
-      .header-social {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-      .header-social a {
-        display: grid;
-        place-items: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 100px;
-        color: var(--tobacco);
-        transition: all 0.3s var(--ease);
-      }
-      .header-social a:hover {
-        color: var(--espresso);
-        background: rgba(111, 90, 63, 0.08);
-      }
-      .header-social svg {
-        width: 15px;
-        height: 15px;
-      }
-      .main-nav {
-        display: flex;
-        align-items: center;
-        gap: 1.4rem;
-        margin-right: 0.6rem;
-      }
-      .main-nav a {
-        position: relative;
-        font-size: 0.72rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--cafe-ink);
-        text-decoration: none;
-        padding: 0.35rem 0;
-        transition: color 0.35s var(--ease);
-      }
-      .main-nav a::before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%) scaleX(0);
-        width: 70%;
-        height: 1.5px;
-        background: var(--espresso);
-        transform-origin: center;
-        transition: transform 0.4s var(--ease);
-        border-radius: 2px;
-      }
-       .main-nav a:hover::before {
-         transform: translateX(-50%) scaleX(1);
-       }
-       .main-nav a:hover {
-        color: var(--espresso);
-      }
-      .main-nav a.active {
-        color: var(--espresso);
-      }
-       .main-nav a.active::before {
-         transform: translateX(-50%) scaleX(1);
-         background: var(--sage-deep);
-       }
-
-      /* ---------- Mobile menu ---------- */
-    .header-booking-text { display: inline; }
-    .header-booking-icon { display: none; }
-    .menu-toggle { display: none; }
-    .mobile-menu {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      background: var(--paper);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s var(--ease);
-    }
-    .mobile-menu.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .mobile-menu-inner {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: clamp(1.5rem, 4vw, 2.5rem);
-    }
-    .mobile-menu-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .mobile-menu-close {
-      display: grid;
-      place-items: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 100px;
-      border: 1px solid rgba(111, 90, 63, 0.25);
-      background: transparent;
-      color: var(--espresso);
-      cursor: pointer;
-      transition: all 0.3s var(--ease);
-    }
-    .mobile-menu-close:hover {
-      background: rgba(111, 90, 63, 0.08);
-    }
-    .mobile-menu-nav {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .mobile-menu-nav a {
-      font-family: var(--serif);
-      font-size: clamp(2rem, 6vw, 3.2rem);
-      font-weight: 400;
-      color: var(--espresso);
-      text-decoration: none;
-      line-height: 1.2;
-      transition: color 0.3s var(--ease);
-    }
-    .mobile-menu-nav a:hover {
-      color: var(--cafe-ink);
-    }
-    .mobile-menu-nav a.active {
-      color: var(--sage-deep);
-    }
-    .mobile-menu-social {
-      display: flex;
-      gap: 0.75rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(111, 90, 63, 0.12);
-    }
-    .mobile-menu-social a {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 100px;
-      border: 1px solid rgba(111, 90, 63, 0.2);
-      color: var(--tobacco);
-      transition: all 0.3s var(--ease);
-    }
-    .mobile-menu-social a:hover {
-      background: var(--espresso);
-      color: var(--paper);
-      border-color: var(--espresso);
-    }
-    .mobile-menu-social svg {
-      width: 20px;
-      height: 20px;
     }
 
     /* ---------- Hero ---------- */
@@ -1370,6 +1129,47 @@
        Single centred column. The founder panel moved to the about page, so this
        block stands alone as the club's promise, with a small round portrait
        above it and one button below. */
+    /* Testimonials members sent in. The CMS still has its own single
+       testimonial ribbon above; this is the member wall next to it. */
+    .member-testimonials {
+      position: relative;
+      z-index: 2;
+      padding: clamp(3rem, 8vh, 5.5rem) 0;
+      border-top: 1px solid rgba(111, 90, 63, 0.18);
+    }
+    .member-testimonials-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.1;
+      color: var(--espresso);
+      text-align: center;
+      margin: 0 auto clamp(1.8rem, 4vw, 2.6rem);
+    }
+    .member-testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: clamp(1.2rem, 2.8vw, 2rem);
+    }
+    .member-testimonial {
+      margin: 0;
+      padding: 1.6rem 1.5rem;
+      border: 1px solid rgba(111, 90, 63, 0.18);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .member-testimonial blockquote p {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .member-testimonial figcaption { display: flex; flex-direction: column; }
+    .member-testimonial .name { font-size: 0.92rem; color: var(--espresso); }
+    .member-testimonial .role { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
     .ethos {
       position: relative;
       z-index: 2;

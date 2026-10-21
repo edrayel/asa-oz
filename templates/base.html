@@ -92,7 +92,9 @@
 
   <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">&#8593;</button>
 
+  {% if settings.get('show_store', '0') == '1' %}
   {% include "partials/cart_overlay.html" %}
+  {% endif %}
   {% include "partials/booking_overlay.html" %}
   <aside class="cookie-bar" id="cookieBar" role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="ckText">
     <span class="ck-icon" aria-hidden="true">⚪</span>

@@ -10,6 +10,7 @@
       <summary>
         <span class="badge badge-{{ 'paid' if o.status == 'paid' else ('pending' if o.status in ('pending',) else o.status) }}">{{ o.status }}</span>
         &middot; #{{ o.id }} &middot; €{{ o.total }} &middot; {{ o.created_at }}
+        {% if o.customer_email %}&middot; {{ o.customer_email }}{% endif %}
       </summary>
       <div class="inner">
         <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>

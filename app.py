@@ -25,6 +25,7 @@ from functools import wraps
 from urllib.parse import quote
 
 import stripe
+import itsdangerous
 from flask import (
     Flask, Response, abort, flash, jsonify, redirect, render_template, request, session, send_from_directory, url_for,
 )
@@ -38,6 +39,7 @@ import mailer
 import notify
 import photos
 import nh3
+import roles
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRIPE_SECRET = os.environ.get("STRIPE_SECRET_KEY", "")
@@ -388,6 +390,9 @@ def inject_globals():
         "csrf_input": csrf.render_input,
         "og_image_url": _og_image_url(request_path),
         "adsense_publisher_id": ADSENSE_PUBLISHER_ID,
+        "current_user": current_user(),
+        "can": can,
+        "roles": roles,
     }
 
 
@@ -415,7 +420,8 @@ def index():
                            products=db.list_products(active_only=True),
                            # More than three keeps the stories band useful: the
                            # template turns four or more into a scrollable rail.
-                           blog_posts=db.list_blog_posts(status="published", limit=8))
+                           blog_posts=db.list_blog_posts(status="published", limit=8),
+                           member_testimonials=db.list_testimonials(status="approved"))
 
 
 # -------------------- Blog --------------------
@@ -448,21 +454,28 @@ def blog_submit():
             return render_template("blog_submit.html", error="Title and story are required.",
                                    form=request.form), 400
         author_email = (request.form.get("author_email") or "").strip()
+        member = current_user()
         db.save_blog_post({
             "title": request.form["title"],
             "summary": request.form.get("summary", ""),
             "body": request.form["body"],
-            "author": request.form.get("author", "").strip() or "Anonymous member",
-            "author_email": author_email,
+            "author": request.form.get("author", "").strip()
+                      or (member["full_name"] or member["username"] if member else "Anonymous member"),
+            "author_email": author_email or (member["email"] if member else ""),
             "image": request.form.get("image", ""),
             "category": request.form.get("category", "Member stories"),
             "status": "draft",
+            "user_id": member["id"] if member else 0,
         })
         notify.notify_story(request.form["title"], request.form.get("author", ""), author_email)
         if author_email and db.setting_bool("email_story_ack", "1"):
             mailer.send("story_ack", author_email, {"story_title": request.form["title"]})
         return render_template("blog_submitted.html")
-    return render_template("blog_submit.html", form={})
+    member = current_user()
+    form = {}
+    if member:
+        form = {"author": member["full_name"] or member["username"], "author_email": member["email"]}
+    return render_template("blog_submit.html", form=form)
 
 
 @app.route("/confirm/<token>")
@@ -480,12 +493,20 @@ def email_confirm(token):
 
 @app.route("/unsubscribe/<token>", methods=["GET", "POST"])
 def email_unsubscribe(token):
-    """Unsubscribe landing page. POST also serves one-click unsubscribe."""
-    sub = db.unsubscribe_by_token(token)
+    """Unsubscribe landing page.
+
+    GET only *offers* the unsubscribe: a mail scanner, security proxy or
+    link preview that follows the link in an incoming email must not be able
+    to opt somebody out. POST performs it (one-click unsubscribe posts to
+    this URL too, RFC 8058).
+    """
     if request.method == "POST":
-        # One-click unsubscribe must not render a page.
-        return ("", 200) if sub else ("", 404)
-    return render_template("email_unsubscribed.html", subscriber=sub, done=bool(sub))
+        sub = db.unsubscribe_by_token(token)
+        if not sub:
+            return render_template("email_unsubscribed.html", subscriber=None, done=False, pending=False), 404
+        return render_template("email_unsubscribed.html", subscriber=sub, done=True, pending=False)
+    sub = db.get_subscriber_by_token(token)
+    return render_template("email_unsubscribed.html", subscriber=sub, done=False, pending=bool(sub))
 
 
 @app.route("/api/wall")
@@ -796,7 +817,9 @@ def _store_off():
 @app.route("/cart/drawer")
 def cart_drawer_view():
     if _store_off():
-        abort(404)
+        # The store is closed: answer with an empty drawer instead of a 404 so
+        # a stale tab (or the shell) does not spam the error log.
+        return ""
     return cart_drawer()
 
 
@@ -862,6 +885,35 @@ def _send_order_confirm(order_id, items, total, email):
 
 
 # ------------------ checkout ------------------
+_ORDER_SALT = "asa-oz-order"
+
+
+def _order_token(order_id):
+    """Sign an order id so only the browser that placed it can read it."""
+    return itsdangerous.URLSafeTimedSerializer(SECRET_KEY, salt=_ORDER_SALT).dumps(str(order_id))
+
+
+def _authorised_order(order_id, token):
+    """Return the order id the caller is allowed to see, or None.
+
+    An order is authorised when the URL carries a valid signature, or when
+    the order was placed in this browser session.
+    """
+    if not order_id:
+        return None
+    if token:
+        try:
+            value = itsdangerous.URLSafeTimedSerializer(SECRET_KEY, salt=_ORDER_SALT).loads(
+                token, max_age=60 * 60 * 24 * 30)
+        except (itsdangerous.BadSignature, itsdangerous.SignatureExpired):
+            value = None
+        if value is not None and str(order_id) == str(value):
+            return order_id
+    if session.get("order_id") == order_id:
+        return order_id
+    return None
+
+
 @app.route("/checkout", methods=["POST"])
 @csrf.require_csrf
 def checkout():
@@ -879,11 +931,15 @@ def checkout():
             error="Please add an email address so we can confirm your order.",
         ), 400
 
+    member = current_user()
+    member_id = member["id"] if member else 0
+
     if not STRIPE_SECRET:
-        order_id = db.add_order(items, total, customer_email=email)
+        order_id = db.add_order(items, total, customer_email=email, user_id=member_id)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=_order_token(order_id)))
 
     stripe.api_key = STRIPE_SECRET
     line_items = [
@@ -899,37 +955,43 @@ def checkout():
         if it["price"] > 0
     ]
     if not line_items:
-        order_id = db.add_order(items, total, customer_email=email)
+        order_id = db.add_order(items, total, customer_email=email, user_id=member_id)
         notify.notify_order(items, total, customer_email=email)
         _send_order_confirm(order_id, items, total, email)
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=_order_token(order_id)))
 
     # Priced items go to Stripe, so payment is not complete yet. No confirmation
     # is sent here: mailing "order confirmed" for an unpaid cart would be wrong.
     # A receipt belongs on the payment webhook, which is still to be built.
-    order_id = db.add_order(items, total, customer_email=email, status="pending")
+    order_id = db.add_order(items, total, customer_email=email, status="pending",
+                            user_id=member_id)
     notify.notify_order(items, total, customer_email=email)
+    token = _order_token(order_id)
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=line_items,
             mode="payment",
-            success_url=BASE_URL + url_for("checkout_success", order_id=order_id),
-            cancel_url=BASE_URL + url_for("checkout_cancel", order_id=order_id),
+            success_url=BASE_URL + url_for("checkout_success", order_id=order_id, token=token),
+            cancel_url=BASE_URL + url_for("checkout_cancel", order_id=order_id, token=token),
         )
     except Exception as exc:  # pragma: no cover - network/Stripe errors
         app.logger.error("Stripe session error: %s", exc)
         db.set_order_status(order_id, "enquiry")
-        return redirect(url_for("checkout_success", order_id=order_id))
+        session["order_id"] = order_id
+        return redirect(url_for("checkout_success", order_id=order_id, token=token))
 
+    db.set_order_stripe_session(order_id, checkout_session.id)
     db.set_order_status(order_id, "pending")
+    session["order_id"] = order_id
     return redirect(checkout_session.url)
 
 
 @app.route("/checkout/cancel")
 def checkout_cancel():
     order_id = request.args.get("order_id", type=int)
-    if order_id:
+    if _authorised_order(order_id, request.args.get("token")):
         db.set_order_status(order_id, "cancelled")
     return render_template("checkout_cancel.html", cart_count=cart_count())
 
@@ -937,6 +999,7 @@ def checkout_cancel():
 @app.route("/checkout/success")
 def checkout_success():
     order_id = request.args.get("order_id", type=int)
+    order_id = _authorised_order(order_id, request.args.get("token"))
     order = db.get_order(order_id) if order_id else None
     if not order:
         abort(404)
@@ -946,6 +1009,53 @@ def checkout_success():
 
 
 # ------------------ admin ------------------
+def current_user():
+    """The signed-in user, re-validated against the database.
+
+    Returns None when there is no session, when the account has been
+    deleted or suspended, or when ``auth_version`` moved on (a role change
+    or a password reset ends every live session for that account).
+    """
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    user = db.get_user(user_id)
+    if not user or user.get("status") != "active":
+        session.pop("user_id", None)
+        session.pop("admin", None)
+        session.pop("auth_version", None)
+        return None
+    if session.get("auth_version") != user.get("auth_version"):
+        session.pop("user_id", None)
+        session.pop("admin", None)
+        session.pop("auth_version", None)
+        return None
+    return user
+
+
+def can(permission):
+    """True when the signed-in user holds ``permission``."""
+    user = current_user()
+    if not user:
+        return False
+    return roles.has_permission(user["role"], permission)
+
+
+def sign_in(user):
+    session["user_id"] = user["id"]
+    session["auth_version"] = user["auth_version"]
+    session["admin"] = user["username"]
+    session.modified = True
+    db.touch_login(user["id"])
+
+
+def sign_out():
+    session.pop("user_id", None)
+    session.pop("admin", None)
+    session.pop("auth_version", None)
+    session.modified = True
+
+
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST" and not csrf.validate():
@@ -953,9 +1063,22 @@ def admin_login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
-        if db.verify_admin(username, password):
-            session["admin"] = username
+        ip = request.headers.get("X-Forwarded-For", request.remote_addr or "")
+        ip = ip.split(",")[0].strip()
+        wait = db.login_lockout(username, ip)
+        if wait:
+            return render_template(
+                "admin/login.html",
+                error=f"Too many failed attempts. Try again in {max(1, wait // 60)} minute(s).",
+            )
+        user = db.verify_user(username, password)
+        if user:
+            db.clear_login_failures(username, ip)
+            sign_in(user)
+            db.log_action(user["id"], user["username"], "sign-in", user["username"], user["role"])
             return redirect(url_for("admin_dashboard"))
+        db.record_login_failure(username, ip)
+        db.log_action(None, username, "sign-in-failed", username, ip)
         return render_template("admin/login.html", error="Invalid credentials")
     if session.get("admin"):
         return redirect(url_for("admin_dashboard"))
@@ -965,15 +1088,29 @@ def admin_login():
 @app.route("/admin/logout", methods=["POST"])
 @csrf.require_csrf
 def admin_logout():
-    session.pop("admin", None)
+    user = current_user()
+    if user:
+        db.log_action(user["id"], user["username"], "sign-out", user["username"], "")
+    sign_out()
     return redirect(url_for("admin_login"))
 
 
 def admin_required(fn):
+    """Require a signed-in user, and a role that may use this view.
+
+    The permission is looked up from ``roles.ROUTE_PERMISSIONS`` by endpoint,
+    so a view that is not in the map is superadmin-only: new admin pages fail
+    closed instead of being open to every role.
+    """
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not session.get("admin"):
+        user = current_user()
+        if not user:
             return redirect(url_for("admin_login"))
+        permission = roles.permission_for(request.endpoint)
+        if permission and not roles.has_permission(user["role"], permission):
+            db.log_action(user["id"], user["username"], "denied", request.endpoint or "", user["role"])
+            abort(403)
         return fn(*args, **kwargs)
     return wrapper
 
@@ -981,18 +1118,33 @@ def admin_required(fn):
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-    return render_template("admin/dashboard.html", stats={
-        "feedback": len(db.list_feedback()),
-        "waitlist": len(db.list_waitlist()),
-        "journey": len(db.list_journey_subscribers()),
-        "bookings": len(db.list_bookings()),
-        "contacts": len(db.list_contacts()),
-        "orders": len(db.list_orders()),
-        "products": len(db.list_products()),
-        "files": len(db.list_files()),
-        "recent_waitlist": db.list_waitlist()[:5],
-        "recent_feedback": db.list_feedback()[:5],
-    })
+    """Overview. Only the numbers this role is allowed to see are counted."""
+    user = current_user()
+    role = user["role"]
+
+    def allow(permission):
+        return roles.has_permission(role, permission)
+
+    stats = {}
+    if allow("audience.feedback"):
+        stats["feedback"] = len(db.list_feedback())
+        stats["recent_feedback"] = db.list_feedback()[:5]
+    if allow("audience.waitlist"):
+        stats["waitlist"] = len(db.list_waitlist())
+        stats["recent_waitlist"] = db.list_waitlist()[:5]
+    if allow("audience.journey"):
+        stats["journey"] = len(db.list_journey_subscribers())
+    if allow("audience.bookings"):
+        stats["bookings"] = len(db.list_bookings())
+    if allow("audience.contacts"):
+        stats["contacts"] = len(db.list_contacts())
+    if allow("shop.orders"):
+        stats["orders"] = len(db.list_orders())
+    if allow("shop.products"):
+        stats["products"] = len(db.list_products())
+    if allow("media.files"):
+        stats["files"] = len(db.list_files())
+    return render_template("admin/dashboard.html", stats=stats, can_export=allow("system.export"))
 
 
 @app.route("/admin/products")
@@ -1156,7 +1308,12 @@ def admin_blog_edit(post_id):
     post = db.get_blog_post(post_id=post_id)
     if not post:
         abort(404)
+    author_verified = db.author_email_verified(post.get("user_id"))
     if request.method == "POST":
+        if "publish" in request.form and not author_verified:
+            flash("This story came from an account whose email is not confirmed, so it "
+                  "cannot be published under that name yet.", "error")
+            return redirect(url_for("admin_blog_edit", post_id=post_id))
         db.save_blog_post({
             "id": post_id,
             "title": request.form.get("title", post["title"]),
@@ -1169,7 +1326,8 @@ def admin_blog_edit(post_id):
             "status": request.form.get("status", post["status"]),
         }, publish=("publish" in request.form))
         return redirect(url_for("admin_blog_edit", post_id=post_id))
-    return render_template("admin/blog_edit.html", post=post, form=post)
+    return render_template("admin/blog_edit.html", post=post, form=post,
+                           author_verified=author_verified)
 
 
 @app.route("/admin/blog/<int:post_id>/delete", methods=["POST"])
@@ -1840,11 +1998,19 @@ def admin_password():
         abort(400, "CSRF token missing or invalid")
     if request.method == "POST":
         new_pw = request.form.get("password", "")
-        if len(new_pw) >= 8:
-            db.set_admin_password("admin", new_pw)
+        current_pw = request.form.get("current_password", "")
+        user = current_user()
+        if not user:
+            return redirect(url_for("admin_login"))
+        if not db.verify_user(user["username"], current_pw):
+            flash("Your current password is not correct.", "error")
+            return render_template("admin/password.html")
+        if len(new_pw) >= 12:
+            db.set_user_password(user["id"], new_pw)
+            db.log_action(user["id"], user["username"], "password-changed", user["username"], "")
             flash("Password updated.")
             return redirect(url_for("admin_dashboard"))
-        flash("Password must be at least 8 characters.", "error")
+        flash("Password must be at least 12 characters.", "error")
     return render_template("admin/password.html")
 
 
@@ -1900,8 +2066,10 @@ def export_orders_csv():
     for o in db.list_orders():
         items = json.loads(o.get("items") or "[]")
         names = ", ".join("%s ×%d" % (it["name"], it["qty"]) for it in items)
-        rows.append((o["id"], names, o["total"], o["status"], o["created_at"]))
-    return _csv_response("asa-oz-orders.csv", ["Order ID", "Items", "Total (EUR)", "Status", "Date"], rows)
+        rows.append((o["id"], names, o["total"], o["status"], o["created_at"], o.get("customer_email", "")))
+    return _csv_response("asa-oz-orders.csv",
+                         ["Order ID", "Items", "Total (EUR)", "Status", "Date", "Email"],
+                         rows)
 
 
 @app.route("/admin/export/bookings.csv")
@@ -2111,14 +2279,555 @@ def _inject_nav_and_brand():
     }
 
 
+# ------------------ member accounts ------------------
+
+def member_required(fn):
+    """Require a signed-in account. Members use the public site, not the admin."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not current_user():
+            return redirect(url_for("account_login"))
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+def _member_orders(user):
+    """The orders this account owns.
+
+    Orders placed while signed in carry the account id. Older orders are
+    matched on the email address, but only once that address is verified —
+    otherwise anybody could sign up with somebody else's address and read
+    their orders.
+    """
+    verified = db.email_verified(user)
+    return db.list_orders_for_user(user["id"], email=user["email"], include_email=verified)
+
+
+@app.route("/account/login", methods=["GET", "POST"])
+def account_login():
+    if current_user():
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        login = (request.form.get("login") or "").strip()
+        password = request.form.get("password") or ""
+        user = db.verify_user(login, password)
+        if user:
+            sign_in(user)
+            db.log_action(user["id"], user["username"], "member-sign-in", user["email"], user["role"])
+            nxt = request.args.get("next") or ""
+            if nxt.startswith("/") and not nxt.startswith("//"):
+                return redirect(nxt)
+            return redirect(url_for("account"))
+        db.record_login_failure(login, request.remote_addr or "")
+        return render_template("account/login.html", error="That email or password is not right.",
+                               login=login), 401
+    return render_template("account/login.html", login="")
+
+
+@app.route("/account/signup", methods=["GET", "POST"])
+def account_signup():
+    if current_user():
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        email = (request.form.get("email") or "").strip().lower()
+        full_name = (request.form.get("full_name") or "").strip()
+        password = request.form.get("password") or ""
+        confirm = request.form.get("confirm") or ""
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return render_template("account/signup.html", error="We need a valid email address.",
+                                   email=email, full_name=full_name), 400
+        if len(password) < 12:
+            return render_template("account/signup.html",
+                                   error="A password needs at least 12 characters.",
+                                   email=email, full_name=full_name), 400
+        if password != confirm:
+            return render_template("account/signup.html", error="The two passwords do not match.",
+                                   email=email, full_name=full_name), 400
+        if db.email_taken(email):
+            return render_template("account/signup.html",
+                                   error="There is already an account with that email. Sign in instead.",
+                                   email=email, full_name=full_name), 400
+        try:
+            user, token = db.create_member(email, full_name, password)
+        except sqlite3.IntegrityError:
+            return render_template("account/signup.html",
+                                   error="There is already an account with that email. Sign in instead.",
+                                   email=email, full_name=full_name), 400
+        sign_in(user)
+        db.log_action(user["id"], user["username"], "member-sign-up", user["email"], "")
+        _send_member_verify(user, token)
+        flash("Your account is ready. Check your email to confirm it.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/signup.html", email="", full_name="")
+
+
+def _send_member_verify(user, token=None):
+    """Send (or re-send) the address confirmation email."""
+    token = token or db.create_verify_token(user["id"])
+    link = f"{BASE_URL}/account/verify/{token}"
+    return mailer.send("member_verify", user["email"], {
+        "confirm_url": link,
+        "member_name": user["full_name"] or user["username"],
+    })
+
+
+@app.route("/account/verify/<token>")
+def account_verify(token):
+    user = db.get_user_by_verify_token(token)
+    if not user:
+        return render_template("account/verify.html", ok=False), 404
+    if db.invite_expired(user):
+        return render_template("account/verify.html", ok=False, expired=True), 410
+    db.set_user_email_verified(user["id"])
+    db.log_action(user["id"], user["username"], "email-verified", user["email"], "")
+    return render_template("account/verify.html", ok=True)
+
+
+@app.route("/account/verify", methods=["POST"])
+@member_required
+@csrf.require_csrf
+def account_verify_resend():
+    user = current_user()
+    token = db.create_verify_token(user["id"])
+    _send_member_verify(user, token)
+    flash("We sent the confirmation link again.", "success")
+    return redirect(url_for("account"))
+
+
+@app.route("/account/logout", methods=["POST"])
+@member_required
+@csrf.require_csrf
+def account_logout():
+    user = current_user()
+    db.log_action(user["id"], user["username"], "member-sign-out", user["email"], "")
+    sign_out()
+    return redirect(url_for("index"))
+
+
+@app.route("/account")
+@member_required
+def account():
+    user = current_user()
+    orders = _member_orders(user)
+    return render_template(
+        "account/overview.html",
+        user=user,
+        orders=orders,
+        total_spent=sum(o["total"] for o in orders if o["status"] in ("paid", "shipped")),
+        stories=db.list_blog_posts_by_user(user["id"]),
+        feedback=db.list_feedback_for_user(user["id"]),
+        testimonials=db.list_testimonials(user_id=user["id"]),
+        verified=db.email_verified(user),
+    )
+
+
+@app.route("/account/orders")
+@member_required
+def account_orders():
+    user = current_user()
+    orders = _member_orders(user)
+    return render_template(
+        "account/orders.html",
+        user=user,
+        orders=orders,
+        total_spent=sum(o["total"] for o in orders if o["status"] in ("paid", "shipped")),
+        verified=db.email_verified(user),
+    )
+
+
+@app.route("/account/testimonial", methods=["GET", "POST"])
+@member_required
+def account_testimonial():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        quote = (request.form.get("quote") or "").strip()
+        if len(quote) < 10:
+            flash("Tell us a little more — a sentence or two.", "error")
+            return render_template("account/testimonial.html", user=user, quote=quote)
+        db.add_testimonial(user["id"], user["full_name"] or user["username"], quote,
+                           request.form.get("role") or "Community member")
+        flash("Thank you. We will read it before it goes on the site.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/testimonial.html", user=user, quote="")
+
+
+@app.route("/account/feedback", methods=["GET", "POST"])
+@member_required
+def account_feedback():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        text = (request.form.get("text") or "").strip()
+        category = (request.form.get("category") or "General").strip()
+        if not text:
+            flash("Write a little something first.", "error")
+            return render_template("account/feedback.html", user=user, text=text)
+        db.add_feedback(category, text, user_id=user["id"])
+        notify.notify_feedback(category, text)
+        flash("Thank you. Your feedback has been sent.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/feedback.html", user=user, text="")
+
+
+@app.route("/account/profile", methods=["GET", "POST"])
+@member_required
+def account_profile():
+    user = current_user()
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        full_name = (request.form.get("full_name") or "").strip()
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        current_password = request.form.get("current_password") or ""
+        if email and email != user["email"] and db.email_taken(email):
+            flash("That email address already has an account.", "error")
+            return render_template("account/profile.html", user=user)
+        if password:
+            if not db.verify_user(user["username"], current_password):
+                flash("Your current password is not right.", "error")
+                return render_template("account/profile.html", user=user)
+            if len(password) < 12:
+                flash("A password needs at least 12 characters.", "error")
+                return render_template("account/profile.html", user=user)
+            db.change_user_password(user["id"], password)
+        if email and email != user["email"]:
+            db.update_user_profile(user["id"], full_name, email)
+            db.create_verify_token(user["id"])
+            _send_member_verify(db.get_user(user["id"]))
+            flash("Details saved. Confirm the new address from your email.", "success")
+        else:
+            db.update_user_profile(user["id"], full_name)
+            flash("Details saved.", "success")
+        return redirect(url_for("account"))
+    return render_template("account/profile.html", user=user)
+
+
 @app.errorhandler(404)
 def not_found(e):
     return render_template("404.html"), 404
 
 
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("admin/403.html"), 403
+
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template("500.html"), 500
+
+
+# ------------------ users, roles and invites ------------------
+
+def _invite_url(token):
+    return f"{BASE_URL}/invite/{token}"
+
+
+def _can_manage(actor, target):
+    """May ``actor`` change ``target``'s account? (role, status, delete)"""
+    if not actor or not target:
+        return False
+    if target["id"] == actor["id"]:
+        return False
+    return roles.may_manage(actor["role"], target["role"])
+
+
+@app.route("/admin/testimonials")
+@admin_required
+def admin_testimonials():
+    rows = db.list_testimonials()
+    for row in rows:
+        row["author_verified"] = db.author_email_verified(row.get("user_id"))
+    return render_template("admin/testimonials.html", testimonials=rows)
+
+
+@app.route("/admin/testimonials/<int:testimonial_id>/status", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_testimonial_status(testimonial_id):
+    status = (request.form.get("status") or "new").strip()
+    if status not in ("new", "approved", "rejected"):
+        abort(400)
+    row = db.get_testimonial(testimonial_id)
+    if row and status == "approved" and not db.author_email_verified(row.get("user_id")):
+        flash("That testimonial came from an account whose email is not confirmed. "
+              "Ask them to confirm it before it goes on the site.", "error")
+        return redirect(url_for("admin_testimonials"))
+    db.set_testimonial_status(testimonial_id, status)
+    user = current_user()
+    db.log_action(user["id"], user["username"], "testimonial-status", str(testimonial_id), status)
+    flash("Testimonial updated.", "success")
+    return redirect(url_for("admin_testimonials"))
+
+
+@app.route("/admin/testimonials/<int:testimonial_id>/delete", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_testimonial_delete(testimonial_id):
+    db.delete_testimonial(testimonial_id)
+    user = current_user()
+    db.log_action(user["id"], user["username"], "testimonial-deleted", str(testimonial_id), "")
+    flash("Testimonial removed.", "success")
+    return redirect(url_for("admin_testimonials"))
+
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    user = current_user()
+    status = (request.args.get("status") or "").strip()
+    role = (request.args.get("role") or "").strip()
+    search = (request.args.get("q") or "").strip()
+    return render_template(
+        "admin/users.html",
+        users=db.list_users(status=status, role=role, search=search),
+        roles=roles,
+        actor=user,
+        assignable=roles.assignable_roles(user["role"]),
+        status_filter=status,
+        role_filter=role,
+        search=search,
+        audit=db.list_audit(25),
+    )
+
+
+@app.route("/admin/users/new", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_new():
+    actor = current_user()
+    username = (request.form.get("username") or "").strip().lower()
+    email = (request.form.get("email") or "").strip()
+    full_name = (request.form.get("full_name") or "").strip()
+    role = (request.form.get("role") or "").strip()
+    password = (request.form.get("password") or "").strip()
+
+    if not username or not re.match(r"^[a-z0-9._-]{3,32}$", username):
+        flash("Username must be 3-32 characters: letters, digits, dot, dash or underscore.", "error")
+        return redirect(url_for("admin_users"))
+    if "@" not in email or "." not in email.split("@")[-1]:
+        flash("A valid email address is required — the invitation is sent there.", "error")
+        return redirect(url_for("admin_users"))
+    if not roles.is_role(role):
+        flash("Unknown role.", "error")
+        return redirect(url_for("admin_users"))
+    if not roles.may_assign(actor["role"], role):
+        flash("You cannot hand out a role above your own.", "error")
+        return redirect(url_for("admin_users"))
+    if db.username_taken(username):
+        flash("That username is taken.", "error")
+        return redirect(url_for("admin_users"))
+    if db.email_taken(email):
+        flash("That email address already has an account.", "error")
+        return redirect(url_for("admin_users"))
+    if password and len(password) < 12:
+        flash("A password must be at least 12 characters.", "error")
+        return redirect(url_for("admin_users"))
+
+    user, token = db.create_user(username, email, full_name, role, invited_by=actor["id"],
+                                 password=password)
+    db.log_action(actor["id"], actor["username"], "user-created", username, role)
+    if password:
+        flash(f"{username} created with a password. They can sign in now.")
+    else:
+        invite = _invite_url(token)
+        sent = mailer.send_user_invite(email, full_name or username, invite, roles.label(role))
+        db.log_action(actor["id"], actor["username"], "invite-sent", username,
+                      "sent" if sent else "not-configured")
+        if sent:
+            flash(f"Invitation sent to {email}.")
+        else:
+            flash("Mail is not configured, so the invitation was not sent. Copy the link below.",
+                  "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user["id"]))
+
+
+@app.route("/admin/users/<int:user_id>")
+@admin_required
+def admin_user_edit(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    invite = ""
+    if target["status"] == "invited" and target.get("invite_token"):
+        invite = _invite_url(target["invite_token"])
+    return render_template(
+        "admin/user_edit.html",
+        target=target,
+        actor=actor,
+        roles=roles,
+        assignable=roles.assignable_roles(actor["role"]),
+        manageable=_can_manage(actor, target),
+        invite_url=invite,
+        audit=db.list_audit(20),
+    )
+
+
+@app.route("/admin/users/<int:user_id>/role", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_role(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    role = (request.form.get("role") or "").strip()
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if not roles.is_role(role) or not roles.may_assign(actor["role"], role):
+        flash("You cannot hand out that role.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if target["role"] == roles.SUPERADMIN and role != roles.SUPERADMIN:
+        if db.count_active_superadmins(exclude_id=target["id"]) == 0:
+            flash("The last superadmin cannot be demoted.", "error")
+            return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.set_user_role(user_id, role)
+    db.log_action(actor["id"], actor["username"], "role-changed", target["username"],
+                  f"{target['role']} -> {role}")
+    flash(f"{target['username']} is now {roles.label(role)}.")
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/status", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_status(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    status = (request.form.get("status") or "").strip()
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    if status not in ("active", "suspended", "invited"):
+        abort(400)
+    if target["role"] == roles.SUPERADMIN and status != "active":
+        if db.count_active_superadmins(exclude_id=target["id"]) == 0:
+            flash("The last superadmin cannot be suspended.", "error")
+            return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.set_user_status(user_id, status)
+    db.log_action(actor["id"], actor["username"], "status-changed", target["username"], status)
+    flash(f"{target['username']} is now {status}.")
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/invite", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_invite(user_id):
+    """Re-send an invitation (or issue a password reset link)."""
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    token = db.create_invite(user_id)
+    invite = _invite_url(token)
+    sent = mailer.send_user_invite(target["email"], target["full_name"] or target["username"],
+                                   invite, roles.label(target["role"]))
+    db.log_action(actor["id"], actor["username"], "invite-sent", target["username"],
+                  "sent" if sent else "not-configured")
+    if sent:
+        flash(f"A new invitation was sent to {target['email']}.")
+    else:
+        flash("Mail is not configured, so the invitation was not sent. Copy the link below.", "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/verify", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_verify(user_id):
+    """Send a member the link that confirms their address."""
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot change that account.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    token = db.create_verify_token(user_id)
+    invite = f"{BASE_URL}/account/verify/{token}"
+    sent = mailer.send("member_verify", target["email"], {
+        "confirm_url": invite,
+        "member_name": target["full_name"] or target["username"],
+    })
+    db.log_action(actor["id"], actor["username"], "verify-sent", target["username"],
+                  "sent" if sent else "not-configured")
+    if sent:
+        flash(f"We sent a confirmation link to {target['email']}.", "success")
+    else:
+        flash("Mail is not configured, so the link was not sent. Copy it below.", "error")
+        flash(invite)
+    return redirect(url_for("admin_user_edit", user_id=user_id))
+
+
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@admin_required
+@csrf.require_csrf
+def admin_user_delete(user_id):
+    actor = current_user()
+    target = db.get_user(user_id)
+    if not target:
+        abort(404)
+    if not _can_manage(actor, target):
+        flash("You cannot delete that account.", "error")
+        return redirect(url_for("admin_users"))
+    if target["role"] == roles.SUPERADMIN and db.count_active_superadmins(exclude_id=target["id"]) == 0:
+        flash("The last superadmin cannot be deleted.", "error")
+        return redirect(url_for("admin_user_edit", user_id=user_id))
+    db.delete_user(user_id)
+    db.log_action(actor["id"], actor["username"], "user-deleted", target["username"], target["role"])
+    flash(f"{target['username']} was removed.")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/invite/<token>", methods=["GET", "POST"])
+def invite_accept(token):
+    """Redeem an invitation: the invite token is the credential."""
+    user = db.get_user_by_invite_token(token)
+    if not user:
+        return render_template("invite_accept.html", user=None, error="This invitation is not valid."), 404
+    if db.invite_expired(user):
+        return render_template(
+            "invite_accept.html", user=user,
+            error="This invitation has expired. Ask an administrator to send a new one.",
+        ), 410
+    if request.method == "POST":
+        if not csrf.validate():
+            abort(400, "CSRF token missing or invalid")
+        password = request.form.get("password") or ""
+        confirm = request.form.get("confirm") or ""
+        if password != confirm:
+            flash("The two passwords do not match.", "error")
+            return render_template("invite_accept.html", user=user)
+        if len(password) < 12:
+            flash("A password must be at least 12 characters.", "error")
+            return render_template("invite_accept.html", user=user)
+        db.set_user_password(user["id"], password)
+        db.log_action(user["id"], user["username"], "invite-accepted", user["username"], user["role"])
+        fresh = db.get_user(user["id"])
+        sign_in(fresh)
+        flash("Your account is ready.")
+        if user["role"] == roles.MEMBER:
+            return redirect(url_for("index"))
+        return redirect(url_for("admin_dashboard"))
+    return render_template("invite_accept.html", user=user)
 
 
 with app.app_context():

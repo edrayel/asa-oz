@@ -1,0 +1,21 @@
+{# Waitlist band: an email capture for people who are not ready to join yet.
+   Wired to the /waitlist endpoint through the #waitform id that site.js
+   enhances into an inline (fetch) submission. #}
+<section class="waitlist-band" id="waitlist" aria-label="Join the waitlist">
+  <div class="waitlist-band-inner">
+    <p class="eyebrow">Waitlist</p>
+    <h2>Be first to know</h2>
+    <p class="waitlist-band-copy">
+      New trips, member offers and the shop itself. Leave your email and we will
+      write when there is something worth your time — nothing else.
+    </p>
+    <form id="waitform" class="waitlist-form" method="POST" action="{{ url_for('waitlist') }}">
+      {{ csrf_input() }}
+      <label class="sr-only" for="waitlistEmail">Email address</label>
+      <input id="waitlistEmail" type="email" name="email" placeholder="you@example.com" required />
+      <input type="hidden" name="source" value="waitlist-band" />
+      <button type="submit" class="page-btn">Join the waitlist</button>
+    </form>
+    <p class="msg" id="waitlistMsg" role="status" aria-live="polite"></p>
+  </div>
+</section>

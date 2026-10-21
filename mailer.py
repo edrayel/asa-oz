@@ -359,6 +359,34 @@ def send(kind, recipient, ctx=None, marketing=None, unsub_url=""):
     return _dispatch(kind, recipient, subject, text, html_body, marketing, unsub_url)
 
 
+def send_user_invite(recipient, name, invite_url, role_label, kind="user_invite"):
+    """Send a CMS invitation.
+
+    Not part of the editable copy set: this is an internal message, so it
+    renders its own template instead of going through the CMS email copy.
+    Never raises.
+    """
+    recipient = (recipient or "").strip()
+    if not recipient or "@" not in recipient:
+        return False
+    try:
+        html_body = _env.get_template("user_invite.html").render(
+            name=name or "",
+            role=role_label or "",
+            invite_url=invite_url or "",
+            base_url=base_url(),
+            site_email=(_site().get("email", "")),
+            section={"subject": "Your Asa-OZ admin invitation"},
+            footer={},
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("mailer: invite render failed for %s (%s)", recipient, type(exc).__name__)
+        _log(kind, recipient, "", "failed", "render:" + type(exc).__name__)
+        return False
+    subject = f"You have been invited to the Asa-OZ admin as {role_label}"
+    return _dispatch(kind, recipient, subject, _html_to_text(html_body), html_body, False, "")
+
+
 def send_raw(recipient, subject, text, kind="admin"):
     """Plain notification (admin alerts), through the same queue and transport."""
     recipient = (recipient or "").strip()

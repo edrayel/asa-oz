@@ -32,6 +32,8 @@
       <h4>Community</h4>
       <a href="{{ url_for('index') }}#signup">Join the club</a>
       <a href="{{ url_for('index') }}#testimonials">Read testimonials</a>
+      <a href="{{ url_for('index') }}#waitlist">Join the waitlist</a>
+      <a href="{{ url_for('account') if current_user else url_for('account_login') }}">{{ 'My account' if current_user else 'Member sign in' }}</a>
       <a href="{{ url_for('about') }}">Community stories</a>
     </div>
   </div>

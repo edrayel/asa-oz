@@ -1,0 +1,44 @@
+{% extends "account/base.html" %}
+{% block page_title %}Orders & payments{% endblock %}
+{% block account_heading %}Orders &amp; payments{% endblock %}
+{% block account_content %}
+        {% if not verified %}
+        <p class="account-note">Orders placed with this email before you had an account appear once you confirm
+           your address. <a href="{{ url_for('account') }}">Confirm it here</a>.</p>
+        {% endif %}
+
+        {% if orders %}
+        <p class="account-lede">Total with us: <strong>&euro;{{ total_spent }}</strong> across
+           {{ orders|length }} order{{ '' if orders|length == 1 else 's' }}.</p>
+        {% for o in orders %}
+        <div class="account-order">
+          <div class="account-order-head">
+            <h3>Order #{{ o.id }}</h3>
+            <span class="account-badge account-badge-{{ o.status }}">{{ o.status }}</span>
+          </div>
+          <p class="account-order-meta">{{ o.created_at }} &middot; &euro;{{ o.total }}</p>
+          <table class="account-table">
+            <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+            <tbody>
+              {% for it in o.items_parsed %}
+              <tr>
+                <td>{{ it.name }}</td>
+                <td>{{ it.qty }}</td>
+                <td>{% if it.price == 0 %}Free{% else %}&euro;{{ it.price }}{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if o.status == 'pending' %}
+          <p class="account-note">Payment is still open for this order.</p>
+          {% elif o.status == 'cancelled' %}
+          <p class="account-note">This order was cancelled.</p>
+          {% elif o.status == 'enquiry' %}
+          <p class="account-note">This is an enquiry, not a payment — we will be in touch by email.</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="account-empty">No orders yet.</p>
+        {% endif %}
+{% endblock %}

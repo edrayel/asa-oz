@@ -411,10 +411,42 @@ export ADMIN_PASSWORD=$(.venv/bin/python -c 'import secrets;print(secrets.token_
 export GOOGLE_DRIVE_CREDENTIALS="$HOME/.config/opencode/keys/asa-oz_google_oauth_token.json"
 export GOOGLE_PHOTOS_CREDENTIALS="$GOOGLE_DRIVE_CREDENTIALS"
 
-.venv/bin/python app.py    # dev server, http://localhost:5000
+.venv/bin/python run.py    # dev server, http://127.0.0.1:5000
 ```
 
 Log in at `/admin` with the value of `ADMIN_PASSWORD`.
+
+### 8.1 The three environments
+
+`APP_ENV` picks the environment. It defaults to `dev`.
+
+| `APP_ENV` | What it does | Entry point |
+|---|---|---|
+| `dev` | Loads `.env` (real environment variables win), debug on, reloader on | `python run.py` |
+| `test` | Loads `.env`, no debug | `python run.py`, the test suite, the audit harness |
+| `prod` | **Refuses to start** and prints the gunicorn command | `gunicorn` (the Docker image) |
+
+`FLASK_ENV` is not used: Flask removed it in 3.0, and `APP_ENV` says what it
+means in every environment.
+
+**The trap this avoids.** Flask's `app.run()` calls
+`flask.cli.load_dotenv()`, which reads the `.env` next to the app and hands a
+dev server the production SMTP and Google credentials — a local server can
+send real mail. So:
+
+- in `dev` the file is loaded by `run.py` itself, with `override=False`, so a
+  value already in the environment wins;
+- everywhere else `run.py` sets `FLASK_SKIP_DOTENV=1`, which stops Flask
+  from touching the file at all;
+- production never runs `app.run()`: the image's entrypoint is gunicorn, and
+  the environment comes from the host's `.env` (see § 11.1).
+
+If you need one value changed for a single run, export it — the environment
+beats the file:
+
+```bash
+SECRET_KEY=$(openssl rand -hex 32) .venv/bin/python run.py
+```
 
 ## 9. Production checklist
 

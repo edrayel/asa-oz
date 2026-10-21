@@ -1,0 +1,50 @@
+{% extends "admin/app.html" %}
+{% block title %}Testimonials - Asa-OZ Admin{% endblock %}
+{% block page_title %}Testimonials{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}
+{% block content %}
+  <p class="sub" style="margin-bottom:1.2rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+    Testimonials members sent in from their account. Approve one to put it on the home page.
+  </p>
+
+  <div class="card">
+    {% if testimonials %}
+    <table>
+      <thead><tr><th>From</th><th>Quote</th><th>Status</th><th>Sent</th><th></th></tr></thead>
+      <tbody>
+        {% for t in testimonials %}
+        <tr>
+          <td>{{ t.name }}<br /><small>{{ t.role }}</small>
+            {% if t.user_id and not t.author_verified %}
+            <br /><small class="form-error">address not confirmed</small>
+            {% endif %}
+          </td>
+          <td class="wrap">{{ t.quote }}</td>
+          <td><span class="badge badge-{{ t.status }}">{{ t.status }}</span></td>
+          <td>{{ t.created_at }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('admin_testimonial_status', testimonial_id=t.id) }}" style="display:inline;">
+              {{ csrf_input() }}
+              <input type="hidden" name="status" value="approved" />
+              <button class="btn btn-sm" type="submit" {% if t.status == 'approved' %}disabled{% endif %}{% if t.user_id and not t.author_verified %} title="Ask the member to confirm their email address first" disabled{% endif %}>Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_testimonial_status', testimonial_id=t.id) }}" style="display:inline;">
+              {{ csrf_input() }}
+              <input type="hidden" name="status" value="rejected" />
+              <button class="btn btn-sm btn-ghost" type="submit" {% if t.status == 'rejected' %}disabled{% endif %}>Reject</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_testimonial_delete', testimonial_id=t.id) }}"
+                  onsubmit="return confirm('Delete this testimonial?')" style="display:inline;">
+              {{ csrf_input() }}
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No testimonials yet. Members can send one from their account.</p>
+    {% endif %}
+  </div>
+{% endblock %}

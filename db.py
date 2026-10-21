@@ -97,6 +97,54 @@ CREATE TABLE IF NOT EXISTS admins (
   password_hash TEXT NOT NULL
 );
 
+-- Accounts for the CMS. ``admins`` above is the legacy single-admin table and
+-- is only read to migrate the first superadmin; new accounts live here.
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL UNIQUE,
+  full_name TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'member',
+  status TEXT NOT NULL DEFAULT 'invited',
+  password_hash TEXT NOT NULL DEFAULT '',
+  invited_by INTEGER,
+  invite_token TEXT,
+  invite_expires_at TEXT,
+  auth_version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_login_at TEXT,
+  updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor_id INTEGER,
+  actor TEXT NOT NULL DEFAULT '',
+  action TEXT NOT NULL,
+  target TEXT NOT NULL DEFAULT '',
+  detail TEXT NOT NULL DEFAULT '',
+  at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Testimonials written by members. The home page also has a single editable
+-- testimonial in the CMS; these are the ones members sent in.
+CREATE TABLE IF NOT EXISTS testimonials (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  name TEXT NOT NULL DEFAULT '',
+  quote TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'Community member',
+  status TEXT NOT NULL DEFAULT 'new',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL DEFAULT '',
+  ip TEXT NOT NULL DEFAULT '',
+  at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS files (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   path TEXT NOT NULL UNIQUE,
@@ -240,11 +288,44 @@ FOUNDER_STORY_BODY = """
 """.strip()
 
 
+class _Connection(sqlite3.Connection):
+    """A connection that never leaves a write transaction open.
+
+    A failed statement (a duplicate key, a constraint violation) would
+    otherwise keep the transaction — and with it the database write lock —
+    alive until the connection happened to be collected. On a busy site that
+    turns one bad insert into "database is locked" for every other writer.
+    """
+
+    def execute(self, *args, **kwargs):
+        try:
+            return super().execute(*args, **kwargs)
+        except Exception:
+            try:
+                self.rollback()
+            finally:
+                self.close()
+            raise
+
+    def executemany(self, *args, **kwargs):
+        try:
+            return super().executemany(*args, **kwargs)
+        except Exception:
+            try:
+                self.rollback()
+            finally:
+                self.close()
+            raise
+
+
 def get_conn():
     os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
-    conn = sqlite3.connect(DATABASE)
+    # A busy timeout keeps concurrent writers (the request threads and the
+    # mailer worker) from failing each other with "database is locked".
+    conn = sqlite3.connect(DATABASE, timeout=15, factory=_Connection)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA busy_timeout = 15000")
     return conn
 
 
@@ -257,6 +338,12 @@ def _ensure_column(conn, table, column, ddl):
 
 def init_db():
     conn = get_conn()
+    # Write-ahead logging: readers never block the writer, so the request
+    # threads and the mailer worker can share the file. Set once, here.
+    try:
+        conn.execute("PRAGMA journal_mode = WAL")
+    except sqlite3.OperationalError:
+        pass
     conn.executescript(SCHEMA)
     conn.commit()
 
@@ -267,6 +354,15 @@ def init_db():
     # Migrate: add photos_id for the Google Photos Picker integration, which
     # records the persistent media-item id of each imported pick.
     _ensure_column(conn, "files", "photos_id", "TEXT NOT NULL DEFAULT ''")
+
+    # Migrate: member accounts. These columns tie a story, a piece of feedback,
+    # an order and a testimonial to the account that sent them.
+    _ensure_column(conn, "users", "email_verified_at", "TEXT")
+    _ensure_column(conn, "users", "verify_token", "TEXT")
+    _ensure_column(conn, "users", "verify_expires_at", "TEXT")
+    _ensure_column(conn, "blog_posts", "user_id", "INTEGER")
+    _ensure_column(conn, "feedback_items", "user_id", "INTEGER")
+    _ensure_column(conn, "orders", "user_id", "INTEGER")
 
     # Migrate: double opt-in state for existing newsletter lists. Rows that
     # predate this feature are treated as confirmed, since they signed up when
@@ -390,7 +486,464 @@ def init_db():
             (generate_password_hash(pw),),
         )
     conn.commit()
+
+    _migrate_admin_to_users(conn)
+    conn.commit()
     conn.close()
+
+
+# ---------- Users, invites, audit ----------
+
+def _migrate_admin_to_users(conn):
+    """Turn the legacy single-admin row into the first ``superadmin`` account.
+
+    The ``admins`` table can only ever hold one row, so it cannot grow into a
+    user system. The row is copied into ``users`` (keeping the same password
+    hash) and the account is left where it is so an older deployment keeps
+    working until the first sign-in.
+    """
+    if conn.execute("SELECT COUNT(*) AS c FROM users").fetchone()["c"] > 0:
+        return
+    legacy = conn.execute("SELECT username, password_hash FROM admins LIMIT 1").fetchone()
+    if not legacy:
+        return
+    username = legacy["username"] or "admin"
+    email = (os.environ.get("ADMIN_EMAIL") or "").strip()
+    if not email or "@" not in email:
+        email = f"{username}@localhost"
+    conn.execute(
+        """INSERT OR IGNORE INTO users
+             (username, email, full_name, role, status, password_hash, created_at)
+           VALUES (?, ?, '', 'superadmin', 'active', ?, datetime('now'))""",
+        (username, email, legacy["password_hash"]),
+    )
+
+
+def list_users(status="", role="", search=""):
+    conn = get_conn()
+    sql = "SELECT * FROM users WHERE 1=1"
+    params = []
+    if status:
+        sql += " AND status = ?"
+        params.append(status)
+    if role:
+        sql += " AND role = ?"
+        params.append(role)
+    if search:
+        sql += " AND (username LIKE ? OR email LIKE ? OR full_name LIKE ?)"
+        like = f"%{search}%"
+        params.extend([like, like, like])
+    sql += " ORDER BY CASE role WHEN 'superadmin' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, username"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_user(user_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_user_by_username(username):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM users WHERE username = ? COLLATE NOCASE", (username,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_user_by_email(email):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM users WHERE email = ? COLLATE NOCASE", (email,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_user_by_invite_token(token):
+    if not token:
+        return None
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM users WHERE invite_token = ? AND status = 'invited'", (token,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def username_taken(username):
+    conn = get_conn()
+    n = conn.execute(
+        "SELECT COUNT(*) AS c FROM users WHERE username = ? COLLATE NOCASE", (username,)
+    ).fetchone()["c"]
+    conn.close()
+    return n > 0
+
+
+def email_taken(email):
+    conn = get_conn()
+    n = conn.execute(
+        "SELECT COUNT(*) AS c FROM users WHERE email = ? COLLATE NOCASE", (email,)
+    ).fetchone()["c"]
+    conn.close()
+    return n > 0
+
+
+def create_user(username, email, full_name="", role="member", invited_by=None, password=""):
+    """Create an account. Returns (user_dict, invite_token).
+
+    With a password the account is active straight away; without one it is
+    left ``invited`` and the token is the key to the invite link.
+    """
+    token = secrets.token_urlsafe(32)
+    conn = get_conn()
+    cur = conn.execute(
+        """INSERT INTO users
+             (username, email, full_name, role, status, password_hash, invited_by,
+              invite_token, invite_expires_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))""",
+        (
+            username, email, full_name or "", role,
+            "active" if password else "invited",
+            generate_password_hash(password) if password else "",
+            invited_by,
+            token if not password else None,
+            None if password else _invite_expiry(),
+        ),
+    )
+    conn.commit()
+    user_id = cur.lastrowid
+    conn.close()
+    return get_user(user_id), token
+
+
+def _invite_expiry(days=7):
+    import datetime as _dt
+    return (_dt.datetime.now() + _dt.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def set_user_password(user_id, password):
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET password_hash = ?, status = 'active', invite_token = NULL,
+             invite_expires_at = NULL, auth_version = auth_version + 1, updated_at = datetime('now')
+           WHERE id = ?""",
+        (generate_password_hash(password), user_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_user_role(user_id, role):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE users SET role = ?, auth_version = auth_version + 1, updated_at = datetime('now') WHERE id = ?",
+        (role, user_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_user_status(user_id, status):
+    """Suspend or reactivate an account. Suspending ends live sessions."""
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET status = ?, auth_version = auth_version + 1, updated_at = datetime('now')
+           WHERE id = ?""",
+        (status, user_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def update_user_profile(user_id, full_name="", email=None):
+    conn = get_conn()
+    if email:
+        conn.execute(
+            "UPDATE users SET full_name = ?, email = ?, updated_at = datetime('now') WHERE id = ?",
+            (full_name or "", email, user_id),
+        )
+    else:
+        conn.execute(
+            "UPDATE users SET full_name = ?, updated_at = datetime('now') WHERE id = ?",
+            (full_name or "", user_id),
+        )
+    conn.commit()
+    conn.close()
+
+
+def create_invite(user_id, days=7):
+    """Mint a fresh invite token for an account and put it back in the invited state."""
+    token = secrets.token_urlsafe(32)
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET status = 'invited', invite_token = ?, invite_expires_at = ?,
+             auth_version = auth_version + 1, updated_at = datetime('now')
+           WHERE id = ?""",
+        (token, _invite_expiry(days), user_id),
+    )
+    conn.commit()
+    conn.close()
+    return token
+
+
+def invite_expired(user):
+    if not user or not user.get("invite_expires_at"):
+        return False
+    import datetime as _dt
+    try:
+        expiry = _dt.datetime.strptime(user["invite_expires_at"], "%Y-%m-%d %H:%M:%S")
+    except (TypeError, ValueError):
+        return False
+    return expiry < _dt.datetime.now()
+
+
+def delete_user(user_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+
+def count_active_superadmins(exclude_id=0):
+    conn = get_conn()
+    n = conn.execute(
+        "SELECT COUNT(*) AS c FROM users WHERE role = 'superadmin' AND status = 'active' AND id != ?",
+        (exclude_id,),
+    ).fetchone()["c"]
+    conn.close()
+    return n
+
+
+def verify_user(login, password):
+    """Check a login (username or email) against the password. Returns the row or None."""
+    if not login or not password:
+        return None
+    user = get_user_by_username(login) or get_user_by_email(login)
+    if not user or not user.get("password_hash"):
+        return None
+    if not check_password_hash(user["password_hash"], password):
+        return None
+    if user.get("status") != "active":
+        return None
+    return user
+
+
+def touch_login(user_id):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE users SET last_login_at = datetime('now') WHERE id = ?", (user_id,)
+    )
+    conn.commit()
+    conn.close()
+
+
+def log_action(actor_id, actor, action, target="", detail=""):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO audit_log (actor_id, actor, action, target, detail) VALUES (?, ?, ?, ?, ?)",
+        (actor_id, actor or "", action, target or "", detail or ""),
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_audit(limit=50):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM audit_log ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- Member accounts ----------
+
+def create_member(email, full_name="", password="", username=""):
+    """Create a public-site account. Returns (user, verify_token)."""
+    email = (email or "").strip().lower()
+    full_name = (full_name or "").strip()
+    if not username:
+        base = (email.split("@")[0] or "member").replace(".", "-").replace("_", "-")
+        base = "".join(ch for ch in base if ch.isalnum() or ch in "-")[:24] or "member"
+        username = base
+        suffix = 1
+        while username_taken(username):
+            suffix += 1
+            username = "%s-%d" % (base, suffix)
+    token = secrets.token_urlsafe(32)
+    conn = get_conn()
+    cur = conn.execute(
+        """INSERT INTO users
+             (username, email, full_name, role, status, password_hash, verify_token,
+              verify_expires_at, created_at, updated_at)
+           VALUES (?, ?, ?, 'member', 'active', ?, ?, ?, datetime('now'), datetime('now'))""",
+        (username, email, full_name, generate_password_hash(password), token,
+         _invite_expiry(7)),
+    )
+    conn.commit()
+    user_id = cur.lastrowid
+    conn.close()
+    return get_user(user_id), token
+
+
+def get_user_by_verify_token(token):
+    if not token:
+        return None
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM users WHERE verify_token = ? AND verify_token IS NOT NULL", (token,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def set_user_email_verified(user_id):
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET email_verified_at = datetime('now'), verify_token = NULL,
+             verify_expires_at = NULL, updated_at = datetime('now') WHERE id = ?""",
+        (user_id,),
+    )
+    conn.commit()
+    conn.close()
+
+
+def email_verified(user):
+    return bool(user and user.get("email_verified_at"))
+
+
+def author_email_verified(user_id):
+    """Has the account behind this content confirmed its address?
+
+    Content that is published under a member's name (a story, a testimonial)
+    may only go out once the address behind it has been confirmed, otherwise
+    anybody could claim a name that is not theirs.
+    """
+    if not user_id:
+        return True
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT email_verified_at FROM users WHERE id = ?", (user_id,)
+    ).fetchone()
+    conn.close()
+    return bool(row and row["email_verified_at"])
+
+
+def create_verify_token(user_id, days=7):
+    token = secrets.token_urlsafe(32)
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET verify_token = ?, verify_expires_at = ?, updated_at = datetime('now')
+           WHERE id = ?""",
+        (token, _invite_expiry(days), user_id),
+    )
+    conn.commit()
+    conn.close()
+    return token
+
+
+def change_user_password(user_id, password):
+    conn = get_conn()
+    conn.execute(
+        """UPDATE users SET password_hash = ?, auth_version = auth_version + 1,
+             updated_at = datetime('now') WHERE id = ?""",
+        (generate_password_hash(password), user_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+# ---------- Testimonials ----------
+
+def add_testimonial(user_id, name, quote, role="Community member"):
+    conn = get_conn()
+    cur = conn.execute(
+        "INSERT INTO testimonials (user_id, name, quote, role) VALUES (?, ?, ?, ?)",
+        (user_id or 0, (name or "").strip(), (quote or "").strip(), (role or "").strip()),
+    )
+    conn.commit()
+    conn.close()
+    return cur.lastrowid
+
+
+def list_testimonials(status="", user_id=0):
+    conn = get_conn()
+    sql = "SELECT * FROM testimonials WHERE 1=1"
+    params = []
+    if status:
+        sql += " AND status = ?"
+        params.append(status)
+    if user_id:
+        sql += " AND user_id = ?"
+        params.append(user_id)
+    sql += " ORDER BY id DESC"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_testimonial(testimonial_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM testimonials WHERE id = ?", (testimonial_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def set_testimonial_status(testimonial_id, status):
+    conn = get_conn()
+    conn.execute("UPDATE testimonials SET status = ? WHERE id = ?", (status, testimonial_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_testimonial(testimonial_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM testimonials WHERE id = ?", (int(testimonial_id),))
+    conn.commit()
+    conn.close()
+
+
+# ---------- Login throttling ----------
+
+def record_login_failure(username, ip):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO login_attempts (username, ip) VALUES (?, ?)", (username, ip)
+    )
+    conn.execute(
+        "DELETE FROM login_attempts WHERE at < datetime('now', '-1 day')"
+    )
+    conn.commit()
+    conn.close()
+
+
+def clear_login_failures(username, ip):
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM login_attempts WHERE username = ? AND ip = ?", (username, ip)
+    )
+    conn.commit()
+    conn.close()
+
+
+def login_lockout(username, ip, max_attempts=5, window_minutes=15, lock_minutes=15):
+    """Seconds to wait before another attempt is allowed (0 when allowed)."""
+    conn = get_conn()
+    row = conn.execute(
+        """SELECT COUNT(*) AS n,
+                  CAST((julianday('now') - julianday(MAX(at))) * 86400 AS INTEGER) AS age
+             FROM login_attempts
+            WHERE username = ? AND ip = ? AND at > datetime('now', ?)""",
+        (username, ip, f"-{window_minutes} minutes"),
+    ).fetchone()
+    conn.close()
+    if not row or row["n"] < max_attempts:
+        return 0
+    age = row["age"] if row["age"] is not None else 0
+    remaining = lock_minutes * 60 - int(age)
+    return remaining if remaining > 0 else 0
+
 
 
 # ---------- Products ----------
@@ -503,13 +1056,23 @@ def setting_bool(key, default="0"):
 
 # ---------- Feedback ----------
 
-def add_feedback(category, text):
+def add_feedback(category, text, user_id=0):
     conn = get_conn()
     conn.execute(
-        "INSERT INTO feedback_items (category, text) VALUES (?, ?)", (category, text)
+        "INSERT INTO feedback_items (category, text, user_id) VALUES (?, ?, ?)",
+        (category, text, user_id or 0),
     )
     conn.commit()
     conn.close()
+
+
+def list_feedback_for_user(user_id):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM feedback_items WHERE user_id = ? ORDER BY id DESC", (user_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 def list_feedback():
@@ -855,16 +1418,52 @@ def import_backup(payload):
 
 # ---------- Orders ----------
 
-def add_order(items, total, customer_email="", status="enquiry", stripe_session_id=""):
+def add_order(items, total, customer_email="", status="enquiry", stripe_session_id="", user_id=0):
     conn = get_conn()
     cur = conn.execute(
-        """INSERT INTO orders (items, total, customer_email, status, stripe_session_id)
-           VALUES (?, ?, ?, ?, ?)""",
-        (json.dumps(items), total, customer_email, status, stripe_session_id),
+        """INSERT INTO orders (items, total, customer_email, status, stripe_session_id, user_id)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (json.dumps(items), total, customer_email, status, stripe_session_id, user_id or 0),
     )
     conn.commit()
     conn.close()
     return cur.lastrowid
+
+
+def set_order_stripe_session(order_id, session_id):
+    conn = get_conn()
+    conn.execute("UPDATE orders SET stripe_session_id = ? WHERE id = ?", (session_id, order_id))
+    conn.commit()
+    conn.close()
+
+
+def list_orders_for_user(user_id, email=None, include_email=False):
+    """The orders belonging to an account.
+
+    Orders placed while signed in carry the account id. Orders placed before
+    the member had an account are matched on the email address, but only when
+    that address is verified: otherwise anybody could sign up with somebody
+    else's address and read their orders.
+    """
+    conn = get_conn()
+    if include_email and email:
+        rows = conn.execute(
+            """SELECT * FROM orders
+                WHERE user_id = ? OR (customer_email = ? AND customer_email != '')
+                ORDER BY id DESC""",
+            (user_id, email),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC", (user_id,)
+        ).fetchall()
+    conn.close()
+    out = []
+    for r in rows:
+        row = dict(r)
+        row["items_parsed"] = json.loads(row.get("items") or "[]")
+        out.append(row)
+    return out
 
 
 def set_order_status(order_id, status):
@@ -1154,6 +1753,7 @@ def save_blog_post(post, publish=False):
         "category": post.get("category", ""),
         "status": post.get("status", "draft"),
         "published_at": "",
+        "user_id": int(post.get("user_id") or 0),
     }
 
     if is_new:
@@ -1164,8 +1764,10 @@ def save_blog_post(post, publish=False):
             data["published_at"] = ts
         conn.execute(
             """INSERT INTO blog_posts
-               (slug, title, summary, body, author, author_email, image, category, status, published_at, created_at, updated_at)
-               VALUES (:slug, :title, :summary, :body, :author, :author_email, :image, :category, :status, :published_at, :created_at, :updated_at)""",
+               (slug, title, summary, body, author, author_email, image, category, status,
+                published_at, user_id, created_at, updated_at)
+               VALUES (:slug, :title, :summary, :body, :author, :author_email, :image, :category,
+                       :status, :published_at, :user_id, :created_at, :updated_at)""",
             {**data, "created_at": ts, "updated_at": ts},
         )
         post_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
@@ -1182,17 +1784,37 @@ def save_blog_post(post, publish=False):
             data["published_at"] = cur["published_at"] if cur else ""
         data["slug"] = _unique_slug(conn, base_slug, exclude_id=post_id)
         data["id"] = post_id
+        # An edit must not wipe the submitter's email or the account it came
+        # from: the admin form does not carry those fields, so keep whatever
+        # is already stored.
+        if not data["author_email"]:
+            kept = conn.execute(
+                "SELECT author_email, user_id FROM blog_posts WHERE id = ?", (post_id,)
+            ).fetchone()
+            if kept:
+                data["author_email"] = kept["author_email"] or ""
+                if not data["user_id"]:
+                    data["user_id"] = kept["user_id"] or 0
         conn.execute(
             """UPDATE blog_posts SET
                slug=:slug, title=:title, summary=:summary, body=:body, author=:author,
                author_email=:author_email, image=:image, category=:category, status=:status,
-               published_at=:published_at, updated_at=:updated_at
+               published_at=:published_at, user_id=:user_id, updated_at=:updated_at
                WHERE id=:id""",
             {**data, "updated_at": ts},
         )
     conn.commit()
     conn.close()
     return post_id
+
+
+def list_blog_posts_by_user(user_id):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM blog_posts WHERE user_id = ? ORDER BY id DESC", (user_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 def delete_blog_post(post_id):

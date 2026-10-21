@@ -131,6 +131,20 @@
         <div class="ribbon-rule reveal"></div>
       </section>{% endif %}
 
+      {% if member_testimonials %}
+      <section class="member-testimonials" id="member-testimonials" aria-label="What members say">
+        <h2 class="member-testimonials-title">What our members say</h2>
+        <div class="member-testimonials-grid">
+          {% for t in member_testimonials %}
+          <figure class="member-testimonial">
+            <blockquote><p>{{ t.quote }}</p></blockquote>
+            <figcaption><span class="name">{{ t.name }}</span><span class="role">{{ t.role }}</span></figcaption>
+          </figure>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
       <section class="ethos" id="ethos">
         <div class="reveal">
           {% if cms.ethos.avatar %}<img class="ethos-avatar" src="{{ cms.ethos.avatar }}" alt="{{ cms.ethos.avatar_alt or cms.ethos.from }}" loading="lazy" />{% endif %}
@@ -144,6 +158,8 @@
           <p class="ethos-more"><a href="{{ url_for('about') }}">How it works, what to expect &rarr;</a></p>
         </div>
       </section>
+
+      {% include "partials/waitlist_band.html" %}
 
       {% if settings.get('show_faq_section', '1') != '0' %}<section class="faq" aria-label="Frequently asked questions">
         <h2 class="reveal">{{ cms.faq.prompt_title }}</h2>
@@ -198,7 +214,8 @@
       </section>
 
       {% if cms.custom_blocks.blocks %}
-      <section class="cms-custom-blocks{% if cms.custom_blocks.style %} cms-section--padding-{{ cms.custom_blocks.style.get('padding', 'medium') }} cms-section--align-{{ cms.custom_blocks.style.get('text_align', 'left') }}{% endif %}"{% if cms.custom_blocks.style and cms.custom_blocks.style.get('background') == 'custom' and cms.custom_blocks.style.get('background_custom') %} style="background:{{ cms.custom_blocks.style.background_custom }};"{% elif cms.custom_blocks.style and cms.custom_blocks.style.get('background', 'none') not in ['none', '--cream', '--paper'] %} style="background:var({{ cms.custom_blocks.style.background }});"{% endif %} aria-label="Content blocks">
+      {% set blocks = cms.custom_blocks.blocks %}
+      <section class="cms-custom-blocks{% if cms.custom_blocks.style %} cms-section--padding-{{ cms.custom_blocks.style.get('padding', 'medium') }} cms-section--align-{{ cms.custom_blocks.style.get('text_align', 'left') }}{% endif %}"{% if cms.custom_blocks.style and cms.custom_blocks.style.get('background') == 'custom' and cms.custom_blocks.style.get('background_custom') %} style="background:{{ cms.custom_blocks.style.background_custom }};"{% elif cms.custom_blocks.style and cms.custom_blocks.style.get('background', 'none') not in ['none', '--cream', '--paper'] %} style="background:var({{ cms.custom_blocks.style.background }});"{% endif %}" aria-label="Content blocks">
         {% include "partials/cms_blocks.html" with context %}
       </section>
       {% endif %}

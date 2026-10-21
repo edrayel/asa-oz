@@ -1,0 +1,32 @@
+{% extends "account/base.html" %}
+{% block page_title %}Add a testimonial{% endblock %}
+{% block account_heading %}Add a testimonial{% endblock %}
+{% block account_content %}
+        <p class="account-lede">Tell us what the club has meant for you. We read every one before it goes on the
+           site, and we will ask before we publish it. We publish it under your name once your email address is
+           confirmed — so confirm it if you would like it to appear.</p>
+        <form method="POST" action="{{ url_for('account_testimonial') }}" class="account-form">
+          {{ csrf_input() }}
+          <div class="account-field">
+            <label for="testimonialQuote">Your words</label>
+            <textarea id="testimonialQuote" name="quote" rows="4" required>{{ quote or '' }}</textarea>
+          </div>
+          <div class="account-field">
+            <label for="testimonialRole">How would you describe yourself<small>Optional.</small></label>
+            <input id="testimonialRole" type="text" name="role" placeholder="Community member" />
+          </div>
+          <button class="account-btn" type="submit">Send it</button>
+        </form>
+
+        {% if testimonials %}
+        <h2 class="account-h2">What you have sent</h2>
+        <ul class="account-list">
+          {% for t in testimonials %}
+          <li>
+            <span>{{ t.quote }}</span>
+            <span class="account-badge account-badge-{{ t.status }}">{{ t.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+{% endblock %}

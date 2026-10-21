@@ -138,6 +138,10 @@ details.admin-details .inner{margin-top:0.8rem}
 .admin-scrim{position:fixed;inset:0;z-index:40;background:rgba(43,33,24,0.42);opacity:0;pointer-events:none;transition:opacity .3s ease}
 .admin-scrim.is-open{opacity:1;pointer-events:auto}
 
+/* Wide data tables scroll inside their card instead of pushing the page
+   sideways. This has to hold at every width: with the sidebar docked the
+   content column is narrow even on a large screen. */
+.card{overflow-x:auto}
 @media(max-width:1279px){:root{--admin-sidebar-w:220px}}
 @media(max-width:799px){
   .admin-shell{display:block}
@@ -146,7 +150,5 @@ details.admin-details .inner{margin-top:0.8rem}
   .admin-menu-toggle{display:grid}
   .admin-appbar{gap:0.5rem}
   .admin-wrap{padding:1.25rem 0.9rem 2.5rem}
-  /* Wide data tables scroll inside their card instead of pushing the page sideways. */
-  .card{overflow-x:auto}
 }
 @media(prefers-reduced-motion:reduce){.admin-sidebar,.admin-scrim,.admin-menu,.admin-nav a,.admin-iconbtn,.admin-avatar{transition:none}}

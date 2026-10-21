@@ -20,6 +20,9 @@
         {% endif %}
       {% endfor %}
     </nav>
+    <div class="mobile-menu-account">
+      <a href="{{ url_for('account') if current_user else url_for('account_login') }}">{{ 'My account' if current_user else 'Sign in' }}</a>
+    </div>
     <div class="mobile-menu-social">{{ social_links(20) }}</div>
   </div>
 </div>

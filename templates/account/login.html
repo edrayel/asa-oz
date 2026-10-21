@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sign in | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">{% endblock %}
+{% block main %}
+      <section class="account-hero">
+        <p class="eyebrow">Members</p>
+        <h1>Sign in</h1>
+        <p class="account-lede">Your account keeps your stories, testimonials, feedback and orders in one place.</p>
+      </section>
+
+      <section class="account-section">
+        <div class="account-form-wrap">
+          {% if error %}<p class="account-error" role="alert">{{ error }}</p>{% endif %}
+          <form method="POST" action="{{ url_for('account_login') }}" class="account-form">
+            {{ csrf_input() }}
+            <div class="account-field">
+              <label for="accountLogin">Email or username</label>
+              <input id="accountLogin" type="text" name="login" value="{{ login or '' }}" required autocomplete="username" />
+            </div>
+            <div class="account-field">
+              <label for="accountPassword">Password</label>
+              <input id="accountPassword" type="password" name="password" required autocomplete="current-password" />
+            </div>
+            <button class="account-btn" type="submit">Sign in</button>
+          </form>
+          <p class="account-alt">No account yet? <a href="{{ url_for('account_signup') }}">Create one</a> — it takes a minute.</p>
+        </div>
+      </section>
+{% endblock %}

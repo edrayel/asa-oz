@@ -1,4 +1,10 @@
-/* 404 / 500 error pages — minimal, centred, no other per-page chrome. */
+/* 404 / 500 error pages — minimal, centred, no other per-page chrome.
+
+   This sheet has to stand on its own: the error pages load shared.css (the
+   shell) and this file, but no per-page stylesheet, and every other page
+   stylesheet carries its own tokens, reset and body typography. Without them
+   here the error pages rendered in Times New Roman with an unstyled header
+   that overflowed on tablets. */
 .error-page {
   min-height: 70vh;
   display: flex;

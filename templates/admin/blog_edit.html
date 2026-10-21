@@ -58,7 +58,16 @@
       </div>
       <div class="form-actions">
         <button type="submit" class="btn">Save</button>
+        {% if author_verified is defined and not author_verified %}
+        <p class="form-error" style="margin:0.6rem 0 0;">
+          This story came from an account whose email address is not confirmed, so it
+          cannot be published under that name yet. Ask the member to confirm it, or
+          publish it under a different name.
+        </p>
+        <button type="submit" name="publish" value="1" class="btn btn-ghost" disabled>Save &amp; publish</button>
+        {% else %}
         <button type="submit" name="publish" value="1" class="btn btn-ghost">Save &amp; publish</button>
+        {% endif %}
       </div>
     </div>
   </form>

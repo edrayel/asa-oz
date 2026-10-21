@@ -1,0 +1,120 @@
+{% extends "admin/app.html" %}
+{% block title %}{{ target.username }} - Asa-OZ Admin{% endblock %}
+{% block page_title %}{{ target.full_name or target.username }}{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost" href="{{ url_for('admin_users') }}">All users</a>{% endblock %}
+{% block content %}
+
+  <div class="card">
+    <h2>Account</h2>
+    <table>
+      <tbody>
+        <tr><th>Username</th><td>{{ target.username }}</td></tr>
+        <tr><th>Email</th><td>{{ target.email }}</td></tr>
+        <tr><th>Role</th><td>{{ roles.label(target.role) }}</td></tr>
+        <tr><th>Status</th><td>{{ target.status }}</td></tr>
+        <tr><th>Created</th><td>{{ target.created_at }}</td></tr>
+        <tr><th>Last sign-in</th><td>{{ target.last_login_at or 'Never' }}</td></tr>
+        <tr><th>Email confirmed</th>
+          <td>{% if target.email_verified_at %}Yes — {{ target.email_verified_at }}{% else %}Not yet{% endif %}</td></tr>
+        {% if target.invite_expires_at %}<tr><th>Invitation expires</th><td>{{ target.invite_expires_at }}</td></tr>{% endif %}
+      </tbody>
+    </table>
+    {% if invite_url %}
+    <p class="sub" style="margin:1rem 0 0.4rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">Invitation link</p>
+    <p style="word-break:break-all;font-size:0.85rem;">{{ invite_url }}</p>
+    {% endif %}
+  </div>
+
+  {% if manageable %}
+  {% if target.role == 'member' and not target.email_verified_at %}
+  <div class="card">
+    <h2>Email confirmation</h2>
+    <p class="sub" style="margin-bottom:0.9rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      This member has not confirmed their address, so we cannot show them the orders placed with it and
+      nothing they send us can be published under their name.
+    </p>
+    <form method="POST" action="{{ url_for('admin_user_verify', user_id=target.id) }}">
+      {{ csrf_input() }}
+      <button class="btn" type="submit">Send the confirmation link</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Role</h2>
+    <p class="sub" style="margin-bottom:0.8rem;color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      Changing the role signs this account out of every browser and ends their current session.
+    </p>
+    <form method="POST" action="{{ url_for('admin_user_role', user_id=target.id) }}">
+      {{ csrf_input() }}
+      <div class="control-row">
+        <div class="control-label">Role</div>
+        <select name="role">
+          {% for r in assignable %}
+          <option value="{{ r }}"{% if r == target.role %} selected{% endif %}>{{ roles.label(r) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn" type="submit">Save role</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Access</h2>
+    <form method="POST" action="{{ url_for('admin_user_status', user_id=target.id) }}" style="margin-bottom:1rem;">
+      {{ csrf_input() }}
+      <input type="hidden" name="status" value="suspended" />
+      <button class="btn btn-danger" type="submit"
+              {% if target.status == 'suspended' %}disabled{% endif %}>Suspend account</button>
+      <span class="sub" style="margin-left:0.6rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">Suspending ends the session immediately.</span>
+    </form>
+    <form method="POST" action="{{ url_for('admin_user_status', user_id=target.id) }}" style="margin-bottom:1rem;">
+      {{ csrf_input() }}
+      <input type="hidden" name="status" value="active" />
+      <button class="btn" type="submit" {% if target.status == 'active' %}disabled{% endif %}>Reactivate account</button>
+    </form>
+    <form method="POST" action="{{ url_for('admin_user_invite', user_id=target.id) }}">
+      {{ csrf_input() }}
+      <button class="btn btn-ghost" type="submit">Send a new invitation</button>
+      <span class="sub" style="margin-left:0.6rem;color:var(--muted,#8c7d6d);font-size:0.85rem;">Issues a fresh link and resets the password. The current password stops working.</span>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Danger zone</h2>
+    <form method="POST" action="{{ url_for('admin_user_delete', user_id=target.id) }}"
+          onsubmit="return confirm('Remove this account permanently?')">
+      {{ csrf_input() }}
+      <button class="btn btn-danger" type="submit">Delete account</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="card">
+    <p class="sub" style="color:var(--muted,#8c7d6d);font-size:0.9rem;">
+      You cannot change this account: it holds a role at or above your own.
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Recent activity</h2>
+    {% if audit %}
+    <table>
+      <thead><tr><th>When</th><th>Who</th><th>What</th><th>Detail</th></tr></thead>
+      <tbody>
+        {% for a in audit %}
+        <tr>
+          <td>{{ a.at }}</td>
+          <td>{{ a.actor or '—' }}</td>
+          <td>{{ a.action }}</td>
+          <td>{{ a.target }}{% if a.detail %} <small>{{ a.detail }}</small>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">Nothing logged yet.</p>
+    {% endif %}
+  </div>
+
+{% endblock %}

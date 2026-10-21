@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Set your password | Asa-OZ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">{% endblock %}
+{% block main %}
+      <section class="store-hero">
+        {% if error %}
+        <p class="eyebrow reveal">Invitation</p>
+        <h1 class="reveal">This invitation cannot be used</h1>
+        <p class="lede reveal">{{ error }}</p>
+        {% else %}
+        <p class="eyebrow reveal">Welcome{{ ', ' ~ user.full_name if user.full_name else '' }}</p>
+        <h1 class="reveal">Set your password</h1>
+        <p class="lede reveal">
+          You have been invited to the Asa-OZ admin as
+          <strong>{{ roles.label(user.role) }}</strong>. Choose a password of at least
+          12 characters to activate the account.
+        </p>
+        <form method="POST" action="{{ url_for('invite_accept', token=user.invite_token) }}"
+              style="max-width:26rem;margin:1.6rem auto 0;text-align:left;">
+          {{ csrf_input() }}
+          <div class="control-row">
+            <div class="control-label">Password<small>At least 12 characters</small></div>
+            <input type="password" name="password" autocomplete="new-password" minlength="12" required />
+          </div>
+          <div class="control-row">
+            <div class="control-label">Confirm password</div>
+            <input type="password" name="confirm" autocomplete="new-password" minlength="12" required />
+          </div>
+          <button class="page-btn" type="submit" style="margin-top:1rem;">Activate my account</button>
+        </form>
+        {% endif %}
+      </section>
+
+      <section class="page-section narrow">
+        <div class="page-cta reveal" style="justify-content:center; text-align:center;">
+          <a href="{{ url_for('index') }}" class="page-btn page-btn-ghost">Back to the home page</a>
+        </div>
+      </section>
+{% endblock %}
