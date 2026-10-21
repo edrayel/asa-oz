@@ -1,7 +1,11 @@
 /* Member account pages — sign in, sign up, overview, orders, profile. */
 
 a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* The site's convention for a text link is a colour change on hover, not an
+   underline: a blanket `a:hover` here underlined the header navigation and
+   the sign-in link as well, which no other page does. */
+.account-content a:hover,
+.account-form-wrap a:hover { color: var(--espresso); }
 
 .sr-only {
   position: absolute;
