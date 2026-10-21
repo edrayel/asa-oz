@@ -1282,15 +1282,23 @@ html {
 /* ---------- Captcha ----------
    The ALTCHA widget: a proof-of-work puzzle the browser solves in the
    background. No account, no API key, no third-party request. */
-/* The widget is not inline in the form: it is a floating indicator that
-   appears under the submit button when the form is sent. The host element
-   therefore takes no space and is not a positioning context, so the panel
-   lands where the widget puts it. */
+/* The widget draws nothing: the site shows its own one-line note under the
+   submit button while the proof of work is being solved. */
 .captcha-widget {
   display: block;
   height: 0;
   margin: 0;
-  max-width: 320px;
-  overflow: visible;
+  overflow: hidden;
 }
+.captcha-note {
+  flex: 0 0 100%; /* its own line, even in a form that is a flex row */
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--muted, #7d6e5b);
+  min-height: 1.15rem;
+}
+.captcha-note.is-checking { color: var(--tobacco, #6f5a3f); }
+.captcha-note.is-done { color: var(--sage-deep, #5f6d3d); }
+.captcha-note.is-failed { color: #b5482c; }
 /* The host is zero-height in every form, so it needs no special spacing. */

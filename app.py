@@ -122,23 +122,30 @@ ENDPOINT_PAGE = {
 
 
 def captcha_script():
-    """The tag that loads the ALTCHA widget. Served from this site."""
+    """The scripts the captcha needs: the widget and the driver that runs it.
+
+    Both are served from this site, so no visitor data goes to a third
+    party. The driver is a separate file because the admin pages do not
+    load site.js.
+    """
     return Markup(
         '<script async defer type="module" src="%s"></script>'
-        % url_for("static", filename="js/altcha.min.js")
+        '<script defer src="%s"></script>'
+        % (url_for("static", filename="js/altcha.min.js"),
+           url_for("static", filename="js/captcha.js"))
     )
 
 
 def captcha_field():
     """The widget itself: a proof-of-work puzzle the browser solves."""
-    # type="native" is the quiet bar that solves itself; auto="onsubmit" means
-    # the proof of work is only computed when the form is actually sent.
-    # display="floating" keeps it out of the form: nothing is shown until the
-    # visitor presses the button, and then the indicator appears under it.
+    # The widget is silent (auto="off", display="invisible") and is driven by
+    # the site's own script: the first submit is held back, the proof of work
+    # is solved, and only then is the form sent. Doing it here means the same
+    # flow works for a plain form, an HTMX form and the forms this site
+    # submits with fetch — the widget's own submit handling does not.
     return Markup(
         '<altcha-widget class="captcha-widget" challenge="%s" name="altcha" '
-        'type="native" auto="onsubmit" display="floating" floatingPlacement="bottom" '
-        'style="--altcha-max-width: 320px; --altcha-border-radius: 12px;"></altcha-widget>'
+        'auto="off" display="invisible"></altcha-widget>'
         % url_for("captcha_challenge")
     )
 

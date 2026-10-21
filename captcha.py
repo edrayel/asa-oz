@@ -25,8 +25,10 @@ import altcha
 
 # How hard the puzzle is: the browser has to find a number below this, by
 # brute force. 100,000 is a fraction of a second for a real browser and
-# noticeable for a bot that submits in bulk.
-MAX_NUMBER = 100_000
+# noticeable for a bot that submits in bulk. It can be raised for testing
+# (the widget then takes visibly longer, which is handy when checking
+# what the visitor sees while it solves).
+MAX_NUMBER = int(os.environ.get("CAPTCHA_MAX_NUMBER", "100000"))
 CHALLENGE_TTL = datetime.timedelta(minutes=10)
 ALGORITHM = "SHA-256"
 
