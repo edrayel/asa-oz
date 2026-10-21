@@ -532,9 +532,9 @@ class Audit:
             # remove it again: a test link in the navigation reads like a
             # mistake, and the next run would add another one
             page.goto(base + "/admin/navigation", wait_until="domcontentloaded")
-            row = page.locator("tr", has_text="E2E nav item")
+            row = page.locator("li.nav-item", has_text="E2E nav item")
             if row.count():
-                remove = row.first.locator("form[action*='navigation'] button").last
+                remove = row.first.locator("form[action*='navigation'] button.btn-danger")
                 if remove.count():
                     # the row's delete button asks for confirmation
                     page.once("dialog", lambda dialog: dialog.accept())
