@@ -525,10 +525,19 @@ class Audit:
         events.clear()
         nav = page.locator("form[action*='navigation']").first
         if nav.count():
-            nav.locator("input[name='label']").first.fill("E2E Audit Link")
+            nav.locator("input[name='label']").first.fill("E2E nav item")
             nav.locator("input[name='url']").first.fill("/about")
             nav.locator("button[type=submit], input[type=submit]").first.click()
             page.wait_for_load_state("domcontentloaded")
+            # remove it again: a test link in the navigation reads like a
+            # mistake, and the next run would add another one
+            page.goto(base + "/admin/navigation", wait_until="domcontentloaded")
+            row = page.locator("tr", has_text="E2E nav item")
+            if row.count():
+                remove = row.first.locator("form[action*='navigation'] button").last
+                if remove.count():
+                    remove.click()
+                    page.wait_for_load_state("domcontentloaded")
         self.absorb(events, base + "/admin/navigation", "interact")
 
     def _admin_brand(self, page, events, base) -> None:

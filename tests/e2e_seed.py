@@ -64,10 +64,12 @@ def main() -> int:
     if existing:
         db.delete_file(existing["id"])
     db.add_file("images/wall-of-memories/seed.jpg", "seed.jpg", "image", 1024, "image/jpeg", "upload")
+    # No navigation item is seeded: the header falls back to its built-in
+    # list, which is what the real site shows with an empty CMS navigation.
+    # A test link in the nav reads like a mistake.
     for item in db.list_navigation():
-        if item["label"] == "Audit Link":
+        if "audit" in (item["label"] or "").lower():
             db.delete_navigation_item(item["id"])
-    db.save_navigation_item(0, "Audit Link", "/about", 99, True)
     db.save_dynamic_page("e2e-audit-page", "E2E audit page", "A seeded dynamic page.", "default", True)
     db.save_blog_post({
         "title": "Seeded audit story",

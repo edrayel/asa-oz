@@ -28,7 +28,7 @@ from playwright.sync_api import sync_playwright
 
 PAGES = [
     "/", "/about", "/faq", "/blog", "/blog/submit", "/terms", "/privacy",
-    "/policies", "/contact", "/store",
+    "/policies", "/contact", "/store", "/account/login", "/account/signup",
 ]
 
 ADMIN_PAGES = ["/admin", "/admin/pages", "/admin/blog", "/admin/settings", "/admin/users"]
