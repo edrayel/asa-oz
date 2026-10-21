@@ -17,9 +17,12 @@
       el.className = 'captcha-note';
       el.setAttribute('role', 'status');
       el.setAttribute('aria-live', 'polite');
-      var button = form.querySelector('button[type="submit"], input[type="submit"]');
-      if (button) {
-        button.insertAdjacentElement('afterend', el);
+      // The note is a sibling of the form, not a child of it: that keeps
+      // it out of whatever layout the form uses (a flex row, a grid, a
+      // container with its own padding) and puts it right under the form,
+      // where the visitor expects the reply.
+      if (form.parentNode) {
+        form.insertAdjacentElement('afterend', el);
       } else {
         form.appendChild(el);
       }
