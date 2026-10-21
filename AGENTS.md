@@ -63,8 +63,11 @@ gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 120 app:app
   development database, `instance/asaoz.sqlite3`; `tests/e2e_server.py` (port 5055)
   runs a throwaway fixture with seeded content. The words on the site live in the
   database, so the local dev copy drifts behind the live one — copy it across with
-  `.venv/bin/python tests/db_sync_copy.py --from <live.sqlite3> --to instance/asaoz.sqlite3 --apply`
-  (the live copy comes from the VPS, see § 11.4).
+  `.venv/bin/python tests/db_sync_copy.py --from <live.sqlite3> --to instance/asaoz.sqlite3 --scope copy --apply`
+  (the live copy comes from the VPS, see § 11.4). `--scope activity` pulls what
+  people wrote or bought across instead: feedback, bookings, contacts, subscribers,
+  orders, the waitlist and the email log. `--replace` makes the local rows match
+  the live ones exactly.
 - **End-to-end audit harness.** `tests/e2e_server.py` runs the app against an isolated
   database (no mail, no Drive), `tests/e2e_seed.py` fills it with representative content,
   and `tests/e2e_audit.py` crawls every public and admin page at desktop, tablet and
