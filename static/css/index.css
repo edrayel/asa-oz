@@ -552,15 +552,17 @@
     .msg.show, .msg:not(:empty) { display: flex; }
     .msg .join-confirmation { max-width: min(460px, 92vw); position: relative; }
     .join-close {
-      position: absolute; top: 0.75rem; right: 0.85rem;
-      width: 2.2rem; height: 2.2rem; border-radius: 50%;
-      background: rgba(43, 33, 24, 0.06); border: none;
-      font-size: 1.3rem; line-height: 1; color: var(--ink); cursor: pointer;
-      padding: 0; opacity: 0.6; display: grid; place-items: center;
-      transition: background 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease);
+      position: absolute; top: 1rem; right: 1rem;
+      width: 2rem; height: 2rem;
+      border: none; border-radius: 50%;
+      background: transparent; color: var(--ink);
+      cursor: pointer; padding: 0;
+      display: grid; place-items: center;
+      opacity: 0.45;
+      transition: opacity 0.18s var(--ease), background 0.18s var(--ease);
     }
-    .join-close::before { content: "×"; font-weight: 300; transform: translateY(-0.04em); }
-    .join-close:hover { opacity: 0.9; background: rgba(43, 33, 24, 0.12); transform: scale(1.06); }
+    .join-close svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+    .join-close:hover { opacity: 0.8; background: rgba(43, 33, 24, 0.07); }
     .cta-alt {
       margin-top: 1rem;
       font-size: 0.9rem;
