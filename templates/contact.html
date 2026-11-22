@@ -39,9 +39,9 @@
               <textarea id="cMessage" name="message" rows="4" required placeholder="{{ cms.form.message_placeholder }}"></textarea>
             </div>
             <button type="submit" class="submit-btn">{{ cms.form.submit }}</button>
+            {{ captcha_field() }}
             <p class="form-msg" id="contactMsg" role="status" aria-live="polite"></p>
           </form>
-          {{ captcha_field() }}
         </div>
       </section>
 {% endblock %}

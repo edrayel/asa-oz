@@ -15,8 +15,8 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" autocomplete="current-password" required />
         <button type="submit" class="btn">Sign in</button>
+        {{ captcha_field() }}
       </form>
-      {{ captcha_field() }}
       <p class="login-foot"><a href="{{ url_for('index') }}">&larr; Back to site</a></p>
     </div>
   </div>

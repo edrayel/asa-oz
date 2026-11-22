@@ -39,7 +39,7 @@
             <textarea name="body" rows="10" required placeholder="Tell us what happened...">{{ form.get('body','') }}</textarea>
           </label>
           <button type="submit" class="page-btn">Submit story</button>
+          {{ captcha_field() }}
         </form>
-        {{ captcha_field() }}
       </section>
 {% endblock %}

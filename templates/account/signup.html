@@ -34,8 +34,8 @@
               <input id="signupConfirm" type="password" name="confirm" required minlength="12" autocomplete="new-password" />
             </div>
             <button class="account-btn" type="submit">Create my account</button>
+            {{ captcha_field() }}
           </form>
-          {{ captcha_field() }}
           <p class="account-alt">Already have one? <a href="{{ url_for('account_login') }}">Sign in</a>.</p>
         </div>
       </section>

@@ -426,7 +426,8 @@
       line-height: 1.02;
       letter-spacing: -0.015em;
       color: var(--espresso);
-      max-width: 19ch;
+      max-width: none;
+      white-space: nowrap;
       margin-inline: auto;
       margin-bottom: clamp(1.4rem, 3vw, 2rem);
     }
@@ -513,12 +514,14 @@
       transition: background 0.35s var(--ease), transform 0.35s var(--ease);
     }
     .signup button:hover { background: var(--sage-deep); transform: translateY(-1px); }
-     .signup .note {
-       margin-top: 0.9rem;
-       font-size: 0.82rem;
-       color: var(--ink);
-       padding-left: 0.4rem;
-     }
+      .note {
+        margin-top: 0.9rem;
+        font-size: 0.82rem;
+        color: var(--ink);
+        text-align: center;
+        margin-inline: auto;
+        max-width: 60ch;
+      }
     .signup .msg {
       margin-top: 0.9rem;
       font-size: 0.9rem;
@@ -533,6 +536,27 @@
        submitted fine but the visitor saw no feedback at all. */
     .signup .msg.show,
     .signup .msg:not(:empty) { opacity: 1; transform: none; }
+    /* When the reply lands outside the white container, render it as a
+       centred modal popup instead of inline text under the form. */
+    .msg {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 1.5rem;
+      background: rgba(43, 33, 24, 0.35);
+      backdrop-filter: blur(6px);
+    }
+    .msg.show, .msg:not(:empty) { display: flex; }
+    .msg .join-confirmation { max-width: min(460px, 92vw); position: relative; }
+    .join-close {
+      position: absolute; top: 0.55rem; right: 0.8rem;
+      background: none; border: none; font-size: 1.6rem; line-height: 1;
+      color: var(--ink); cursor: pointer; padding: 0; opacity: 0.6;
+    }
+    .join-close:hover { opacity: 1; }
     .cta-alt {
       margin-top: 1rem;
       font-size: 0.9rem;
@@ -1504,7 +1528,7 @@
 
     /* ---------- Print ---------- */
     @media print {
-      .ambience, .grain, .signup form, .signup .note, .signup .msg { display: none !important; }
+       .ambience, .grain, .signup form, .note, .signup .msg { display: none !important; }
       body { background: #fff; color: #000; }
       * { animation: none !important; transition: none !important; }
     }

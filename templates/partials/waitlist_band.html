@@ -15,8 +15,8 @@
       <input id="waitlistEmail" type="email" name="email" placeholder="you@example.com" required />
       <input type="hidden" name="source" value="waitlist-band" />
       <button type="submit" class="page-btn">Join the waitlist</button>
+      {{ captcha_field() }}
     </form>
-    {{ captcha_field() }}
     <p class="msg" id="waitlistMsg" role="status" aria-live="polite"></p>
   </div>
 </section>

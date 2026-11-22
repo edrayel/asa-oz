@@ -37,14 +37,13 @@
                 <div class="field-row">
                   <input id="name" type="text" name="name" placeholder="{{ cms.signup.name_placeholder }}" aria-label="Name" autocomplete="name" />
                   <input id="email" type="email" name="email" placeholder="{{ cms.signup.email_placeholder }}" aria-label="Email address" autocomplete="email" required />
-                </div>
+               </div>
+                {{ captcha_field() }}
                 <button type="submit">{{ cms.signup.button }}</button>
-              </div>
-            </form>
-            {{ captcha_field() }}
-            <p class="note">{{ cms.signup.note }}</p>
+              </form>
+            </div>
             <div class="msg" id="formMsg" role="status" aria-live="polite"></div>
-          </div>
+            <p class="note">{{ cms.signup.note }}</p>
         {% endif %}
         </div>
 
@@ -209,9 +208,9 @@
               <textarea id="fbText" name="text" rows="4" placeholder="{{ cms.feedback.feedback_placeholder }}" required></textarea>
             </div>
             <button type="submit" class="feedback-submit">{{ cms.feedback.submit }}</button>
+            {{ captcha_field() }}
             <p class="feedback-msg" id="feedbackMsg" role="status" aria-live="polite"></p>
           </form>
-          {{ captcha_field() }}
         </div>
       </section>
 

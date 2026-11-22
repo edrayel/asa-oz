@@ -1,4 +1,5 @@
-<div class="join-confirmation{% if variant == 'error' %} is-error{% endif %}" role="status">
+<div class="join-confirmation{% if variant == 'error' %} is-error{% endif %}" role="status" aria-modal="true" aria-label="Confirmation">
+  <button type="button" class="join-close" aria-label="Close"><span>×</span></button>
   <div class="confirm-icon" aria-hidden="true">{% if variant == 'error' %}&#9888;{% else %}&#10003;{% endif %}</div>
   <h4>{{ title }}</h4>
   <p>{{ body }}</p>

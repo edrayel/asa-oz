@@ -71,6 +71,8 @@ def verify(payload: str) -> tuple[bool, str | None]:
     """Check a solved challenge. Returns (ok, reason)."""
     if not payload:
         return False, "missing"
+    if not payload_is_fresh(payload):
+        return False, "expired"
     try:
         valid, error = altcha.verify_solution_v1(payload, _secret_key())
     except Exception as exc:  # noqa: BLE001 - a broken payload must not 500
@@ -123,4 +125,19 @@ def payload_is_fresh(payload: str) -> bool:
         raw = base64.b64decode(payload).decode("utf-8")
     except Exception:  # noqa: BLE001
         return False
-    return "expires=" in raw or True
+    # ALTCHA embeds the expiry as a Unix timestamp in the salt
+    # ("...?expires=1234567890&"), so look for it there first.
+    import re
+    match = re.search(r"expires=(\d+)", raw)
+    if match:
+        when = datetime.datetime.fromtimestamp(int(match.group(1)), tz=datetime.timezone.utc)
+        return when > datetime.datetime.now(datetime.timezone.utc)
+    try:
+        data = json.loads(raw)
+    except Exception:  # noqa: BLE001
+        return False
+    expires = data.get("expires")
+    if not expires:
+        return False
+    # ... (fallback) ...
+    return False

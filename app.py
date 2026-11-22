@@ -138,6 +138,9 @@ def captcha_script():
 
 def captcha_field():
     """The widget itself: a proof-of-work puzzle the browser solves."""
+    import captcha
+    if not captcha.enabled():
+        return Markup("")
     # The widget's own UI: a checkbox with a circular progress spinner
     # while the proof of work is being solved. It starts invisible and is
     # switched to "standard" by the driver when the form is submitted.

@@ -386,6 +386,17 @@
     var form = document.getElementById(formId);
     if (!form) return;
     form.addEventListener('submit', function (e) {
+      // If a captcha is attached, solve it first. The captcha driver
+      // (captcha.js) does the solving and then re-submits the form, so
+      // this listener is only reached on the second attempt.
+      var widget = form.nextElementSibling;
+      while (widget && widget.tagName !== 'ALTCHA-WIDGET') {
+        widget = widget.nextElementSibling;
+      }
+      if (widget && form.dataset.captchaVerified !== '1') {
+        // The captcha driver will handle this submit. Let it.
+        return;
+      }
       e.preventDefault();
       var msg = document.getElementById(msgId);
       var fd = new FormData(form);
@@ -412,5 +423,7 @@
       var m = document.getElementById('formMsg');
       if (m) m.classList.add('show');
     });
+    var journeyClose = document.querySelector('.join-close');
+    if (journeyClose) journeyClose.addEventListener('click', function () { var m = document.getElementById('formMsg'); if (m) m.innerHTML = ''; });
   }
 })();

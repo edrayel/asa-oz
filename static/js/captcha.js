@@ -22,12 +22,7 @@
   document.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form || form.tagName !== 'FORM') return;
-    // The widget is a sibling of the form, not a child of it, so it does
-    // not sit inside the form's own layout.
-    var widget = form.nextElementSibling;
-    while (widget && widget.tagName !== 'ALTCHA-WIDGET') {
-      widget = widget.nextElementSibling;
-    }
+    var widget = form.querySelector('altcha-widget');
     if (!widget) return;
     if (form.dataset.captchaVerified === '1') {
       // The second attempt — the real one — is left alone.
