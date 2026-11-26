@@ -79,6 +79,22 @@
     </div>
 
     <div class="card">
+      <h2>Site popup</h2>
+      <div class="control-row">
+        <div class="control-label">Show popup<small>Display a modal popup to visitors shortly after they land on the site</small></div>
+        <input type="checkbox" name="popup_enabled" value="1" {% if settings.get('popup_enabled', '1') == '1' %}checked{% endif %} />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Popup image<small>Path or URL of the image to show (e.g. /images/social-posts/thanksgiving-post-asaoz-20261126.jpg)</small></div>
+        <input type="text" name="popup_image" value="{{ settings.get('popup_image', '') }}" style="width:100%;max-width:420px;" />
+      </div>
+      <div class="control-row">
+        <div class="control-label">Delay (seconds)<small>Seconds to wait before showing the popup (1–2 recommended)</small></div>
+        <input type="number" name="popup_delay" step="0.5" min="0.5" max="10" value="{{ settings.get('popup_delay', '2') }}" style="width:80px;" />
+      </div>
+    </div>
+
+    <div class="card">
       <button class="btn" type="submit">Save settings</button>
     </div>
   </form>

@@ -108,11 +108,38 @@
       </div>
     </div>
   </aside>
+  {% if settings.get('popup_enabled', '0') == '1' and settings.get('popup_image') %}
+  <div class="site-popup" id="sitePopup" role="dialog" aria-modal="true" aria-label="Site announcement">
+    <div class="site-popup-backdrop" id="sitePopupBackdrop"></div>
+    <div class="site-popup-card">
+      <button class="site-popup-close" id="sitePopupClose" type="button" aria-label="Close">&times;</button>
+      <img src="{{ settings.get('popup_image') }}" alt="Site announcement" />
+    </div>
+  </div>
+  {% endif %}
   {% block overlays %}{% endblock %}
   {% endblock %}
 
   <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/autogrow.js') }}" defer></script>
+  {% if settings.get('popup_enabled', '0') == '1' and settings.get('popup_image') %}
+  <script>
+  (function(){
+    var popup = document.getElementById('sitePopup');
+    if (!popup) return;
+    var s = window.ASA_SETTINGS || {};
+    var delay = parseFloat(s.popup_delay || '2') * 1000;
+    if (isNaN(delay)) delay = 2000;
+    delay = Math.max(500, Math.min(delay, 10000));
+    function close(){ popup.classList.remove('is-open'); }
+    var backdrop = document.getElementById('sitePopupBackdrop');
+    var btn = document.getElementById('sitePopupClose');
+    if (backdrop) backdrop.addEventListener('click', close);
+    if (btn) btn.addEventListener('click', close);
+    setTimeout(function(){ popup.classList.add('is-open'); }, delay);
+  })();
+  </script>
+  {% endif %}
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -851,9 +851,10 @@ def journey_subscribe():
         # Rendered as a card, not a caption: the old one-line <p> was small
         # and italic, so visitors assumed nothing had happened.
         return render_template("partials/journey_confirm.html", variant="error",
-                               title="That email address isn't valid",
-                               body="Please enter a valid email address and try again.",
-                               hint="Check for a missing @ or a typo.")
+                                title="That email address isn't valid",
+                                body="Please enter a valid email address and try again.",
+                                hint="Check for a missing @ or a typo.",
+                                closable=False)
 
     sub = db.subscribe_journey(email, name, journey_stage, source)
     if sub["is_new"]:
@@ -2051,8 +2052,16 @@ def _form_indexes(form, prefix):
 @csrf.require_csrf
 def admin_settings():
     if request.method == "POST":
-        boolean_keys = list(db.DEFAULT_SETTINGS.keys())
+        boolean_keys = [k for k in db.DEFAULT_SETTINGS.keys()
+                        if k not in ("popup_image", "popup_delay")]
         mapping = {k: ("1" if k in request.form else "0") for k in boolean_keys}
+        mapping["popup_image"] = (request.form.get("popup_image", "") or "").strip() \
+            or db.DEFAULT_SETTINGS.get("popup_image", "")
+        try:
+            delay = float(request.form.get("popup_delay", db.DEFAULT_SETTINGS.get("popup_delay", "2")))
+        except (TypeError, ValueError):
+            delay = float(db.DEFAULT_SETTINGS.get("popup_delay", "2"))
+        mapping["popup_delay"] = str(max(0.5, min(delay, 10)))
         db.set_settings(mapping)
         db.prune_settings(db.DEFAULT_SETTINGS.keys())
         flash("Settings saved.")
@@ -2328,7 +2337,7 @@ def admin_brand():
         brand = json.loads(raw) if raw else {}
     except (ValueError, TypeError):
         brand = {}
-    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": ""}
+    defaults = {"logo": "/images/AsaOZ_black_logo_transparent.png", "logo_alt": "Asa-OZ", "favicon": ""}
     defaults.update(brand)
     return render_template("admin/brand.html", brand=defaults, media=_media_library())
 
@@ -2341,7 +2350,7 @@ def _inject_nav_and_brand():
         brand = json.loads(raw) if isinstance(raw, str) else raw
     except (ValueError, TypeError):
         brand = {}
-    defaults = {"logo": "", "logo_alt": "Asa-OZ", "favicon": ""}
+    defaults = {"logo": "/images/AsaOZ_black_logo_transparent.png", "logo_alt": "Asa-OZ", "favicon": ""}
     defaults.update(brand if brand else {})
     return {
         "nav_items": nav,

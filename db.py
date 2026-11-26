@@ -244,6 +244,11 @@ DEFAULT_SETTINGS = {
     # no account and no API key, and it is what stops the feedback and
     # contact spam. "0" turns it off (for debugging a submission).
     "captcha_enabled": "1",
+    # Site-wide popup modal. "1" shows the modal to visitors shortly after
+    # landing. The image path and delay (seconds) are editable here too.
+    "popup_enabled": "1",
+    "popup_image": "/images/social-posts/thanksgiving-post-asaoz-20261126.jpg",
+    "popup_delay": "2",
 }
 
 DEFAULT_PRODUCTS = [

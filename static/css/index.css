@@ -544,25 +544,25 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 60;
-      padding: 1.5rem;
-      background: rgba(43, 33, 24, 0.35);
-      backdrop-filter: blur(6px);
+       z-index: 1000;
+       padding: 1.5rem;
+       background: rgba(43, 33, 24, 0.6);
+       backdrop-filter: blur(8px);
     }
     .msg.show, .msg:not(:empty) { display: flex; }
     .msg .join-confirmation { max-width: min(460px, 92vw); position: relative; }
     .join-close {
-      position: absolute; top: 1rem; right: 1rem;
-      width: 2rem; height: 2rem;
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      width: 1.75rem; height: 1.75rem;
       border: none; border-radius: 50%;
       background: transparent; color: var(--ink);
       cursor: pointer; padding: 0;
       display: grid; place-items: center;
-      opacity: 0.45;
+      opacity: 0.5;
       transition: opacity 0.18s var(--ease), background 0.18s var(--ease);
     }
-    .join-close svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
-    .join-close:hover { opacity: 0.8; background: rgba(43, 33, 24, 0.07); }
+    .join-close svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+    .join-close:hover { opacity: 0.85; background: rgba(43, 33, 24, 0.07); }
     .cta-alt {
       margin-top: 1rem;
       font-size: 0.9rem;

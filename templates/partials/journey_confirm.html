@@ -1,7 +1,9 @@
 <div class="join-confirmation{% if variant == 'error' %} is-error{% endif %}" role="status" aria-modal="true" aria-label="Confirmation">
+  {% if closable is not defined or closable %}
   <button type="button" class="join-close" aria-label="Close">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
+  {% endif %}
   <div class="confirm-icon" aria-hidden="true">{% if variant == 'error' %}&#9888;{% else %}&#10003;{% endif %}</div>
   <h4>{{ title }}</h4>
   <p>{{ body }}</p>
